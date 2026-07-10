@@ -1,0 +1,93 @@
+nombre: "IVAN DAVID CARDONA"
+titulo: "INGENIERO DE SISTEMAS"
+
+contacto:
+  telefono: "304 558 7767"
+  email: "idcm@hotmail.es"
+  linkedin: "https://n9.cl/lajpr"
+
+perfil: |
+  Soy Ingeniero de Sistemas con formación complementaria en Seguridad Informática y
+  experiencia práctica en soporte técnico a usuarios, atención de incidentes y
+  acompañamiento de la infraestructura tecnológica de organizaciones que no pueden
+  detenerse. He trabajado de cerca con personas que necesitan una respuesta clara
+  cuando algo no funciona: escucho con paciencia, diagnostico con método y dejo
+  registro de lo que hice para que el caso no se pierda en el camino. Conozco el
+  manejo de entornos Windows y Linux, el seguimiento de redes y servicios, la
+  actualización de inventarios de hardware y software, y la importancia de cumplir
+  las políticas de seguridad de la información en cada actividad de soporte. En mi
+  trayectoria he apoyado mantenimientos preventivos, documentado cambios e
+  incidentes, y escalado casos al equipo especializado cuando la situación lo
+  requería. Me mueve el servicio bien hecho: resolver con calidad, comunicar con
+  respeto y contribuir a que la comunidad usuaria tenga herramientas estables para
+  cumplir su labor. Busco integrarme al Departamento de Tecnologías de Información
+  y la Comunicación de la UNAB como Auxiliar administrativo TIC, con disposición
+  para la modalidad presencial en Bucaramanga y el compromiso de aportar desde el
+  primer día con actitud proactiva, orden y sentido de responsabilidad.
+
+experiencia:
+  - cargo: "ANALISTA TIC"
+    empresa: "Organizacion Servicios y Asesorias"
+    periodo: "Marzo 2025 - Junio 2026"
+    rol: "Análista de soporte y Seguridad Informatica"
+    bullets:
+      - "Soporte técnico de primer nivel a usuarios internos: recepción, diagnóstico y resolución de incidentes en plataformas y servicios TIC."
+      - "Documentación de solicitudes atendidas, fallos corregidos y casos escalados al equipo especializado."
+      - "Aplicación de políticas de seguridad informática en el soporte diario y en los desarrollos del área."
+      - "Apoyo en tareas de mantenimiento y mejora de la infraestructura tecnológica corporativa."
+
+  - cargo: "Profesional Auditorias Tecnología de la información"
+    empresa: "Financiera Comultrasan"
+    periodo: "Sep 2023 - Ene 2025"
+    bullets:
+      - "Seguimiento y registro de hallazgos e incidentes tecnológicos en auditorías internas de TI."
+      - "Evaluación de disponibilidad y continuidad de servicios, con reporte oportuno de anomalías detectadas."
+      - "Gestión y actualización de información sobre activos tecnológicos, controles y bases de datos operativas."
+      - "Pruebas de rendimiento sobre plataformas en producción y documentación formal de resultados."
+      - "Apoyo en el cumplimiento de políticas de seguridad de la información y controles internos."
+
+  - cargo: "Ingeniero de Sistemas / Auditor Interno"
+    empresa: "Constructodo de la Guajira S.A.S"
+    periodo: "Nov 2019 - May 2023"
+    bullets:
+      - "Atención estructurada de requerimientos internos y soporte en la organización de procesos del área de sistemas."
+      - "Diseño de políticas de seguridad alineadas a la operación tecnológica de la organización."
+      - "Elaboración de reportes y métricas de seguimiento para la gestión y mejora de servicios TIC."
+
+formacion_academica:
+  - titulo: "Especialista en Seguridad Informática"
+    institucion: "Corporación Universitaria Minuto de Dios"
+    periodo: "2023"
+  - titulo: "Ingeniero de Sistemas"
+    institucion: "Universidad Popular del César"
+    periodo: "2022 | TP Vigente"
+  - titulo: "Técnico en Análisis y Desarrollo de Sistemas"
+    institucion: "Uparsistem"
+    periodo: "2014"
+
+formacion_complementaria:
+  - titulo: "AUDITOR INTERNO ISO/IEC 27001:2022 (32 horas)"
+    institucion: "SGS Academy"
+    periodo: "2023"
+  - titulo: "Auditor Interno en Sistemas Integrados (32 horas)"
+    institucion: "Eidec"
+    periodo: "2022"
+  - titulo: "Sistemas Integrados de Gestión (120 horas)"
+    institucion: "Eidec"
+    periodo: "2022"
+
+conocimientos:
+  - "Soporte técnico primer nivel."
+  - "Redes e infraestructura."
+  - "Windows / Linux."
+  - "ISO 27001."
+  - "ITIL."
+  - "Inventarios TIC."
+  - "SQL."
+  - "Bases de datos."
+  - "Documentación de incidentes."
+  - "Excel."
+  - "Power BI."
+  - "Scrum."
+
+referencias: "Referencias a solicitud"
