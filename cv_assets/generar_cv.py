@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_LEFT
+from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
@@ -197,10 +197,21 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
         "Body",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=9,
-        leading=12,
+        fontSize=9.2,
+        leading=13,
         textColor=MAIN_TEXT,
+        alignment=TA_JUSTIFY,
+        spaceAfter=2,
+    )
+    subtitle_style = ParagraphStyle(
+        "Subtitle",
+        parent=styles["Normal"],
+        fontName="Helvetica-Oblique",
+        fontSize=9.5,
+        leading=12,
+        textColor=MUTED_TEXT,
         alignment=TA_LEFT,
+        spaceAfter=2,
     )
     section_style = ParagraphStyle(
         "Section",
@@ -233,19 +244,22 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
         "Bullet",
         parent=styles["Normal"],
         fontName="Helvetica",
-        fontSize=8.5,
-        leading=11,
+        fontSize=8.3,
+        leading=11.5,
         textColor=MAIN_TEXT,
         leftIndent=8,
         bulletIndent=0,
         bulletFontName="Helvetica",
-        bulletFontSize=8.5,
+        bulletFontSize=8.3,
+        alignment=TA_JUSTIFY,
     )
 
     y_main = PAGE_H - MARGIN_TOP
     c.setFillColor(MAIN_TEXT)
     y_main = draw_paragraph(c, profile["nombre"], CONTENT_LEFT, y_main, CONTENT_W, name_style)
     y_main = draw_paragraph(c, profile["titulo"], CONTENT_LEFT, y_main - 2 * mm, CONTENT_W, title_style)
+    if profile.get("subtitulo"):
+        y_main = draw_paragraph(c, profile["subtitulo"], CONTENT_LEFT, y_main - 1 * mm, CONTENT_W, subtitle_style)
 
     c.setStrokeColor(ACCENT_LINE)
     c.setLineWidth(0.8)
