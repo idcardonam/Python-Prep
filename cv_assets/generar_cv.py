@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Genera hoja de vida en PDF replicando el diseño original."""
+"""Genera hoja de vida replicando el diseño original de Ivan Cardona."""
 
 from __future__ import annotations
 
@@ -8,29 +8,26 @@ from pathlib import Path
 
 import yaml
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from reportlab.platypus import Paragraph
 
 BASE_DIR = Path(__file__).resolve().parent
+FONTS_DIR = BASE_DIR / "fonts"
 OUTPUT_DIR = BASE_DIR.parent / "cv_output"
 
-# Colores del diseño original
-SIDEBAR_COLOR = colors.HexColor("#8FA3AD")
-SIDEBAR_TEXT = colors.white
-MAIN_TEXT = colors.HexColor("#2B2B2B")
-MUTED_TEXT = colors.HexColor("#4A4A4A")
-ACCENT_LINE = colors.HexColor("#8FA3AD")
-
 PAGE_W, PAGE_H = A4
-SIDEBAR_W = 62 * mm
-MARGIN_TOP = 18 * mm
-MARGIN_RIGHT = 14 * mm
-CONTENT_LEFT = SIDEBAR_W + 10 * mm
-CONTENT_W = PAGE_W - CONTENT_LEFT - MARGIN_RIGHT
+SIDEBAR_X = 8.5
+SIDEBAR_W = 194
+SIDEBAR_COLOR = colors.Color(0.639, 0.694, 0.706)
+MAIN_X = 229.5
+MAIN_W = PAGE_W - MAIN_X - 18
+SIDEBAR_TEXT_X = 41.5
+
+pdfmetrics.registerFont(TTFont("Raleway", str(FONTS_DIR / "Raleway-Regular.ttf")))
+pdfmetrics.registerFont(TTFont("Raleway-Bold", str(FONTS_DIR / "Raleway-Bold.ttf")))
 
 
 def load_profile(path: Path) -> dict:
@@ -38,55 +35,7 @@ def load_profile(path: Path) -> dict:
         return yaml.safe_load(f)
 
 
-def draw_sidebar_section_title(c: canvas.Canvas, y: float, title: str) -> float:
-    c.setFillColor(SIDEBAR_TEXT)
-    c.setFont("Helvetica-Bold", 9)
-    c.drawString(8 * mm, y, title.upper())
-    return y - 5 * mm
-
-
-def draw_sidebar_bullets(c: canvas.Canvas, y: float, items: list[str], font_size: float = 8) -> float:
-    c.setFillColor(SIDEBAR_TEXT)
-    c.setFont("Helvetica", font_size)
-    x = 10 * mm
-    line_h = font_size + 3
-    max_w = SIDEBAR_W - 14 * mm
-
-    for item in items:
-        words = item.split()
-        line = ""
-        for word in words:
-            test = f"{line} {word}".strip()
-            if c.stringWidth(test, "Helvetica", font_size) <= max_w:
-                line = test
-            else:
-                if line:
-                    c.drawString(x, y, f"• {line}")
-                    y -= line_h
-                line = word
-        if line:
-            c.drawString(x, y, f"• {line}")
-            y -= line_h
-    return y - 2 * mm
-
-
-def draw_sidebar_training(c: canvas.Canvas, y: float, items: list[dict]) -> float:
-    c.setFillColor(SIDEBAR_TEXT)
-    for item in items:
-        c.setFont("Helvetica-Bold", 7.5)
-        title = item["titulo"]
-        wrapped = _wrap_text(c, title, "Helvetica-Bold", 7.5, SIDEBAR_W - 14 * mm)
-        for line in wrapped:
-            c.drawString(8 * mm, y, line)
-            y -= 9
-        c.setFont("Helvetica", 7.5)
-        detail = f"{item['institucion']} | {item['periodo']}"
-        c.drawString(8 * mm, y, detail)
-        y -= 11
-    return y
-
-
-def _wrap_text(c: canvas.Canvas, text: str, font: str, size: float, max_w: float) -> list[str]:
+def wrap_text(c: canvas.Canvas, text: str, font: str, size: float, max_w: float) -> list[str]:
     words = text.split()
     lines: list[str] = []
     current = ""
@@ -103,29 +52,102 @@ def _wrap_text(c: canvas.Canvas, text: str, font: str, size: float, max_w: float
     return lines
 
 
-def draw_paragraph(c: canvas.Canvas, text: str, x: float, y: float, width: float, style: ParagraphStyle) -> float:
-    p = Paragraph(text.replace("\n", " ").strip(), style)
-    w, h = p.wrap(width, PAGE_H)
-    p.drawOn(c, x, y - h)
-    return y - h
+def draw_wrapped(
+    c: canvas.Canvas,
+    text: str,
+    x: float,
+    y: float,
+    max_w: float,
+    font: str = "Raleway",
+    size: float = 11,
+    leading: float = 14.5,
+    bold_prefix: str | None = None,
+) -> float:
+    lines = wrap_text(c, text, font, size, max_w)
+    for line in lines:
+        if bold_prefix and line.startswith(bold_prefix):
+            c.setFont("Raleway-Bold", size)
+            c.drawString(x, y, bold_prefix)
+            rest_x = x + c.stringWidth(bold_prefix, "Raleway-Bold", size)
+            c.setFont(font, size)
+            c.drawString(rest_x, y, line[len(bold_prefix) :])
+        else:
+            c.setFont(font, size)
+            c.drawString(x, y, line)
+        y -= leading
+    return y
+
+
+def draw_centered(c: canvas.Canvas, text: str, y: float, font: str, size: float) -> float:
+    c.setFont(font, size)
+    text_w = c.stringWidth(text, font, size)
+    x = MAIN_X + (MAIN_W - text_w) / 2
+    c.drawString(x, y, text)
+    return y - size - 4
+
+
+def draw_spaced_title(c: canvas.Canvas, text: str, y: float, size: float = 17) -> float:
+    spaced = " ".join(text.upper())
+    c.setFont("Raleway-Bold", size)
+    text_w = c.stringWidth(spaced, "Raleway-Bold", size)
+    x = MAIN_X + (MAIN_W - text_w) / 2
+    c.drawString(x, y, spaced)
+    return y - size - 8
+
+
+def draw_sidebar_title(c: canvas.Canvas, title: str, y: float) -> float:
+    c.setFillColor(colors.white)
+    c.setFont("Raleway-Bold", 14)
+    c.drawString(SIDEBAR_TEXT_X, y, title.upper())
+    return y - 18
+
+
+def draw_sidebar_skills(c: canvas.Canvas, items: list[str], y: float) -> float:
+    c.setFont("Raleway", 11)
+    for item in items:
+        c.drawString(SIDEBAR_TEXT_X + 2, y, item)
+        y -= 19.5
+    return y
+
+
+def draw_sidebar_training(c: canvas.Canvas, items: list[dict], y: float) -> float:
+    for item in items:
+        c.setFont("Raleway-Bold", 11)
+        for line in wrap_text(c, item["titulo"], "Raleway-Bold", 11, SIDEBAR_W - 55):
+            c.drawString(SIDEBAR_TEXT_X, y, line)
+            y -= 14
+        c.setFont("Raleway", 10)
+        c.drawString(SIDEBAR_TEXT_X, y, f"{item['institucion']} | {item['periodo']}")
+        y -= 18
+    return y
+
+
+def draw_contact_icon(c: canvas.Canvas, cx: float, cy: float, label: str) -> None:
+    c.setFillColor(colors.Color(0.33, 0.33, 0.33))
+    c.circle(cx, cy, 8.5, fill=1, stroke=0)
+    c.setFillColor(colors.white)
+    c.setFont("Raleway-Bold", 6)
+    c.drawCentredString(cx, cy - 2, label)
 
 
 def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = None) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(output_path), pagesize=A4)
 
-    # Fondo sidebar
-    c.setFillColor(SIDEBAR_COLOR)
-    c.rect(0, 0, SIDEBAR_W, PAGE_H, fill=1, stroke=0)
+    c.setFillColor(colors.white)
+    c.rect(0, 0, PAGE_W, PAGE_H, fill=1, stroke=0)
 
-    # Foto de perfil
+    c.setFillColor(SIDEBAR_COLOR)
+    c.roundRect(SIDEBAR_X, 8.5, SIDEBAR_W, PAGE_H - 17, 6, fill=1, stroke=0)
+
     photo = photo_path or BASE_DIR / "img_0.jpeg"
     if photo.exists():
-        photo_size = 42 * mm
-        photo_x = (SIDEBAR_W - photo_size) / 2
-        photo_y = PAGE_H - MARGIN_TOP - photo_size
+        photo_size = 118
+        photo_x = SIDEBAR_X + (SIDEBAR_W - photo_size) / 2
+        photo_y = PAGE_H - 145
         c.saveState()
         path = c.beginPath()
-        r = 4 * mm
+        r = 10
         x, y, w, h = photo_x, photo_y, photo_size, photo_size
         path.moveTo(x + r, y)
         path.lineTo(x + w - r, y)
@@ -141,150 +163,79 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
         c.drawImage(str(photo), x, y, width=w, height=h, preserveAspectRatio=True, anchor="c")
         c.restoreState()
 
-    y = PAGE_H - MARGIN_TOP - 48 * mm
+    c.setFillColor(colors.HexColor("#2B2B2B"))
 
-    # Contacto
-    y = draw_sidebar_section_title(c, y, "CONTACTO")
-    y -= 2 * mm
-    contact = profile["contacto"]
-    for icon, value in [("☎", contact["telefono"]), ("✉", contact["email"]), ("in", contact["linkedin"])]:
-        c.setFillColor(SIDEBAR_TEXT)
-        c.circle(10 * mm, y + 1.5, 3.5, fill=1, stroke=0)
-        c.setFillColor(SIDEBAR_COLOR)
-        c.setFont("Helvetica-Bold", 5.5)
-        c.drawCentredString(10 * mm, y, icon[:2])
-        c.setFillColor(SIDEBAR_TEXT)
-        c.setFont("Helvetica", 7.5)
-        wrapped = _wrap_text(c, value, "Helvetica", 7.5, SIDEBAR_W - 18 * mm)
-        for i, line in enumerate(wrapped):
-            c.drawString(15 * mm, y - i * 9, line)
-        y -= max(11, len(wrapped) * 9 + 2)
+    y = PAGE_H - 20
+    y = draw_centered(c, profile["nombre"], y, "Raleway-Bold", 29)
+    y_title = draw_spaced_title(c, profile["titulo"], y - 2, 17)
 
-    y -= 4 * mm
-    y = draw_sidebar_section_title(c, y, "CONOCIMIENTOS")
-    y = draw_sidebar_bullets(c, y, profile["conocimientos"])
+    c.setStrokeColor(SIDEBAR_COLOR)
+    c.setLineWidth(1)
+    c.line(MAIN_X, y_title - 6, PAGE_W - 18, y_title - 6)
 
-    y -= 2 * mm
-    y = draw_sidebar_section_title(c, y, "FORMACIÓN COMPLEMENTARIA")
-    y = draw_sidebar_training(c, y, profile["formacion_complementaria"])
+    y_profile = y_title - 20
+    profile_text = " ".join(profile["perfil"].split())
+    y_profile = draw_wrapped(c, profile_text, MAIN_X, y_profile, MAIN_W, "Raleway", 10.4, 14)
 
-    c.setFillColor(SIDEBAR_TEXT)
-    c.setFont("Helvetica", 8)
-    c.drawString(8 * mm, 12 * mm, profile.get("referencias", "Referencias a solicitud"))
+    y_exp_title = y_profile - 6
+    c.setFont("Raleway-Bold", 15)
+    c.drawString(MAIN_X, y_exp_title, "EXPERIENCIA LABORAL")
 
-    # Contenido principal
-    styles = getSampleStyleSheet()
-    name_style = ParagraphStyle(
-        "Name",
-        parent=styles["Normal"],
-        fontName="Helvetica-Bold",
-        fontSize=22,
-        leading=24,
-        textColor=MAIN_TEXT,
-        alignment=TA_LEFT,
-    )
-    title_style = ParagraphStyle(
-        "Title",
-        parent=styles["Normal"],
-        fontName="Helvetica-Bold",
-        fontSize=11,
-        leading=13,
-        textColor=MUTED_TEXT,
-        alignment=TA_LEFT,
-        spaceAfter=4,
-    )
-    body_style = ParagraphStyle(
-        "Body",
-        parent=styles["Normal"],
-        fontName="Helvetica",
-        fontSize=9.2,
-        leading=13,
-        textColor=MAIN_TEXT,
-        alignment=TA_JUSTIFY,
-        spaceAfter=2,
-    )
-    subtitle_style = ParagraphStyle(
-        "Subtitle",
-        parent=styles["Normal"],
-        fontName="Helvetica-Oblique",
-        fontSize=9.5,
-        leading=12,
-        textColor=MUTED_TEXT,
-        alignment=TA_LEFT,
-        spaceAfter=2,
-    )
-    section_style = ParagraphStyle(
-        "Section",
-        parent=styles["Normal"],
-        fontName="Helvetica-Bold",
-        fontSize=11,
-        leading=13,
-        textColor=MAIN_TEXT,
-        alignment=TA_LEFT,
-        spaceBefore=6,
-        spaceAfter=4,
-    )
-    job_title_style = ParagraphStyle(
-        "JobTitle",
-        parent=styles["Normal"],
-        fontName="Helvetica-Bold",
-        fontSize=9.5,
-        leading=12,
-        textColor=MAIN_TEXT,
-    )
-    job_meta_style = ParagraphStyle(
-        "JobMeta",
-        parent=styles["Normal"],
-        fontName="Helvetica",
-        fontSize=8.5,
-        leading=11,
-        textColor=MUTED_TEXT,
-    )
-    bullet_style = ParagraphStyle(
-        "Bullet",
-        parent=styles["Normal"],
-        fontName="Helvetica",
-        fontSize=8.3,
-        leading=11.5,
-        textColor=MAIN_TEXT,
-        leftIndent=8,
-        bulletIndent=0,
-        bulletFontName="Helvetica",
-        bulletFontSize=8.3,
-        alignment=TA_JUSTIFY,
-    )
-
-    y_main = PAGE_H - MARGIN_TOP
-    c.setFillColor(MAIN_TEXT)
-    y_main = draw_paragraph(c, profile["nombre"], CONTENT_LEFT, y_main, CONTENT_W, name_style)
-    y_main = draw_paragraph(c, profile["titulo"], CONTENT_LEFT, y_main - 2 * mm, CONTENT_W, title_style)
-    if profile.get("subtitulo"):
-        y_main = draw_paragraph(c, profile["subtitulo"], CONTENT_LEFT, y_main - 1 * mm, CONTENT_W, subtitle_style)
-
-    c.setStrokeColor(ACCENT_LINE)
-    c.setLineWidth(0.8)
-    c.line(CONTENT_LEFT, y_main - 4 * mm, PAGE_W - MARGIN_RIGHT, y_main - 4 * mm)
-    y_main -= 10 * mm
-
-    y_main = draw_paragraph(c, profile["perfil"], CONTENT_LEFT, y_main, CONTENT_W, body_style)
-    y_main -= 4 * mm
-
-    y_main = draw_paragraph(c, "EXPERIENCIA LABORAL", CONTENT_LEFT, y_main, CONTENT_W, section_style)
-
+    y_job = y_exp_title - 18
     for exp in profile["experiencia"]:
-        header = f"<b>{exp['cargo']}</b> | {exp['empresa']} | {exp['periodo']}"
-        y_main = draw_paragraph(c, header, CONTENT_LEFT, y_main, CONTENT_W, job_meta_style)
+        c.setFont("Raleway-Bold", 12)
+        c.drawString(MAIN_X + 0.4, y_job, exp["cargo"])
+        y_job -= 13
+        c.setFont("Raleway-Bold", 11)
+        c.drawString(MAIN_X, y_job, f"{exp['empresa']} | {exp['periodo']}")
+        y_job -= 13
         if exp.get("rol"):
-            y_main = draw_paragraph(c, exp["rol"], CONTENT_LEFT, y_main, CONTENT_W, job_title_style)
+            c.setFont("Raleway", 11)
+            c.drawString(MAIN_X, y_job, exp["rol"])
+            y_job -= 13
+        c.setFont("Raleway", 11)
         for bullet in exp["bullets"]:
-            y_main = draw_paragraph(c, f"• {bullet}", CONTENT_LEFT, y_main, CONTENT_W, bullet_style)
-        y_main -= 2 * mm
+            for line in wrap_text(c, bullet, "Raleway", 11, MAIN_W):
+                c.drawString(MAIN_X, y_job, line)
+                y_job -= 13
+        y_job -= 2
 
-    y_main = draw_paragraph(c, "FORMACIÓN ACADÉMICA", CONTENT_LEFT, y_main, CONTENT_W, section_style)
+    y_edu = y_job - 2
+    c.setFont("Raleway-Bold", 14)
+    c.drawString(MAIN_X, y_edu, "FORMACIÓN ACADÉMICA")
+    y_edu -= 16
     for edu in profile["formacion_academica"]:
-        line = f"<b>{edu['titulo']}</b><br/>{edu['institucion']} | {edu['periodo']}"
-        y_main = draw_paragraph(c, line, CONTENT_LEFT, y_main, CONTENT_W, job_meta_style)
-        y_main -= 1 * mm
+        c.setFont("Raleway-Bold", 12)
+        c.drawString(MAIN_X, y_edu, edu["titulo"])
+        y_edu -= 14
+        c.setFont("Raleway", 11)
+        c.drawString(MAIN_X, y_edu, f"{edu['institucion']} | {edu['periodo']}")
+        y_edu -= 14
+
+    y_contact = PAGE_H - 258
+    y_contact = draw_sidebar_title(c, "CONTACTO", y_contact)
+    contact = profile["contacto"]
+    draw_contact_icon(c, 50, y_contact - 2, "T")
+    c.setFont("Raleway", 11)
+    c.drawString(66, y_contact - 5, contact["telefono"])
+    y_contact -= 24
+    draw_contact_icon(c, 50, y_contact - 2, "@")
+    c.drawString(66, y_contact - 5, contact["email"])
+    y_contact -= 24
+    draw_contact_icon(c, 50, y_contact - 2, "in")
+    for line in wrap_text(c, contact["linkedin"], "Raleway", 11, SIDEBAR_W - 55):
+        c.drawString(66, y_contact - 5, line)
+        y_contact -= 14
+    y_contact -= 10
+
+    y_contact = draw_sidebar_title(c, "CONOCIMIENTOS", PAGE_H - 482)
+    y_contact = draw_sidebar_skills(c, profile["conocimientos"], y_contact - 4)
+
+    y_contact = draw_sidebar_title(c, "FORMACIÓN COMPLEMENTARIA", PAGE_H - 700)
+    draw_sidebar_training(c, profile["formacion_complementaria"], y_contact)
+
+    c.setFont("Raleway-Bold", 14.5)
+    c.drawString(SIDEBAR_TEXT_X, 30, profile.get("referencias", "Referencias a solicitud"))
 
     c.showPage()
     c.save()
@@ -292,23 +243,12 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generar hoja de vida PDF")
-    parser.add_argument(
-        "--perfil",
-        type=Path,
-        default=BASE_DIR / "perfil_base.yaml",
-        help="Archivo YAML con el perfil (base o adaptado)",
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=None,
-        help="Ruta del PDF de salida",
-    )
+    parser.add_argument("--perfil", type=Path, default=BASE_DIR / "perfil_base.yaml")
+    parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
 
     profile = load_profile(args.perfil)
     output = args.output or OUTPUT_DIR / "HV_Ivan_David_Cardona.pdf"
-    output.parent.mkdir(parents=True, exist_ok=True)
     generate_pdf(profile, output)
     print(f"PDF generado: {output}")
 
