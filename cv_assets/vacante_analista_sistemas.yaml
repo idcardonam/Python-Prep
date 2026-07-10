@@ -1,0 +1,91 @@
+nombre: "IVAN DAVID CARDONA"
+titulo: "INGENIERO DE SISTEMAS"
+
+contacto:
+  telefono: "304 558 7767"
+  email: "idcm@hotmail.es"
+  linkedin: "https://n9.cl/lajpr"
+
+perfil: |
+  Soy Ingeniero de Sistemas con trayectoria sólida en desarrollo de aplicaciones,
+  soporte de plataformas web y administración de entornos tecnológicos. A lo largo
+  de mi carrera he pasado por el ciclo completo de un sistema: lo diseño, lo construyo,
+  lo pongo en marcha, le doy mantenimiento y, cuando algo falla, me quedo hasta
+  dejarlo funcionando. Trabajo con Python, React, PHP, SQL y CSS; me desenvuelvo con
+  naturalidad en bases de datos, integraciones entre sistemas y pruebas de software
+  antes de cualquier despliegue. He operado en entornos Windows y Linux, automatizado
+  procesos que antes consumían horas del equipo y participado en mejoras tecnológicas
+  con impacto directo en la operación diaria. Me gusta entender el problema antes de
+  proponer la solución: escucho al usuario, analizo con calma y comunico lo que encuentro
+  sin complicar las cosas. Soy orientado al servicio, acostumbrado al trabajo en equipo
+  y con la disciplina de documentar lo que hago para que otros puedan darle continuidad.
+  Busco un rol de Analista de Sistemas donde pueda seguir aportando en desarrollo,
+  soporte e innovación con soluciones prácticas, estables y bien pensadas.
+
+experiencia:
+  - cargo: "ANALISTA TIC"
+    empresa: "Organizacion Servicios y Asesorias"
+    periodo: "Marzo 2025 - Junio 2026"
+    rol: "Análista de soporte y Seguridad Informatica"
+    bullets:
+      - "Desarrollo y mantenimiento de aplicaciones web corporativas con Python y React, conectadas a procesos de nómina y contabilidad."
+      - "Soporte técnico a plataformas en operación: atención de incidentes, corrección de fallos y documentación de cada solución."
+      - "Administración y consulta de bases de datos para integrar información entre áreas y respaldar la toma de decisiones."
+      - "Automatización de tareas repetitivas y diseño de macros que mejoraron tiempos de respuesta del área de tecnología."
+
+  - cargo: "Profesional Auditorias Tecnología de la información"
+    empresa: "Financiera Comultrasan"
+    periodo: "Sep 2023 - Ene 2025"
+    bullets:
+      - "Análisis y gestión de bases de datos para reportes operativos, seguimiento de controles y auditorías internas de TI."
+      - "Pruebas de rendimiento y optimización de consultas sobre plataformas en producción."
+      - "Planeación y ejecución de auditorías tecnológicas con foco en disponibilidad y continuidad de los servicios."
+      - "Desarrollo de macros y herramientas de datos que facilitaron el trabajo del equipo de tecnología."
+      - "Gestión de riesgos de TI y soporte en la resolución de hallazgos e incidentes tecnológicos."
+
+  - cargo: "Ingeniero de Sistemas / Auditor Interno"
+    empresa: "Constructodo de la Guajira S.A.S"
+    periodo: "Nov 2019 - May 2023"
+    bullets:
+      - "Estructuración de procesos internos y análisis de datos para apoyar decisiones estratégicas del negocio."
+      - "Diseño de políticas de seguridad aplicadas a desarrollos y plataformas corporativas."
+      - "Elaboración de métricas e informes con modelos de Machine Learning para estrategias comerciales."
+
+formacion_academica:
+  - titulo: "Especialista en Seguridad Informática"
+    institucion: "Corporación Universitaria Minuto de Dios"
+    periodo: "2023"
+  - titulo: "Ingeniero de Sistemas"
+    institucion: "Universidad Popular del César"
+    periodo: "2022 | TP Vigente"
+  - titulo: "Técnico en Análisis y Desarrollo de Sistemas"
+    institucion: "Uparsistem"
+    periodo: "2014"
+
+formacion_complementaria:
+  - titulo: "AUDITOR INTERNO ISO/IEC 27001:2022 (32 horas)"
+    institucion: "SGS Academy"
+    periodo: "2023"
+  - titulo: "Auditor Interno en Sistemas Integrados (32 horas)"
+    institucion: "Eidec"
+    periodo: "2022"
+  - titulo: "Sistemas Integrados de Gestión (120 horas)"
+    institucion: "Eidec"
+    periodo: "2022"
+
+conocimientos:
+  - "Python."
+  - "React."
+  - "PHP."
+  - "SQL."
+  - "CSS."
+  - "Bases de datos."
+  - "Desarrollo web."
+  - "APIs e integraciones."
+  - "Windows / Linux."
+  - "Scrum."
+  - "Power BI."
+  - "Excel."
+  - "Visual Basic."
+
+referencias: "Referencias a solicitud"
