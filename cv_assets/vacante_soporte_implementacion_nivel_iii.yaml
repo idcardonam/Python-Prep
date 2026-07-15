@@ -1,0 +1,94 @@
+nombre: "IVAN DAVID CARDONA"
+titulo: "INGENIERO DE SISTEMAS"
+
+contacto:
+  telefono: "304 558 7767"
+  email: "idcm@hotmail.es"
+  linkedin: "https://n9.cl/lajpr"
+
+perfil: |
+  Ingeniero de Sistemas y Especialista en Seguridad Informática con más de cuatro
+  años de experiencia en soporte tecnológico, implementación de soluciones,
+  administración de infraestructura y gestión de incidentes. Cuento con experiencia
+  en implementación y soporte de telefonía IP Cisco, configuración de extensiones,
+  troncales SIP, IVR y colas, así como atención y solución de incidentes asociados
+  a comunicaciones. Complemento este conocimiento con administración de Active
+  Directory, cuentas de usuario y dominio, accesos por VPN, permisos de red,
+  revisión de logs, cámaras de seguridad y ejecución de copias de respaldo
+  automatizadas hacia la nube mediante scripts con rclone. He implementado GLPI
+  para centralizar la gestión de incidentes y construir la hoja de vida de los
+  activos tecnológicos, fortaleciendo la trazabilidad del soporte. Mi experiencia
+  también comprende automatización de procesos con Python, administración y
+  consulta de bases de datos SQL, elaboración de macros y tableros en Power BI.
+  Desde auditoría de TI he evaluado controles y soluciones de comunicaciones bajo
+  COBIT, integrando una visión técnica de operación, seguridad, continuidad y
+  cumplimiento. Me caracterizo por analizar incidentes con criterio, documentar
+  las soluciones y acompañar su puesta en marcha hasta estabilizar la operación.
+
+experiencia:
+  - cargo: "ANALISTA TIC"
+    empresa: "Organizacion Servicios y Asesorias"
+    periodo: "Marzo 2025 - Junio 2026"
+    rol: "Análista de soporte y Seguridad Informatica"
+    bullets:
+      - "Implementación de GLPI para gestionar incidentes, solicitudes e inventario, consolidando la hoja de vida de equipos."
+      - "Administración de Active Directory: creación, asignación, modificación y anulación de usuarios y cuentas de dominio."
+      - "Gestión de accesos VPN, permisos de IP para clientes y visitantes, revisión de logs y validación de cámaras de seguridad."
+      - "Automatización de procesos manuales con Python y sus componentes, orientada a mejorar la eficiencia operativa."
+      - "Administración de SQL, elaboración de macros y construcción de tableros de seguimiento en Power BI."
+
+  - cargo: "Profesional Auditorias Tecnología de la información"
+    empresa: "Financiera Comultrasan"
+    periodo: "Sep 2023 - Ene 2025"
+    bullets:
+      - "Planeación y ejecución de auditorías a soluciones de telefonía IP y comunicaciones con base en el marco COBIT."
+      - "Evaluación de controles sobre accesos, respaldos, revisión de logs, continuidad y seguridad de la infraestructura tecnológica."
+      - "Gestión de riesgos de TI, seguimiento de hallazgos y validación de planes de acción con las áreas responsables."
+      - "Análisis de bases de datos, elaboración de macros e informes para sustentar resultados de auditoría."
+      - "Pruebas de rendimiento y revisión del cumplimiento de controles internos y normativos."
+
+  - cargo: "Ingeniero de Sistemas / Auditor Interno"
+    empresa: "Constructodo de la Guajira S.A.S"
+    periodo: "Nov 2019 - May 2023"
+    bullets:
+      - "Implementación desde cero de la solución de telefonía IP Cisco, incluyendo extensiones, troncales SIP, IVR y colas."
+      - "Configuración, puesta en marcha y soporte de incidentes de comunicaciones, conectividad y servicios asociados."
+      - "Ejecución de copias de seguridad, revisión de logs y automatización del cargue de respaldos a la nube con scripts y rclone."
+      - "Administración de usuarios, permisos y controles de seguridad para la operación de los servicios tecnológicos."
+      - "Documentación de configuraciones, incidentes y procedimientos para asegurar continuidad y trazabilidad."
+
+formacion_academica:
+  - titulo: "Especialista en Seguridad Informática"
+    institucion: "Corporación Universitaria Minuto de Dios"
+    periodo: "2023"
+  - titulo: "Ingeniero de Sistemas"
+    institucion: "Universidad Popular del César"
+    periodo: "2022 | TP Vigente"
+  - titulo: "Técnico en Análisis y Desarrollo de Sistemas"
+    institucion: "Uparsistem"
+    periodo: "2014"
+
+formacion_complementaria:
+  - titulo: "AUDITOR INTERNO ISO/IEC 27001:2022 (32 horas)"
+    institucion: "SGS Academy"
+    periodo: "2023"
+  - titulo: "Auditor Interno en Sistemas Integrados (32 horas)"
+    institucion: "Eidec"
+    periodo: "2022"
+  - titulo: "Sistemas Integrados de Gestión (120 horas)"
+    institucion: "Eidec"
+    periodo: "2022"
+
+conocimientos:
+  - "Cisco / Telefonía IP."
+  - "SIP / IVR / Colas."
+  - "GLPI / Incidentes."
+  - "Active Directory."
+  - "VPN / Permisos IP."
+  - "Rclone / Backups."
+  - "Python / SQL."
+  - "Power BI / Excel."
+  - "COBIT / ISO 27001."
+  - "Windows / Linux."
+
+referencias: "Referencias a solicitud"
