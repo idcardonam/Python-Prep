@@ -168,7 +168,7 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
 
     c.setFillColor(colors.HexColor("#2B2B2B"))
 
-    y = PAGE_H - 18
+    y = PAGE_H - 28
     y = draw_centered(c, profile["nombre"], y, "Raleway-Bold", 28)
     y_title = draw_spaced_title(c, profile["titulo"], y - 2, 16)
 
@@ -178,7 +178,7 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
 
     y_profile = y_title - 18
     profile_text = " ".join(profile["perfil"].split())
-    y_profile = draw_wrapped(c, profile_text, MAIN_X, y_profile, MAIN_W, "Raleway", 10.3, 12.7)
+    y_profile = draw_wrapped(c, profile_text, MAIN_X, y_profile, MAIN_W, "Raleway", 10.3, 12.3)
 
     y_exp_title = y_profile - 5
     c.setFont("Raleway-Bold", 15)
@@ -198,9 +198,11 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
             y_job -= 12.5
         c.setFont("Raleway", 10.5)
         for bullet in exp["bullets"]:
+            c.setFillColor(colors.HexColor("#2B2B2B"))
+            c.circle(MAIN_X - 5, y_job + 3.2, 1.3, fill=1, stroke=0)
             for line in wrap_text(c, bullet, "Raleway", 10.5, MAIN_W):
                 c.drawString(MAIN_X, y_job, line)
-                y_job -= 11.7
+                y_job -= 11.5
         y_job -= 1.5
 
     y_edu = y_job - 1
@@ -219,19 +221,21 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
     y_contact = draw_sidebar_title(c, "CONTACTO", y_contact)
     contact = profile["contacto"]
     draw_contact_icon(c, 50, y_contact - 2, "T")
-    c.setFont("Raleway", 11)
+    c.setFont("Raleway", 11.5)
     c.drawString(66, y_contact - 5, contact["telefono"])
     y_contact -= 24
     draw_contact_icon(c, 50, y_contact - 2, "@")
+    c.setFont("Raleway", 10.5)
     c.drawString(66, y_contact - 5, contact["email"])
     y_contact -= 24
     draw_contact_icon(c, 50, y_contact - 2, "in")
-    for line in wrap_text(c, contact["linkedin"], "Raleway", 11, SIDEBAR_W - 55):
+    c.setFont("Raleway", 10)
+    for line in wrap_text(c, contact["linkedin"], "Raleway", 10, SIDEBAR_W - 55):
         c.drawString(66, y_contact - 5, line)
         y_contact -= 14
     y_contact -= 10
 
-    y_contact = draw_sidebar_title(c, "CONOCIMIENTOS", PAGE_H - 395)
+    y_contact = draw_sidebar_title(c, "CONOCIMIENTOS", PAGE_H - 360)
     y_contact = draw_sidebar_skills(c, profile["conocimientos"], y_contact - 3)
 
     y_contact = draw_sidebar_title(c, "FORMACIÓN COMPLEMENTARIA", PAGE_H - 592)
