@@ -96,7 +96,11 @@ def draw_spaced_title(c: canvas.Canvas, text: str, y: float, size: float = 17) -
 
 def draw_sidebar_title(c: canvas.Canvas, title: str, y: float) -> float:
     c.setFillColor(colors.white)
-    c.setFont("Raleway-Bold", 14)
+    size = 14
+    max_width = SIDEBAR_W - (SIDEBAR_TEXT_X - SIDEBAR_X) - 8
+    while c.stringWidth(title.upper(), "Raleway-Bold", size) > max_width and size > 9:
+        size -= 0.5
+    c.setFont("Raleway-Bold", size)
     c.drawString(SIDEBAR_TEXT_X, y, title.upper())
     return y - 18
 
@@ -174,7 +178,7 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
 
     y_profile = y_title - 18
     profile_text = " ".join(profile["perfil"].split())
-    y_profile = draw_wrapped(c, profile_text, MAIN_X, y_profile, MAIN_W, "Raleway", 10.5, 13.3)
+    y_profile = draw_wrapped(c, profile_text, MAIN_X, y_profile, MAIN_W, "Raleway", 10.3, 12.7)
 
     y_exp_title = y_profile - 5
     c.setFont("Raleway-Bold", 15)
@@ -192,11 +196,11 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
             c.setFont("Raleway", 11)
             c.drawString(MAIN_X, y_job, exp["rol"])
             y_job -= 12.5
-        c.setFont("Raleway", 11)
+        c.setFont("Raleway", 10.5)
         for bullet in exp["bullets"]:
-            for line in wrap_text(c, bullet, "Raleway", 11, MAIN_W):
+            for line in wrap_text(c, bullet, "Raleway", 10.5, MAIN_W):
                 c.drawString(MAIN_X, y_job, line)
-                y_job -= 12.5
+                y_job -= 11.7
         y_job -= 1.5
 
     y_edu = y_job - 1
@@ -204,12 +208,12 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
     c.drawString(MAIN_X, y_edu, "FORMACIÓN ACADÉMICA")
     y_edu -= 15
     for edu in profile["formacion_academica"]:
-        c.setFont("Raleway-Bold", 12)
+        c.setFont("Raleway-Bold", 11.5)
         c.drawString(MAIN_X, y_edu, edu["titulo"])
-        y_edu -= 13
-        c.setFont("Raleway", 11)
+        y_edu -= 12.5
+        c.setFont("Raleway", 10.5)
         c.drawString(MAIN_X, y_edu, f"{edu['institucion']} | {edu['periodo']}")
-        y_edu -= 13
+        y_edu -= 12.5
 
     y_contact = PAGE_H - 238
     y_contact = draw_sidebar_title(c, "CONTACTO", y_contact)
@@ -233,7 +237,7 @@ def generate_pdf(profile: dict, output_path: Path, photo_path: Path | None = Non
     y_contact = draw_sidebar_title(c, "FORMACIÓN COMPLEMENTARIA", PAGE_H - 592)
     draw_sidebar_training(c, profile["formacion_complementaria"], y_contact)
 
-    c.setFont("Raleway-Bold", 14.5)
+    c.setFont("Raleway-Bold", 13.5)
     c.drawString(SIDEBAR_TEXT_X, 20, profile.get("referencias", "Referencias a solicitud"))
 
     c.showPage()

@@ -10,20 +10,17 @@ perfil: |
   Ingeniero de Sistemas y Especialista en Seguridad Informática con más de cuatro
   años de experiencia en soporte tecnológico, implementación de soluciones,
   administración de infraestructura y gestión de incidentes. Cuento con experiencia
-  en implementación y soporte de telefonía IP Cisco, configuración de extensiones,
-  troncales SIP, IVR y colas, así como atención y solución de incidentes asociados
-  a comunicaciones. Complemento este conocimiento con administración de Active
-  Directory, cuentas de usuario y dominio, accesos por VPN, permisos de red,
-  revisión de logs, cámaras de seguridad y ejecución de copias de respaldo
-  automatizadas hacia la nube mediante scripts con rclone. He implementado GLPI
-  para centralizar la gestión de incidentes y construir la hoja de vida de los
-  activos tecnológicos, fortaleciendo la trazabilidad del soporte. Mi experiencia
-  también comprende automatización de procesos con Python, administración y
-  consulta de bases de datos SQL, elaboración de macros y tableros en Power BI.
-  Desde auditoría de TI he evaluado controles y soluciones de comunicaciones bajo
-  COBIT, integrando una visión técnica de operación, seguridad, continuidad y
-  cumplimiento. Me caracterizo por analizar incidentes con criterio, documentar
-  las soluciones y acompañar su puesta en marcha hasta estabilizar la operación.
+  en telefonía IP Cisco, desde la configuración de extensiones, troncales SIP, IVR
+  y colas hasta la puesta en marcha y solución de incidentes de comunicaciones.
+  Administro Active Directory, cuentas de dominio, accesos VPN, permisos de red,
+  logs, cámaras de seguridad y respaldos automatizados hacia la nube mediante
+  scripts con rclone. He implementado GLPI para centralizar incidentes, solicitudes
+  e inventario de activos, mejorando la trazabilidad del soporte. Complemento mi
+  perfil con automatización de procesos en Python, dominio de SQL, elaboración de
+  macros y tableros en Power BI. Mi experiencia auditando controles y soluciones
+  de comunicaciones bajo COBIT me permite integrar operación, seguridad,
+  continuidad y cumplimiento, con criterio para diagnosticar incidentes, documentar
+  soluciones y acompañar cada implementación hasta estabilizar el servicio.
 
 experiencia:
   - cargo: "ANALISTA TIC"
@@ -31,31 +28,31 @@ experiencia:
     periodo: "Marzo 2025 - Junio 2026"
     rol: "Análista de soporte y Seguridad Informatica"
     bullets:
-      - "Implementación de GLPI para gestionar incidentes, solicitudes e inventario, consolidando la hoja de vida de equipos."
-      - "Administración de Active Directory: creación, asignación, modificación y anulación de usuarios y cuentas de dominio."
-      - "Gestión de accesos VPN, permisos de IP para clientes y visitantes, revisión de logs y validación de cámaras de seguridad."
-      - "Automatización de procesos manuales con Python y sus componentes, orientada a mejorar la eficiencia operativa."
-      - "Administración de SQL, elaboración de macros y construcción de tableros de seguimiento en Power BI."
+      - "Implementación de GLPI para incidentes, solicitudes e inventario de equipos."
+      - "Administración de Active Directory y ciclo de vida de usuarios y cuentas de dominio."
+      - "Gestión de VPN, permisos IP, revisión de logs y validación de cámaras de seguridad."
+      - "Automatización con Python para eliminar tareas manuales y mejorar la eficiencia operativa."
+      - "Administración de SQL, elaboración de macros y tableros en Power BI."
 
   - cargo: "Profesional Auditorias Tecnología de la información"
     empresa: "Financiera Comultrasan"
     periodo: "Sep 2023 - Ene 2025"
     bullets:
-      - "Planeación y ejecución de auditorías a soluciones de telefonía IP y comunicaciones con base en el marco COBIT."
-      - "Evaluación de controles sobre accesos, respaldos, revisión de logs, continuidad y seguridad de la infraestructura tecnológica."
-      - "Gestión de riesgos de TI, seguimiento de hallazgos y validación de planes de acción con las áreas responsables."
-      - "Análisis de bases de datos, elaboración de macros e informes para sustentar resultados de auditoría."
-      - "Pruebas de rendimiento y revisión del cumplimiento de controles internos y normativos."
+      - "Auditoría de telefonía IP y comunicaciones con base en el marco COBIT."
+      - "Evaluación de accesos, respaldos, logs, continuidad y seguridad de infraestructura."
+      - "Gestión de riesgos de TI, hallazgos y planes de acción."
+      - "Análisis de bases de datos, macros e informes de auditoría."
+      - "Pruebas de rendimiento y cumplimiento de controles internos."
 
   - cargo: "Ingeniero de Sistemas / Auditor Interno"
     empresa: "Constructodo de la Guajira S.A.S"
     periodo: "Nov 2019 - May 2023"
     bullets:
-      - "Implementación desde cero de la solución de telefonía IP Cisco, incluyendo extensiones, troncales SIP, IVR y colas."
-      - "Configuración, puesta en marcha y soporte de incidentes de comunicaciones, conectividad y servicios asociados."
-      - "Ejecución de copias de seguridad, revisión de logs y automatización del cargue de respaldos a la nube con scripts y rclone."
-      - "Administración de usuarios, permisos y controles de seguridad para la operación de los servicios tecnológicos."
-      - "Documentación de configuraciones, incidentes y procedimientos para asegurar continuidad y trazabilidad."
+      - "Implementación desde cero de telefonía IP Cisco: extensiones, troncales SIP, IVR y colas."
+      - "Configuración, puesta en marcha y soporte de incidentes de comunicaciones."
+      - "Copias de seguridad, revisión de logs y respaldos en la nube con scripts y rclone."
+      - "Administración de usuarios, permisos y controles de seguridad."
+      - "Documentación de configuraciones, incidentes y procedimientos de continuidad."
 
 formacion_academica:
   - titulo: "Especialista en Seguridad Informática"
