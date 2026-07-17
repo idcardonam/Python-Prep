@@ -348,7 +348,7 @@ def draw_ecosystem_page(c: canvas.Canvas, page_num: int) -> None:
         c.drawCentredString(x + w / 2 + 3, y + 17, sub)
     draw_paragraph(
         c,
-        "Patrón común: <b>requerimiento real → flujo controlado → integración → evidencia → información para decidir.</b>",
+        "Patrón común: <b>requerimiento real · flujo controlado · integración · evidencia · información para decidir.</b>",
         44,
         96,
         520,
@@ -692,7 +692,7 @@ def draw_osya_method_page(c: canvas.Canvas, page_num: int) -> None:
         ),
         (
             "2. Flujo y arquitectura",
-            "Diseñé solicitud → validación → aprobación del responsable → ejecución controlada por TI → "
+            "Diseñé solicitud, validación, aprobación del responsable, ejecución controlada por TI y "
             "evidencia. Separé interfaz React, lógica Django, PostgreSQL e integración con ERP.",
             BLUE,
         ),
@@ -871,11 +871,11 @@ def draw_integrated_projects_page(c: canvas.Canvas, page_num: int) -> None:
     )
     projects = [
         ("OSYA PORTAL", "Contabilidad · Nómina · Tesorería", "Django · React · PostgreSQL · ERP", BLUE),
-        ("NEXUS", "Cobros · Egresos · Caja menor", "Aplicación → datos → Power BI", TEAL),
+        ("NEXUS", "Cobros · Egresos · Caja menor", "Aplicación · datos · Power BI", TEAL),
         ("TALENTFLOW", "Selección · RQ · Contratación", "IA asistida · correos · analítica", GOLD),
         ("NOVASOFT TI", "Incidentes · consultas repetitivas", "Python · Streamlit · ERP", BLUE),
-        ("INCAPACIDADES", "Registro · validación · cobro", "Google Forms → ERP → gestión", TEAL),
-        ("HORAS EXTRA", "Reportes de más de 30 clientes", "Excel → validación → nómina", GOLD),
+        ("INCAPACIDADES", "Registro · validación · cobro", "Google Forms · ERP · gestión", TEAL),
+        ("HORAS EXTRA", "Reportes de más de 30 clientes", "Excel · validación · nómina", GOLD),
     ]
     positions = [(44, 510), (306, 510), (44, 350), (306, 350), (44, 190), (306, 190)]
     for (title, process, architecture, accent), (x, y) in zip(projects, positions):
@@ -893,7 +893,7 @@ def draw_integrated_projects_page(c: canvas.Canvas, page_num: int) -> None:
     c.roundRect(44, 75, 512, 82, 10, fill=1, stroke=0)
     draw_paragraph(
         c,
-        "<b>Patrón transversal:</b> proceso entendido → datos controlados → integración → evidencia → decisión. "
+        "<b>Patrón transversal:</b> proceso entendido · datos controlados · integración · evidencia · decisión. "
         "Ese patrón es transferible a aplicaciones académicas y administrativas.",
         64,
         137,
@@ -907,7 +907,7 @@ def draw_integrated_projects_page(c: canvas.Canvas, page_num: int) -> None:
 
 
 def draw_connected_analytics_page(c: canvas.Canvas, page_num: int) -> None:
-    draw_page_header(c, "05 · Analítica conectada", "NEXUS y los proyectos también produjeron capacidad de decisión", page_num)
+    draw_page_header(c, "05 · Analítica conectada", "NEXUS: de la operación a la decisión", page_num)
     draw_paragraph(
         c,
         "Los tableros no fueron ejercicios aislados. Partieron de datos generados por aplicaciones y procesos "
@@ -1457,7 +1457,7 @@ def generate_study_plan(output: Path) -> None:
     story.append(table_from_rows(technical_rows, [95, 425], styles))
     story.append(Spacer(1, 12))
     story.append(callout(
-        "<b>Regla para responder:</b> definición breve → ejemplo propio → riesgo o control. Así demuestras conocimiento aplicado, no teoría memorizada.",
+        "<b>Regla para responder:</b> definición breve, ejemplo propio y riesgo o control. Así demuestras conocimiento aplicado, no teoría memorizada.",
         styles,
     ))
     story.append(PageBreak())
@@ -1694,7 +1694,7 @@ def generate_study_plan(output: Path) -> None:
     story.append(table_from_rows(schedule_rows, [58, 282, 180], styles))
     story.append(Spacer(1, 14))
     story.append(callout(
-        "<b>Método diario:</b> 25 minutos de lectura → 20 minutos hablando en voz alta → 15 minutos corrigiendo. "
+        "<b>Método diario:</b> 25 minutos de lectura; 20 minutos hablando en voz alta; 15 minutos corrigiendo. "
         "Prepararse para entrevista exige producir respuestas, no solo consumir información.",
         styles,
     ))
