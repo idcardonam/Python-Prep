@@ -665,70 +665,409 @@ def draw_closing_page(c: canvas.Canvas, page_num: int) -> None:
     c.drawString(52, 35, f"Portafolio profesional · Página {page_num}")
 
 
+def draw_osya_method_page(c: canvas.Canvas, page_num: int) -> None:
+    draw_page_header(
+        c,
+        "01 · Método demostrado",
+        "Del requerimiento a una solución segura: OSYA Portal",
+        page_num,
+    )
+    draw_paragraph(
+        c,
+        "Este proyecto resume mi forma de desarrollar: entender el proceso y sus riesgos antes de elegir "
+        "tecnología, construir por etapas y llevar la seguridad hasta la operación.",
+        44,
+        690,
+        520,
+        size=11,
+        leading=15,
+        color=MUTED,
+    )
+    phases = [
+        (
+            "1. Alcance y riesgo",
+            "Contabilidad, nómina y tesorería dependían de TI para solicitudes frecuentes. Identifiqué actores, "
+            "reglas, datos afectados, autorizadores y riesgos de cambio directo sobre la operación.",
+            GOLD,
+        ),
+        (
+            "2. Flujo y arquitectura",
+            "Diseñé solicitud → validación → aprobación del responsable → ejecución controlada por TI → "
+            "evidencia. Separé interfaz React, lógica Django, PostgreSQL e integración con ERP.",
+            BLUE,
+        ),
+        (
+            "3. Implementación",
+            "Construí entregas progresivas con Git para controlar versiones y cambios sobre un sitio ya en "
+            "producción, preservando una ruta clara de actualización.",
+            TEAL,
+        ),
+        (
+            "4. Pruebas con usuarios",
+            "Validé manualmente sobre base de pruebas y posteriormente con usuarios finales, revisando reglas, "
+            "perfiles, resultados y excepciones antes de consolidar el cambio.",
+            BLUE,
+        ),
+        (
+            "5. Seguridad y afinamiento",
+            "Apliqué permisos diferenciados de consulta y escritura, 2FA, aprobación del responsable, logs, "
+            "historial y reversión controlada. El control fue parte del flujo, no un agregado final.",
+            TEAL,
+        ),
+    ]
+    y_positions = [545, 420, 295, 170, 45]
+    for (title, body, accent), y in zip(phases, y_positions):
+        c.setFillColor(WHITE)
+        c.setStrokeColor(BORDER)
+        c.roundRect(44, y, 524, 104, 10, fill=1, stroke=1)
+        c.setFillColor(accent)
+        c.roundRect(44, y, 8, 104, 8, fill=1, stroke=0)
+        draw_paragraph(
+            c,
+            title,
+            66,
+            y + 82,
+            150,
+            size=10.5,
+            leading=13,
+            font="Raleway-Bold",
+            color=NAVY,
+            max_height=28,
+        )
+        draw_paragraph(
+            c,
+            body,
+            220,
+            y + 86,
+            328,
+            size=8.8,
+            leading=11.5,
+            color=INK,
+            max_height=76,
+        )
+
+
+def draw_macro_architecture_page(c: canvas.Canvas, page_num: int) -> None:
+    draw_page_header(c, "02 · Automatización", "Macro de horas extra: estandarizar antes de automatizar", page_num)
+    draw_paragraph(
+        c,
+        "Más de 30 clientes reportaban novedades en archivos Excel. La variedad de formatos y el cálculo "
+        "manual generaban errores en valores que impactaban directamente el pago de nómina.",
+        44,
+        690,
+        520,
+        size=11,
+        leading=15,
+        color=MUTED,
+    )
+    rounded_card(
+        c,
+        44,
+        520,
+        250,
+        125,
+        "Alcance y riesgos",
+        "<b>Alcance:</b> recepción, validación, consolidación y cálculo de horas extra.<br/><br/>"
+        "<b>Riesgos:</b> formato incorrecto, dato incompleto, duplicidad, fórmula inconsistente y pago errado.",
+        accent=GOLD,
+        body_size=9.1,
+    )
+    rounded_card(
+        c,
+        318,
+        520,
+        250,
+        125,
+        "Decisión de diseño",
+        "Definí una plantilla Excel estándar para clientes y una macro que aplicaba las mismas reglas de "
+        "validación y cálculo antes de preparar la información para nómina.",
+        accent=TEAL,
+        body_size=9.1,
+    )
+
+    c.setFillColor(LIGHT)
+    c.setStrokeColor(BORDER)
+    c.roundRect(44, 340, 524, 150, 10, fill=1, stroke=1)
+    c.setFillColor(NAVY)
+    c.setFont("Raleway-Bold", 10)
+    c.drawString(58, 466, "ARQUITECTURA DEL FLUJO")
+    steps = [
+        ("Archivo Excel", "Entrada estándar"),
+        ("Validación", "Campos y formato"),
+        ("Consolidación", "+30 clientes"),
+        ("Cálculo", "Reglas homogéneas"),
+        ("Salida", "Revisión nómina"),
+    ]
+    for i, (title, subtitle) in enumerate(steps):
+        x = 58 + i * 101
+        c.setFillColor(WHITE)
+        c.setStrokeColor(BLUE)
+        c.roundRect(x, 382, 88, 58, 8, fill=1, stroke=1)
+        draw_paragraph(c, title, x + 5, 426, 78, size=7.4, leading=9, font="Raleway-Bold", color=NAVY, align=TA_CENTER, max_height=19)
+        draw_paragraph(c, subtitle, x + 5, 402, 78, size=6.8, leading=8, color=MUTED, align=TA_CENTER, max_height=17)
+        if i < 4:
+            c.setStrokeColor(BLUE)
+            c.line(x + 91, 411, x + 99, 411)
+            c.line(x + 96, 414, x + 99, 411)
+            c.line(x + 96, 408, x + 99, 411)
+
+    rounded_card(
+        c,
+        44,
+        130,
+        250,
+        180,
+        "Controles aplicados",
+        "• Plantilla única de entrada.<br/>"
+        "• Validación previa al cálculo.<br/>"
+        "• Reglas homogéneas para todos los clientes.<br/>"
+        "• Separación entre procesamiento y revisión.<br/>"
+        "• Archivo de salida preparado para control de nómina.",
+        accent=BLUE,
+        body_size=9,
+    )
+    rounded_card(
+        c,
+        318,
+        130,
+        250,
+        180,
+        "Valor demostrado",
+        "No presento una cifra que no fue medida formalmente. El valor verificable fue reducir la exposición "
+        "a errores de cálculo, convertir un proceso variable en uno repetible y facilitar la revisión antes "
+        "de afectar pagos.",
+        accent=TEAL,
+        body_size=9.1,
+    )
+    c.setFillColor(NAVY)
+    c.roundRect(44, 62, 524, 48, 9, fill=1, stroke=0)
+    draw_paragraph(
+        c,
+        "“La automatización empezó por controlar el dato de entrada; no por escribir una macro sobre un proceso desordenado.”",
+        60,
+        94,
+        492,
+        size=9.5,
+        leading=13,
+        font="Raleway-Bold",
+        color=WHITE,
+        align=TA_CENTER,
+        max_height=30,
+    )
+
+
+def draw_integrated_projects_page(c: canvas.Canvas, page_num: int) -> None:
+    draw_page_header(c, "04 · Visión integral", "Proyectos conectados con procesos, datos y decisiones", page_num)
+    draw_paragraph(
+        c,
+        "El valor no está en contar aplicaciones. Está en demostrar que cada una resolvió una parte del flujo "
+        "y que los datos producidos podían convertirse en seguimiento y control.",
+        44,
+        690,
+        520,
+        size=11,
+        leading=15,
+        color=MUTED,
+    )
+    projects = [
+        ("OSYA PORTAL", "Contabilidad · Nómina · Tesorería", "Django · React · PostgreSQL · ERP", BLUE),
+        ("NEXUS", "Cobros · Egresos · Caja menor", "Aplicación → datos → Power BI", TEAL),
+        ("TALENTFLOW", "Selección · RQ · Contratación", "IA asistida · correos · analítica", GOLD),
+        ("NOVASOFT TI", "Incidentes · consultas repetitivas", "Python · Streamlit · ERP", BLUE),
+        ("INCAPACIDADES", "Registro · validación · cobro", "Google Forms → ERP → gestión", TEAL),
+        ("HORAS EXTRA", "Reportes de más de 30 clientes", "Excel → validación → nómina", GOLD),
+    ]
+    positions = [(44, 510), (306, 510), (44, 350), (306, 350), (44, 190), (306, 190)]
+    for (title, process, architecture, accent), (x, y) in zip(projects, positions):
+        c.setFillColor(WHITE)
+        c.setStrokeColor(BORDER)
+        c.roundRect(x, y, 250, 130, 10, fill=1, stroke=1)
+        c.setFillColor(accent)
+        c.roundRect(x, y + 121, 250, 9, 9, fill=1, stroke=0)
+        draw_paragraph(c, title, x + 14, y + 105, 222, size=10.5, leading=12, font="Raleway-Bold", color=NAVY, max_height=20)
+        draw_paragraph(c, process, x + 14, y + 78, 222, size=8.5, leading=10.5, color=INK, max_height=24)
+        c.setStrokeColor(BORDER)
+        c.line(x + 14, y + 57, x + 236, y + 57)
+        draw_paragraph(c, architecture, x + 14, y + 43, 222, size=8, leading=10, font="Raleway-Bold", color=MUTED, max_height=32)
+    c.setFillColor(NAVY)
+    c.roundRect(44, 75, 512, 82, 10, fill=1, stroke=0)
+    draw_paragraph(
+        c,
+        "<b>Patrón transversal:</b> proceso entendido → datos controlados → integración → evidencia → decisión. "
+        "Ese patrón es transferible a aplicaciones académicas y administrativas.",
+        64,
+        137,
+        472,
+        size=10,
+        leading=14,
+        color=WHITE,
+        align=TA_CENTER,
+        max_height=48,
+    )
+
+
+def draw_connected_analytics_page(c: canvas.Canvas, page_num: int) -> None:
+    draw_page_header(c, "05 · Analítica conectada", "NEXUS y los proyectos también produjeron capacidad de decisión", page_num)
+    draw_paragraph(
+        c,
+        "Los tableros no fueron ejercicios aislados. Partieron de datos generados por aplicaciones y procesos "
+        "para responder preguntas de tesorería, cartera, ventas, selección y flujo de caja.",
+        44,
+        690,
+        520,
+        size=11,
+        leading=15,
+        color=MUTED,
+    )
+    c.setFillColor(LIGHT)
+    c.setStrokeColor(BORDER)
+    c.roundRect(44, 570, 524, 84, 10, fill=1, stroke=1)
+    chain = ["NEXUS", "PostgreSQL", "Modelo de datos", "Power BI", "Dirección"]
+    for i, label in enumerate(chain):
+        x = 58 + i * 101
+        draw_tag(c, label, x, 601, 84)
+        if i < 4:
+            c.setStrokeColor(BLUE)
+            c.line(x + 86, 612, x + 99, 612)
+
+    fit_image(c, ASSETS_DIR / "sanitized_flujo_tesoreria.jpg", 44, 305, 330, 235)
+    rounded_card(
+        c,
+        394,
+        305,
+        174,
+        235,
+        "Lectura ejecutiva",
+        "• Ingresos y egresos.<br/>"
+        "• Flujo acumulado.<br/>"
+        "• Riesgo financiero.<br/>"
+        "• Seguimiento por periodo.<br/>"
+        "• Consulta móvil para directivos.<br/><br/>"
+        "La captura está anonimizada para proteger información operativa.",
+        accent=TEAL,
+        body_size=8.5,
+        title_size=10.5,
+    )
+    rounded_card(
+        c,
+        44,
+        105,
+        250,
+        165,
+        "Otros tableros",
+        "TalentFlow y selección; salidas de dinero; cartera; ventas; comparativos; control contable en Looker Studio "
+        "y flujo de caja consultable desde dispositivos móviles.",
+        accent=BLUE,
+        body_size=9.1,
+    )
+    rounded_card(
+        c,
+        318,
+        105,
+        250,
+        165,
+        "Mi criterio analítico",
+        "Defino primero la pregunta, el responsable y la decisión. Después modelo, valido y presento el indicador. "
+        "Un tablero sin proceso de uso es solo una pantalla.",
+        accent=GOLD,
+        body_size=9.1,
+    )
+
+
+def draw_unab_education_page(c: canvas.Canvas, page_num: int) -> None:
+    draw_page_header(c, "06 · Ajuste institucional", "Cómo llevaría este enfoque al contexto UNAB", page_num)
+    draw_paragraph(
+        c,
+        "En educación superior, una aplicación puede afectar matrículas, notas, pagos, acceso a servicios, "
+        "reportes regulatorios y continuidad académica. Por eso el desarrollo exige rigor técnico y comprensión social.",
+        44,
+        690,
+        520,
+        size=11,
+        leading=15,
+        color=MUTED,
+    )
+    rows = [
+        ("Necesidad UNAB", "Cómo respondo"),
+        ("Requerimientos de usuarios", "Levanto proceso, reglas, excepciones, responsables y criterios de aceptación."),
+        ("Aplicaciones e integración", "Diseño capas, datos y contratos; desarrollo con versionamiento y cambios controlados."),
+        ("Pruebas y liberación", "Base de pruebas, validación manual, usuarios finales, respaldo y posibilidad de reversión."),
+        ("Seguridad y trazabilidad", "Perfiles, mínimo privilegio, aprobación, 2FA, logs, historial y documentación."),
+    ]
+    table = Table(
+        [[Paragraph(f"<b>{a}</b>" if i == 0 else a, pstyle(f"ue{i}a", size=8.4, leading=10.5, color=WHITE if i == 0 else INK)),
+          Paragraph(f"<b>{b}</b>" if i == 0 else b, pstyle(f"ue{i}b", size=8.4, leading=10.5, color=WHITE if i == 0 else INK))]
+         for i, (a, b) in enumerate(rows)],
+        colWidths=[172, 348],
+        rowHeights=[30, 54, 54, 54, 54],
+    )
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), NAVY),
+        ("GRID", (0, 0), (-1, -1), 0.6, BORDER),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 9),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 9),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [WHITE, LIGHT]),
+    ]))
+    table.wrapOn(c, 520, 300)
+    table.drawOn(c, 44, 370)
+
+    rounded_card(
+        c,
+        44,
+        180,
+        250,
+        155,
+        "Responsabilidad sectorial",
+        "<b>Ley 30 y SNIES:</b> información completa, veraz, actualizada, disponible y protegida para planeación, "
+        "calidad, inspección y vigilancia.<br/><br/><b>CNA:</b> evidencia histórica y sistemas que soporten autoevaluación.",
+        accent=GOLD,
+        body_size=8.6,
+    )
+    rounded_card(
+        c,
+        318,
+        180,
+        250,
+        155,
+        "Protección e impacto",
+        "<b>Ley 1581:</b> seguridad, acceso autorizado, finalidad y confidencialidad de datos personales.<br/><br/>"
+        "<b>Impacto social:</b> cambios estables para no interrumpir servicios de estudiantes, docentes y administrativos.",
+        accent=TEAL,
+        body_size=8.6,
+    )
+    c.setFillColor(NAVY)
+    c.roundRect(44, 65, 524, 88, 10, fill=1, stroke=0)
+    draw_paragraph(
+        c,
+        "“Mi plus como especialista es identificar alcance y riesgo desde el inicio, diseñar el flujo, "
+        "implementar con control y afinar la seguridad hasta que la solución quede estable y auditable.”",
+        62,
+        132,
+        488,
+        size=10,
+        leading=14,
+        font="Raleway-Bold",
+        color=WHITE,
+        align=TA_CENTER,
+        max_height=56,
+    )
+
+
 def generate_portfolio(output: Path) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(output), pagesize=letter)
     c.setTitle("Portafolio de Desarrollo - Ivan David Cardona - UNAB")
     draw_cover(c)
     c.showPage()
-    draw_profile_page(c, 2)
+    draw_osya_method_page(c, 2)
     c.showPage()
-    draw_ecosystem_page(c, 3)
+    draw_macro_architecture_page(c, 3)
     c.showPage()
     draw_project_page(
         c,
         4,
-        code="01 · Aplicación institucional",
-        title="OSYA PORTAL",
-        subtitle="Portal para centralizar solicitudes recurrentes de contabilidad, nómina y tesorería hacia TI.",
-        challenge="La alta demanda del área de sistemas retrasaba solicitudes frecuentes y afectaba la operación. "
-        "Los requerimientos llegaban sin flujo uniforme, autorización clara ni trazabilidad completa.",
-        solution="Diseñé un portal con catálogo de solicitudes por área, aprobación del responsable y ejecución "
-        "controlada por TI. Los cambios sensibles podían revertirse y quedaban asociados a usuario, fecha y actividad.",
-        flow=["Solicitud", "Validación", "Autorización", "Ejecución TI", "Trazabilidad"],
-        technologies="<b>Stack:</b> Python, React, PostgREST y servidor local.<br/><br/>"
-        "<b>Integración:</b> conexión controlada con la base de datos del ERP y flujos entre áreas administrativas y TI.",
-        controls="Doble factor de autenticación, doble autorización para cambios, roles, logs de auditoría, historial y reversión exclusiva por TI.",
-        value="Canal único, responsables visibles, menor pérdida de solicitudes y control sobre intervenciones que afectan la operación.",
-        interview_line="Vi un problema de capacidad y trazabilidad, no solo de tiempos. La solución fue ordenar el flujo antes de automatizarlo.",
-    )
-    c.showPage()
-    draw_project_page(
-        c,
-        5,
-        code="02 · Tesorería",
-        title="NEXUS",
-        subtitle="Aplicación para registro y control de cobros y egresos de caja menor alineados con nómina.",
-        challenge="Tesorería requería consolidar movimientos, responsables y soportes sin perder conexión con los procesos de nómina y control interno.",
-        solution="Construí una aplicación web para registrar cobros y egresos, administrar usuarios y conservar la secuencia de actividades necesaria para revisión y auditoría.",
-        flow=["Registro", "Validación", "Clasificación", "Seguimiento", "Reporte"],
-        technologies="<b>Stack:</b> Python, React, PostgREST y alojamiento en servidor local.<br/><br/>"
-        "<b>Datos:</b> estructura relacional para movimientos, usuarios, estados, soportes e historial.",
-        controls="2FA con Google, gestión de usuarios, logs de auditoría, registro de actividades y criterios auditables para procesos de calidad.",
-        value="Mayor visibilidad del flujo de caja menor y una fuente estructurada para seguimiento operativo y analítica en Power BI.",
-        interview_line="NEXUS demuestra que sé convertir un proceso financiero en una aplicación con control de acceso, trazabilidad y capacidad analítica.",
-    )
-    c.showPage()
-    draw_project_page(
-        c,
-        6,
-        code="03 · Talento humano",
-        title="TALENTFLOW",
-        subtitle="Aplicación interna para conectar preselección, requerimientos de clientes, selección y contratación.",
-        challenge="La información de candidatos, entrevistas y vacantes de clientes estaba fragmentada, dificultando el seguimiento del proceso y la continuidad hacia contratación.",
-        solution="Diseñé un flujo para registrar candidatos y RQ, conservar historial, asociar perfiles con requerimientos mediante IA y automatizar comunicaciones de avance o cierre.",
-        flow=["Candidato", "Entrevista", "RQ cliente", "Asociación IA", "Contratación"],
-        technologies="<b>Componentes:</b> aplicación web, gestión de candidatos y RQ, historial, motor de asociación asistida y envío de correos.<br/><br/>"
-        "<b>Integración:</b> continuidad hacia exámenes médicos, contratos y actividades de contratación.",
-        controls="Accesos por rol, historial del candidato, estados del proceso, evidencia de comunicaciones y trazabilidad de la asociación con cada RQ.",
-        value="Visión integral del candidato, menos ruptura entre selección y contratación y mejor capacidad de seguimiento por responsables.",
-        interview_line="En TalentFlow no automaticé una decisión humana; construí apoyo para organizar evidencia y hacer más consistente la preselección.",
-    )
-    c.showPage()
-    draw_project_page(
-        c,
-        7,
-        code="04 · Operación TIC",
+        code="03 · Operación TIC",
         title="NOVASOFT TI",
         subtitle="Aplicación para gestionar incidentes y automatizar respuestas repetitivas del área de tecnología.",
         challenge="El equipo invertía tiempo en incidentes recurrentes y consultas operativas que podían resolverse con un flujo controlado y acceso oportuno a información del ERP.",
@@ -741,17 +1080,11 @@ def generate_portfolio(output: Path) -> None:
         interview_line="NOVASOFT TI resume mi forma de trabajar: observar patrones de incidentes, convertirlos en lógica y dejar trazabilidad de la atención.",
     )
     c.showPage()
-    draw_automation_page(c, 8)
+    draw_integrated_projects_page(c, 5)
     c.showPage()
-    draw_analytics_page(c, 9)
+    draw_connected_analytics_page(c, 6)
     c.showPage()
-    draw_gallery_page(c, 10)
-    c.showPage()
-    draw_engineering_page(c, 11)
-    c.showPage()
-    draw_unab_fit_page(c, 12)
-    c.showPage()
-    draw_closing_page(c, 13)
+    draw_unab_education_page(c, 7)
     c.showPage()
     c.save()
 
@@ -957,6 +1290,43 @@ def generate_study_plan(output: Path) -> None:
         styles,
         color=colors.HexColor("#EAF7F4"),
         border=TEAL,
+    ))
+    story.append(PageBreak())
+
+    story += section_title("2A. Desarrollo en educación superior: regulación e impacto social", styles)
+    story.append(Paragraph(
+        "Este conocimiento sí puede diferenciarte, siempre que lo traduzcas a decisiones de ingeniería. La directora no "
+        "necesita una exposición jurídica; necesita comprobar que entiendes por qué una aplicación universitaria exige "
+        "integridad, continuidad, privacidad, evidencia y cambios controlados.",
+        styles["body"],
+    ))
+    education_rows = [
+        ["Marco", "Exigencia relevante", "Implicación para desarrollo"],
+        ["Ley 30 de 1992", "El Estado inspecciona y vigila la educación superior y vela por la calidad del servicio.", "Los sistemas deben sostener procesos institucionales verificables y confiables."],
+        ["SNIES / Decreto 1767 de 2006", "Las IES responden por información completa, veraz, actualizada, disponible, segura y confidencial; el reporte debe apoyarse en procesos automatizados.", "Validaciones, calidad de datos, trazabilidad, responsables, calendarios, evidencia y controles sobre cargues."],
+        ["CNA y acreditación", "La autoevaluación y los Cuadros Maestros requieren información histórica; el CNA usa SNIES como fuente primaria.", "Conservar historia, evitar alteraciones, documentar reglas y facilitar reportes reproducibles."],
+        ["Ley 1581 de 2012", "Finalidad, acceso autorizado, seguridad y confidencialidad de datos personales.", "Mínimo privilegio, autenticación, protección de secretos, logs prudentes y datos de prueba anonimizados."],
+        ["Políticas UNAB", "Gobierno TIC, cuentas y contraseñas, auditoría y respuesta a incidentes para preservar continuidad.", "Alinear arquitectura, cambios, accesos y operación con estándares internos antes de desplegar."],
+    ]
+    story.append(table_from_rows(education_rows, [92, 208, 220], styles))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph("El impacto social que debes nombrar", styles["h2"]))
+    for text in [
+        "Un error en una integración puede afectar matrícula, calificaciones, pagos, inscripción o acceso a servicios.",
+        "Una indisponibilidad no impacta solo un indicador técnico: interrumpe actividades de estudiantes, docentes y administrativos.",
+        "Un dato inconsistente puede propagarse hacia reportes de calidad, planeación, acreditación o autoridades del sector.",
+        "Una autorización excesiva puede exponer información académica, financiera o personal de la comunidad universitaria.",
+    ]:
+        story.append(bullet(text, styles))
+    story.append(Spacer(1, 8))
+    story.append(callout(
+        "<b>Cómo decirlo en 45 segundos:</b> “Entiendo que en una universidad un desarrollo no solo debe cumplir una "
+        "función. Debe proteger datos personales y académicos, preservar historia y trazabilidad, soportar reportes confiables "
+        "y evitar que un cambio interrumpa servicios con impacto directo en la comunidad. Por eso mi método empieza por alcance "
+        "y riesgo, continúa con flujo y arquitectura, y termina con pruebas, control de cambios y seguridad en operación.”",
+        styles,
+        color=colors.HexColor("#FFF8E5"),
+        border=GOLD,
     ))
     story.append(PageBreak())
 
@@ -1429,6 +1799,10 @@ def generate_study_plan(output: Path) -> None:
         "[6] Repositorio UNAB. Política Gestión de Incidentes de Seguridad de la Información, 2025.",
         "[7] UNAB. “Conoce todo sobre la actualización de Banner 9 a un clic”.",
         "[8] Repositorio UNAB. Política para creación y manejo de cuentas y contraseñas para usuarios.",
+        "[9] Congreso de Colombia. Ley 30 de 1992, artículos 3, 31, 32 y 56: inspección, vigilancia, calidad y creación del SNIES.",
+        "[10] Ministerio de Educación Nacional. Decreto 1767 de 2006: disponibilidad, automatización, veracidad, seguridad y confidencialidad de la información SNIES.",
+        "[11] Superintendencia de Industria y Comercio. Ley 1581 de 2012: principios de finalidad, seguridad y confidencialidad en datos personales.",
+        "[12] Consejo Nacional de Acreditación. Cuadros Maestros 2025 y orientaciones de autoevaluación: información histórica, evidencia y articulación con SNIES.",
     ]
     for source in sources:
         story.append(bullet(source, styles))
@@ -1441,6 +1815,10 @@ def generate_study_plan(output: Path) -> None:
         "https://unab.edu.co/NewFolder/Estrategia%20Institucional%202025-2032%20Resumida.pdf",
         "https://repository.unab.edu.co/handle/20.500.12749/32318",
         "https://unab.edu.co/publicacion414/",
+        "https://www.mineducacion.gov.co/1621/articles-85860_archivo_pdf.pdf",
+        "https://snies.mineducacion.gov.co/1778/articles-391237_Decreto_1767.pdf",
+        "https://sedeelectronica.sic.gov.co/sites/default/files/normatividad/Ley_1581_2012.pdf",
+        "https://www.cna.gov.co/portal/427106:Cuadros-Maestros-Acreditacion-CNA-Actualizados-2025",
     ]
     for link in links:
         story.append(Paragraph(link, styles["small"]))
