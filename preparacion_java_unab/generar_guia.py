@@ -804,7 +804,159 @@ void noPermiteCerrarDirectamente() {
     story.append(bullet("Entrada maliciosa."))
     end_page(story)
 
-    start_page(story, 21, "Plan de práctica por sesiones")
+    start_page(story, 21, "Sprint semanal y trabajo en equipo")
+    story.append(Paragraph(
+        "Un sprint es un periodo corto para alcanzar un objetivo verificable. Si el equipo revisa avances cada semana, "
+        "tu trabajo debe poder integrarse y demostrarse; no basta con reportar porcentaje.",
+        S["body"],
+    ))
+    story.append(table([
+        ["Momento", "Propósito", "Evidencia"],
+        ["Refinamiento", "Aclarar alcance, reglas, dependencias y riesgos.", "Historia y criterios de aceptación."],
+        ["Planificación", "Elegir objetivo y trabajo alcanzable.", "Backlog del sprint y responsables."],
+        ["Ejecución", "Desarrollar en cambios pequeños y coordinados.", "Rama, commits y pruebas."],
+        ["Seguimiento", "Exponer avance, bloqueo e impacto.", "Funcionalidad ejecutable, no solo porcentaje."],
+        ["Review", "Demostrar valor y recibir retroalimentación.", "Criterios cumplidos y pendientes visibles."],
+        ["Retrospectiva", "Mejorar la forma de trabajar.", "Acción concreta para el siguiente sprint."],
+    ], [90, 255, 175]))
+    story.append(Spacer(1, 10))
+    story.append(Paragraph("Historia de usuario", S["h2"]))
+    story.append(callout(
+        "<b>Como</b> técnico TIC, <b>quiero</b> cambiar el estado de una incidencia <b>para</b> reflejar el avance.<br/><br/>"
+        "<b>Criterios:</b> ABIERTA a EN_PROGRESO; EN_PROGRESO a CERRADA; otras transiciones se rechazan; "
+        "el cambio queda auditado.",
+    ))
+    story.append(Spacer(1, 9))
+    story.append(bullet("Definition of Done: compila, cumple criterios, tiene pruebas, está revisada, integrada y documentada."))
+    end_page(story)
+
+    start_page(story, 22, "Git para integrar trabajo")
+    story.append(code("""
+git switch main
+git pull
+git switch -c feature/us-02-estados
+
+git status
+git add .
+git commit -m "Agregar transición de estados"
+
+git switch main
+git merge --no-ff feature/us-02-estados
+mvn clean test
+    """))
+    story.append(Paragraph("Principios", S["h2"]))
+    for text in [
+        "Una rama resuelve una historia o cambio coherente.",
+        "Los commits son pequeños, compilables y explican intención.",
+        "Antes de integrar, actualiza tu rama y ejecuta pruebas.",
+        "La revisión evalúa lógica, seguridad, pruebas y mantenibilidad; no solo formato.",
+        "Después del merge se ejecuta regresión sobre el sistema integrado.",
+        "Un conflicto textual puede ocultar un conflicto funcional entre contratos.",
+    ]:
+        story.append(bullet(text))
+    story.append(Paragraph("Resolver un conflicto", S["h2"]))
+    story.append(code("""
+git status
+# abrir archivo y entender ambas versiones
+# conservar el comportamiento correcto
+mvn test
+git add archivo
+git commit
+    """))
+    story.append(callout(
+        "No resuelvas escogiendo automáticamente “mi versión”. Revisa consumidores, contrato compartido, base de datos "
+        "y pruebas antes de decidir.",
+        colors.HexColor("#FFF8E5"),
+        GOLD,
+    ))
+    end_page(story)
+
+    start_page(story, 23, "Sprint no es Spring")
+    story.append(table([
+        ["Término", "Significado"],
+        ["Sprint", "Ciclo de trabajo de Scrum con objetivo, backlog, review y retrospectiva."],
+        ["Spring Framework", "Ecosistema Java con inyección de dependencias, MVC, acceso a datos y otros módulos."],
+        ["Spring Boot", "Forma rápida de configurar una aplicación Spring, normalmente con servidor embebido."],
+        ["Tomcat", "Contenedor web que puede ejecutar WAR clásicos o servir como contenedor embebido en Spring Boot."],
+    ], [130, 390]))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph("Arquitectura equivalente en Spring", S["h2"]))
+    story.append(code("""
+@RestController
+class IncidenciaController { ... }
+
+@Service
+class IncidenciaService { ... }
+
+@Repository
+class IncidenciaRepository { ... }
+    """))
+    story.append(Paragraph(
+        "Los fundamentos practicados se transfieren: HTTP, validación, servicio, transacción, SQL, pruebas y seguridad. "
+        "Spring reduce configuración, pero no reemplaza entender esas responsabilidades.",
+        S["body"],
+    ))
+    story.append(callout(
+        "Pregunta que debes hacer cuando confirmen la prueba: “¿El desarrollo será Java/JSP sobre Tomcat o utilizan "
+        "Spring/Spring Boot?”. La preparación puede ajustarse en cuanto conozcas la respuesta.",
+        colors.HexColor("#EAF7F4"),
+        TEAL,
+    ))
+    end_page(story)
+
+    start_page(story, 24, "Práctica final de integración")
+    story.append(Paragraph(
+        "Trabaja sobre una copia de `04_web_tomcat`. Simularás tres integrantes y unirás sus cambios al final.",
+        S["body"],
+    ))
+    story.append(table([
+        ["Rama", "Historia", "Entrega"],
+        ["feature/us-01-filtros", "Filtrar por estado y prioridad.", "Servicio, formulario y pruebas."],
+        ["feature/us-02-estados", "Cambiar estado con reglas.", "POST, validación y prueba."],
+        ["feature/us-03-auditoria", "Registrar cada cambio.", "Modelo, persistencia e historial."],
+    ], [155, 185, 180]))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph("Orden", S["h2"]))
+    for text in [
+        "Acordar contrato de estados, métodos y HTTP.",
+        "Crear ramas desde la misma base.",
+        "Implementar y probar cada historia por separado.",
+        "Simular review explicando avance, bloqueo y riesgo.",
+        "Integrar una rama a la vez.",
+        "Ejecutar pruebas después de cada merge.",
+        "Resolver un conflicto intencional en IncidenciaService.",
+        "Construir WAR y desplegar en Tomcat.",
+        "Demostrar creación, filtro, transición e historial.",
+    ]:
+        story.append(bullet(text))
+    story.append(callout(
+        "<b>Material:</b> `06_integracion_equipo/README.md`, `BACKLOG_SPRINT.md` y `CONTRATOS_INTEGRACION.md`.",
+    ))
+    end_page(story)
+
+    start_page(story, 25, "Calendario del 21 al 31 de julio")
+    story.append(table([
+        ["Fecha", "Trabajo principal", "Resultado"],
+        ["Mar. 21", "Instalación, guía 1–8 y fundamentos.", "Ejercicios Java compilados."],
+        ["Mié. 22", "SQL PostgreSQL y diferencias Oracle.", "15 consultas y esquema explicable."],
+        ["Jue. 23", "JDBC, PreparedStatement y transacciones.", "Proyecto JDBC ejecutado."],
+        ["Vie. 24", "Servlet, JSP, Maven y Tomcat.", "WAR desplegado localmente."],
+        ["Sáb. 25", "Simulacro 1 y corrección.", "Puntaje, errores y segunda versión."],
+        ["Dom. 26", "Git, sprint y práctica de integración.", "Tres ramas integradas."],
+        ["Lun. 27", "Simulacro 2 sin ayuda.", "CRUD JDBC cronometrado."],
+        ["28–30", "Si aún no es la prueba: repetir debilidades y simulacro 3.", "Aplicación web bajo tiempo."],
+        ["Día anterior", "Repaso corto, comandos y descanso.", "Entorno y documentos listos."],
+    ], [65, 285, 170]))
+    story.append(Spacer(1, 12))
+    story.append(callout(
+        "Si la prueba es el 27, no intentes terminar el simulacro 3 completo: prioriza fundamentos, SQL, JDBC y "
+        "explicar la arquitectura. Si es del 28 al 31, usa los días adicionales para integración y Tomcat.",
+        colors.HexColor("#FFF8E5"),
+        GOLD,
+    ))
+    end_page(story)
+
+    start_page(story, 26, "Plan de práctica por sesiones")
     story.append(table([
         ["Sesión", "Trabajo", "Resultado"],
         ["1", "Guía 2–7 + laboratorio fundamentos.", "Clases, métodos y colecciones sin copiar."],
@@ -826,7 +978,7 @@ void noPermiteCerrarDirectamente() {
     ))
     end_page(story)
 
-    start_page(story, 22, "Hoja de memoria para la prueba")
+    start_page(story, 27, "Hoja de memoria para la prueba")
     story.append(Paragraph("JAVA", S["h2"]))
     story.append(code("""
 if (x == null) { ... }
@@ -870,7 +1022,7 @@ WAR -> Tomcat webapps
     ))
     end_page(story)
 
-    start_page(story, 23, "Checklist de entrega")
+    start_page(story, 28, "Checklist de entrega")
     checks = [
         "[ ] El proyecto compila.",
         "[ ] Ejecuté al menos un caso válido.",

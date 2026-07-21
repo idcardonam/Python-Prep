@@ -13,12 +13,14 @@ Ruta diseñada para practicar sin IA una prueba presencial con énfasis en:
 
 No abras las soluciones antes de terminar cada ejercicio.
 
-1. `01_fundamentos/ENUNCIADOS.md`
-2. `02_sql/README.md`
-3. `03_jdbc/README.md`
-4. `04_web_tomcat/README.md`
-5. `05_simulacros/`
-6. `entregables/Guia_Practica_Java_UNAB_Ivan_Cardona.pdf`
+1. `00_instalacion/INSTALACION_WINDOWS.md`
+2. `01_fundamentos/ENUNCIADOS.md`
+3. `02_sql/README.md`
+4. `03_jdbc/README.md`
+5. `04_web_tomcat/README.md`
+6. `05_simulacros/`
+7. `06_integracion_equipo/`
+8. `entregables/Guia_Practica_Java_UNAB_Ivan_Cardona.pdf`
 
 ## Método de práctica sin IA
 
