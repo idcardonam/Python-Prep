@@ -10,9 +10,12 @@
     <link href="assets/app.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-unab">
     <div class="container">
-        <a class="navbar-brand" href="index.php">Alerta Temprana UNAB</a>
+        <a class="navbar-brand navbar-brand-wrap" href="index.php">
+            <img src="assets/img/logo-unab.png" alt="UNAB" onerror="this.style.display='none'">
+            <span>Alerta Temprana UNAB</span>
+        </a>
         <div class="navbar-nav">
             <a class="nav-link active" href="variables.php">Variables</a>
             <a class="nav-link" href="calculo.php">Cálculo</a>
@@ -27,7 +30,7 @@
             <h1 class="h3 mb-1">Catálogo de variables de riesgo</h1>
             <p class="text-muted small mb-0">CRUD sobre <code>GWRPIVR</code>. Baja lógica (Y/N). Código único en mayúsculas sin espacios.</p>
         </div>
-        <button class="btn btn-success" id="btnNueva">Nueva variable</button>
+        <button class="btn btn-unab-gold" id="btnNueva">Nueva variable</button>
     </div>
 
     <div id="alertBox" class="alert d-none" role="alert"></div>
