@@ -1,6 +1,6 @@
 <?php
 /**
- * API AJAX — Reporte estudiantes matriculados + resultado de riesgo
+ * API AJAX — Reporte con columnas REALES
  */
 declare(strict_types=1);
 
@@ -12,23 +12,24 @@ $nivel = trim((string)($_GET['nivel_riesgo'] ?? ''));
 
 $sql = "SELECT
             em.GWRPIEM_PERIODO AS periodo,
-            em.GWRPIEM_ID AS codigo,
-            em.GWRPIEM_NOMBRE AS estudiante,
+            em.GWRPIEM_CODIGO_ESTUDIANTE AS codigo,
+            em.GWRPIEM_ID_ESTUDIANTE AS id_estudiante,
+            em.GWRPIEM_NOMBRE_COMPLETO AS estudiante,
             em.GWRPIEM_PROGRAMA AS programa,
             em.GWRPIEM_NIVEL AS nivel,
             em.GWRPIEM_CAMPUS AS campus,
-            rr.GWRPIRR_PUNTAJE AS puntaje,
+            rr.GWRPIRR_PUNTAJE_FINAL AS puntaje,
             COALESCE(rr.GWRPIRR_NIVEL_RIESGO, 'PENDIENTE') AS nivel_riesgo,
-            rr.GWRPIRR_VARIABLES AS variables,
-            rr.GWRPIRR_DATE_CALC AS fecha_calculo,
-            rr.GWRPIRR_USER_CALC AS usuario_calculo
+            rr.GWRPIRR_VARIABLES_RIESGO AS variables,
+            rr.GWRPIRR_FECHA_CALCULO AS fecha_calculo,
+            rr.GWRPIRR_USUARIO_CALCULO AS usuario_calculo
         FROM GWRPIEM em
         LEFT JOIN GWRPIRR rr
-            ON rr.GWRPIRR_ID_ESTUDIANTE = em.GWRPIEM_ID
-           AND (rr.GWRPIRR_PERIODO = em.GWRPIEM_PERIODO OR rr.GWRPIRR_PERIODO = :periodo_join OR :periodo_join = '')
+            ON rr.GWRPIRR_ID_ESTUDIANTE = em.GWRPIEM_ID_ESTUDIANTE
+           AND rr.GWRPIRR_PERIODO = em.GWRPIEM_PERIODO
         WHERE em.GWRPIEM_MATRICULADO = 'Y'";
 
-$params = [':periodo_join' => $periodo];
+$params = [];
 
 if ($periodo !== '') {
     $sql .= ' AND em.GWRPIEM_PERIODO = :periodo';
@@ -39,23 +40,21 @@ if ($programa !== '') {
     $params[':programa'] = $programa;
 }
 if ($nivel !== '') {
-    if ($nivel === 'PENDIENTE') {
-        $sql .= ' AND rr.GWRPIRR_NIVEL_RIESGO IS NULL';
+    if (strtoupper($nivel) === 'PENDIENTE') {
+        $sql .= ' AND rr.GWRPIRR_ID IS NULL';
     } else {
         $sql .= ' AND rr.GWRPIRR_NIVEL_RIESGO = :nivel';
-        $params[':nivel'] = $nivel;
+        $params[':nivel'] = strtoupper($nivel);
     }
 }
 
-// Orden base en SQL: luego el frontend prioriza ALTO→MEDIO→BAJO→PENDIENTE
-$sql .= ' ORDER BY em.GWRPIEM_NOMBRE ASC';
+$sql .= ' ORDER BY em.GWRPIEM_NOMBRE_COMPLETO ASC';
 
 try {
     $st = $pdo->prepare($sql);
     $st->execute($params);
     $rows = $st->fetchAll();
 
-    // Resumen KPI + porcentajes (valor agregado para decisión institucional)
     $resumen = ['BAJO' => 0, 'MEDIO' => 0, 'ALTO' => 0, 'PENDIENTE' => 0, 'TOTAL' => count($rows)];
     foreach ($rows as $r) {
         $nr = strtoupper((string)($r['nivel_riesgo'] ?? 'PENDIENTE'));
@@ -72,8 +71,8 @@ try {
         return (float)($b['puntaje'] ?? 0) <=> (float)($a['puntaje'] ?? 0);
     });
 
-    $periodos = $pdo->query("SELECT DISTINCT GWRPIEM_PERIODO AS v FROM GWRPIEM WHERE GWRPIEM_MATRICULADO='Y' AND GWRPIEM_PERIODO IS NOT NULL AND GWRPIEM_PERIODO <> '' ORDER BY 1")->fetchAll(PDO::FETCH_COLUMN);
-    $programas = $pdo->query("SELECT DISTINCT GWRPIEM_PROGRAMA AS v FROM GWRPIEM WHERE GWRPIEM_MATRICULADO='Y' AND GWRPIEM_PROGRAMA IS NOT NULL AND GWRPIEM_PROGRAMA <> '' ORDER BY 1")->fetchAll(PDO::FETCH_COLUMN);
+    $periodos = $pdo->query("SELECT DISTINCT GWRPIEM_PERIODO AS v FROM GWRPIEM WHERE GWRPIEM_MATRICULADO='Y' ORDER BY 1")->fetchAll(PDO::FETCH_COLUMN);
+    $programas = $pdo->query("SELECT DISTINCT GWRPIEM_PROGRAMA AS v FROM GWRPIEM WHERE GWRPIEM_MATRICULADO='Y' ORDER BY 1")->fetchAll(PDO::FETCH_COLUMN);
 
     json_response([
         'ok' => true,
@@ -83,6 +82,7 @@ try {
         'meta' => [
             'matriculados_esperados' => 80,
             'cumple_meta_matriculados' => count($rows) === 80,
+            'periodo_sugerido' => '202630',
             'clasificacion' => [
                 'BAJO' => '0 a 29.99',
                 'MEDIO' => '30 a 59.99',
@@ -98,7 +98,7 @@ try {
 } catch (Throwable $e) {
     json_response([
         'ok' => false,
-        'mensaje' => 'No se pudo construir el reporte. Verifique nombres de columnas con herramientas/ver_estructura.php',
+        'mensaje' => 'No se pudo construir el reporte.',
         'detalle' => $e->getMessage(),
     ], 500);
 }

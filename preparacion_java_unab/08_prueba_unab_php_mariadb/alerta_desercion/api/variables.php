@@ -1,7 +1,7 @@
 <?php
 /**
- * API AJAX — CRUD GWRPIVR (variables de riesgo)
- * Acciones: listar | obtener | crear | actualizar | toggle_activo
+ * API AJAX — CRUD GWRPIVR (columnas REALES)
+ * USER_ADD / DATE_ADD / USER_UPD / DATE_UPD
  */
 declare(strict_types=1);
 
@@ -47,8 +47,8 @@ function listarVariables(PDO $pdo): void
                 GWRPIVR_DESCRIPCION AS descripcion,
                 GWRPIVR_PESO AS peso,
                 GWRPIVR_ACTIVO AS activo,
-                GWRPIVR_USER_INS AS user_ins,
-                GWRPIVR_DATE_INS AS date_ins,
+                GWRPIVR_USER_ADD AS user_ins,
+                GWRPIVR_DATE_ADD AS date_ins,
                 GWRPIVR_USER_UPD AS user_upd,
                 GWRPIVR_DATE_UPD AS date_upd
             FROM GWRPIVR
@@ -97,8 +97,8 @@ function normalizarCodigo(string $codigo): array
 function validarPayload(array $in, bool $esCreacion): array
 {
     $errores = [];
-
     $codigo = '';
+
     if ($esCreacion) {
         [$okCod, $codigoOMsg] = normalizarCodigo((string)($in['codigo'] ?? ''));
         if (!$okCod) {
@@ -142,15 +142,14 @@ function crearVariable(PDO $pdo): void
 
     $sql = "INSERT INTO GWRPIVR (
                 GWRPIVR_CODIGO, GWRPIVR_NOMBRE, GWRPIVR_DESCRIPCION, GWRPIVR_PESO, GWRPIVR_ACTIVO,
-                GWRPIVR_USER_INS, GWRPIVR_DATE_INS, GWRPIVR_USER_UPD, GWRPIVR_DATE_UPD
-            ) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, NOW())";
+                GWRPIVR_USER_ADD, GWRPIVR_DATE_ADD
+            ) VALUES (?, ?, ?, ?, ?, ?, NOW())";
     try {
         $st = $pdo->prepare($sql);
-        $st->execute([$codigo, $nombre, $descripcion, $peso, $activo, app_user(), app_user()]);
+        $st->execute([$codigo, $nombre, $descripcion, $peso, $activo, app_user()]);
     } catch (PDOException $e) {
-        // 23000 = integridad / unique
         if ($e->getCode() === '23000') {
-            json_response(['ok' => false, 'mensaje' => 'Ya existe una variable con ese código. El código debe ser único.'], 409);
+            json_response(['ok' => false, 'mensaje' => 'Ya existe una variable con ese código. Debe ser único.'], 409);
         }
         throw $e;
     }
@@ -183,7 +182,6 @@ function actualizarVariable(PDO $pdo): void
     $st->execute([$nombre, $descripcion, $peso, $activo, app_user(), $id]);
 
     if ($st->rowCount() === 0) {
-        // Puede ser "sin cambios" o id inexistente
         $check = $pdo->prepare('SELECT 1 FROM GWRPIVR WHERE GWRPIVR_ID = ?');
         $check->execute([$id]);
         if (!$check->fetchColumn()) {
@@ -192,7 +190,7 @@ function actualizarVariable(PDO $pdo): void
     }
 
     auditar('ACTUALIZAR_VARIABLE', ['id' => $id, 'peso' => $peso, 'activo' => $activo]);
-    json_response(['ok' => true, 'mensaje' => 'Variable actualizada. Recuerda: un cambio de peso no recalcula GWRPIRR automáticamente.']);
+    json_response(['ok' => true, 'mensaje' => 'Variable actualizada. Si cambió el peso, ejecute nuevamente el cálculo para refrescar GWRPIRR.']);
 }
 
 function toggleActivo(PDO $pdo): void

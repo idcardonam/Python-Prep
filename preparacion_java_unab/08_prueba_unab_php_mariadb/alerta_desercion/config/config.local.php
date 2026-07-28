@@ -1,7 +1,6 @@
 <?php
 /**
- * Configuración local de la VM (ajusta si root tiene clave).
- * Este archivo SÍ se usa en la máquina de la prueba.
+ * Config local VM — período real visto en datos: 202630
  */
 declare(strict_types=1);
 
@@ -15,5 +14,5 @@ return [
         'charset' => 'utf8mb4',
     ],
     'app_user' => 'IVAN.CARDONA',
-    'periodo_default' => '202601',
+    'periodo_default' => '202630',
 ];
