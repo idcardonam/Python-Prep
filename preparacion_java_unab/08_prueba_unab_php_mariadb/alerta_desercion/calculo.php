@@ -9,10 +9,14 @@
     <link href="assets/app.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-unab">
     <div class="container">
-        <a class="navbar-brand" href="index.php">Alerta Temprana UNAB</a>
-        <div class="navbar-nav">
+        <a class="navbar-brand navbar-brand-wrap" href="index.php">
+            <img class="logo-unab" src="assets/img/logo-unab.svg" alt="UNAB"
+                 onerror="this.onerror=null;this.src='assets/img/logo-unab.png';">
+            <span>Alerta Temprana UNAB</span>
+        </a>
+        <div class="navbar-nav ms-auto">
             <a class="nav-link" href="variables.php">Variables</a>
             <a class="nav-link active" href="calculo.php">Cálculo</a>
             <a class="nav-link" href="reporte.php">Reporte</a>

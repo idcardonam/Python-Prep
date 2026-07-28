@@ -13,7 +13,8 @@
 <nav class="navbar navbar-expand-lg navbar-dark navbar-unab">
     <div class="container-fluid px-4">
         <a class="navbar-brand navbar-brand-wrap" href="index.php">
-            <img src="assets/img/logo-unab.png" alt="UNAB" onerror="this.style.display='none'">
+            <img class="logo-unab" src="assets/img/logo-unab.svg" alt="UNAB"
+                 onerror="this.onerror=null;this.src='assets/img/logo-unab.png';">
             <span>Alerta Temprana UNAB</span>
         </a>
         <div class="navbar-nav">

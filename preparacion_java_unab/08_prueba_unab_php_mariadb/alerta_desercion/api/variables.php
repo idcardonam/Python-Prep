@@ -81,17 +81,18 @@ function obtenerVariable(PDO $pdo): void
 
 function normalizarCodigo(string $codigo): array
 {
+    // Detectar espacios ANTES del trim/normalización para mensaje claro al usuario
+    if (preg_match('/\s/', $codigo)) {
+        return [false, 'El código no puede tener espacios. Escriba por ejemplo BAJO_RENDIMIENTO (con guion bajo), no “BAJO RENDIMIENTO”.', 'codigo'];
+    }
     $codigo = strtoupper(trim($codigo));
     if ($codigo === '') {
-        return [false, 'El código es obligatorio.'];
-    }
-    if (preg_match('/\s/', $codigo)) {
-        return [false, 'El código no puede contener espacios.'];
+        return [false, 'Debe escribir un código. Ejemplo: BAJO_RENDIMIENTO', 'codigo'];
     }
     if (!preg_match('/^[A-Z0-9_\-]+$/', $codigo)) {
-        return [false, 'El código solo admite letras, números, guion y guion bajo.'];
+        return [false, 'El código solo admite letras, números, guion (-) y guion bajo (_).', 'codigo'];
     }
-    return [true, $codigo];
+    return [true, $codigo, null];
 }
 
 function validarPayload(array $in, bool $esCreacion): array
@@ -99,10 +100,13 @@ function validarPayload(array $in, bool $esCreacion): array
     $errores = [];
     $codigo = '';
 
+    $campo = null;
+
     if ($esCreacion) {
-        [$okCod, $codigoOMsg] = normalizarCodigo((string)($in['codigo'] ?? ''));
+        [$okCod, $codigoOMsg, $campoCod] = normalizarCodigo((string)($in['codigo'] ?? ''));
         if (!$okCod) {
             $errores[] = $codigoOMsg;
+            $campo = $campoCod;
         } else {
             $codigo = $codigoOMsg;
         }
@@ -110,34 +114,41 @@ function validarPayload(array $in, bool $esCreacion): array
 
     $nombre = trim((string)($in['nombre'] ?? ''));
     if ($nombre === '') {
-        $errores[] = 'El nombre es obligatorio.';
+        $errores[] = 'Escriba un nombre claro para esta variable.';
+        $campo = $campo ?? 'nombre';
     }
 
     $descripcion = trim((string)($in['descripcion'] ?? ''));
     $pesoRaw = $in['peso'] ?? '';
     if ($pesoRaw === '' || !is_numeric($pesoRaw)) {
-        $errores[] = 'El peso es obligatorio y numérico.';
+        $errores[] = 'Indique el peso: debe ser un número entre 0 y 100.';
         $peso = null;
+        $campo = $campo ?? 'peso';
     } else {
         $peso = (float)$pesoRaw;
         if ($peso < 0 || $peso > 100) {
             $errores[] = 'El peso debe estar entre 0 y 100.';
+            $campo = $campo ?? 'peso';
         }
     }
 
     $activo = strtoupper(trim((string)($in['activo'] ?? 'Y')));
     if (!in_array($activo, ['Y', 'N'], true)) {
-        $errores[] = 'El estado activo solo admite Y o N.';
+        $errores[] = 'El estado solo admite Activa (Y) o Inactiva (N).';
     }
 
-    return [$errores, $codigo, $nombre, $descripcion, $peso, $activo];
+    return [$errores, $codigo, $nombre, $descripcion, $peso, $activo, $campo];
 }
 
 function crearVariable(PDO $pdo): void
 {
-    [$errores, $codigo, $nombre, $descripcion, $peso, $activo] = validarPayload($_POST, true);
+    [$errores, $codigo, $nombre, $descripcion, $peso, $activo, $campo] = validarPayload($_POST, true);
     if ($errores) {
-        json_response(['ok' => false, 'mensaje' => implode(' ', $errores)], 422);
+        json_response([
+            'ok' => false,
+            'mensaje' => implode(' ', $errores),
+            'campo' => $campo,
+        ], 422);
     }
 
     $sql = "INSERT INTO GWRPIVR (
@@ -165,9 +176,13 @@ function actualizarVariable(PDO $pdo): void
         json_response(['ok' => false, 'mensaje' => 'ID inválido'], 422);
     }
 
-    [$errores, , $nombre, $descripcion, $peso, $activo] = validarPayload($_POST, false);
+    [$errores, , $nombre, $descripcion, $peso, $activo, $campo] = validarPayload($_POST, false);
     if ($errores) {
-        json_response(['ok' => false, 'mensaje' => implode(' ', $errores)], 422);
+        json_response([
+            'ok' => false,
+            'mensaje' => implode(' ', $errores),
+            'campo' => $campo,
+        ], 422);
     }
 
     $sql = "UPDATE GWRPIVR
