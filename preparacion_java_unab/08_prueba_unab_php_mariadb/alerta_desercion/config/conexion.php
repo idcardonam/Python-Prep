@@ -43,7 +43,7 @@ function app_user(): string
 function periodo_default(): string
 {
     $cfg = require __DIR__ . '/config.php';
-    return (string)($cfg['periodo_default'] ?? '202601');
+    return (string)($cfg['periodo_default'] ?? '202630');
 }
 
 function e(?string $texto): string

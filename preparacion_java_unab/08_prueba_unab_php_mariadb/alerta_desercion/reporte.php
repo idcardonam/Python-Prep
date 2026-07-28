@@ -112,7 +112,7 @@
                                 <th>Estudiante</th>
                                 <th>Programa</th>
                                 <th>Puntaje</th>
-                                <th>Variables</th>
+                                <th># Vars</th>
                             </tr>
                             </thead>
                             <tbody>
