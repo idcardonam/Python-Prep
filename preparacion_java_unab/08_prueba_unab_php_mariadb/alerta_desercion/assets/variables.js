@@ -15,8 +15,11 @@
     }
 
     function badgeActivo(v) {
-        if (v === 'Y') return '<span class="badge text-bg-success">Y — Activa</span>';
-        return '<span class="badge text-bg-secondary">N — Inactiva</span>';
+        // El modelo guarda Y/N (regla del enunciado). Mostramos texto humano + código.
+        if (v === 'Y') {
+            return '<span class="badge badge-activa">Activa <small>(Y)</small></span>';
+        }
+        return '<span class="badge badge-inactiva">Inactiva <small>(N)</small></span>';
     }
 
     function cargar() {

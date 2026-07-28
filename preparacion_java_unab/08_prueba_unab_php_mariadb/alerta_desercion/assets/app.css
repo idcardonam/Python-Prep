@@ -1,20 +1,86 @@
-/* Estilos — entrega limpia + tablero de reporte */
-body { font-family: "Segoe UI", Arial, sans-serif; }
+/* Identidad visual aproximada UNAB + tablero operativo */
+:root {
+    --unab-azul: #003 Spacious;
+}
+
+:root {
+    --unab-azul: #003B70;
+    --unab-azul-2: #0055A4;
+    --unab-dorado: #C4A106;
+    --unab-gris: #F4F7FB;
+    --unab-texto: #1F2937;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: var(--unab-texto);
+    background: var(--unab-gris);
+}
+
+.navbar-unab {
+    background: linear-gradient(90deg, var(--unab-azul) 0%, var(--unab-azul-2) 100%) !important;
+}
+
+.navbar-brand-wrap {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+}
+
+.navbar-brand-wrap img {
+    height: 34px;
+    width: auto;
+    background: #fff;
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+.btn-unab {
+    background: var(--unab-azul-2);
+    border-color: var(--unab-azul-2);
+    color: #fff;
+}
+.btn-unab:hover { background: var(--unab-azul); border-color: var(--unab-azul); color: #fff; }
+
+.btn-unab-gold {
+    background: var(--unab-dorado);
+    border-color: var(--unab-dorado);
+    color: #1a1a1a;
+}
+.btn-unab-gold:hover { filter: brightness(.95); color: #111; }
+
 .badge-nivel { font-size: .75rem; letter-spacing: .02em; padding: .45em .65em; }
 .badge-bajo { background:#198754; }
 .badge-medio { background:#ffc107; color:#212529; }
 .badge-alto { background:#dc3545; }
 .badge-pendiente { background:#6c757d; }
 
+.badge-activa {
+    background: #e8f6ee;
+    color: #0f7a3c;
+    border: 1px solid #b7e0c6;
+}
+.badge-inactiva {
+    background: #f1f3f5;
+    color: #5c6770;
+    border: 1px solid #d7dde2;
+}
+.badge-activa small, .badge-inactiva small {
+    opacity: .85;
+    font-weight: 600;
+}
+
 .reporte-hero {
-    background: linear-gradient(120deg, #0b3d91 0%, #1a6bb5 55%, #0f766e 100%);
+    background: linear-gradient(120deg, var(--unab-azul) 0%, var(--unab-azul-2) 55%, #0f766e 100%);
 }
 .kpi-card { border-top: 3px solid #dee2e6; }
 .kpi-card.border-success { border-top-color: #198754 !important; }
 .kpi-card.border-warning { border-top-color: #ffc107 !important; }
 .kpi-card.border-danger { border-top-color: #dc3545 !important; }
 
+.card { border: 0; }
+.card-header { border-bottom: 1px solid #e9eef5; }
+
 @media print {
     .navbar, #btnActualizar, #btnRecalc, #btnImprimir, #btnFiltrar, #btnLimpiar, .btn-group { display: none !important; }
-    .reporte-hero { background: #0b3d91 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
