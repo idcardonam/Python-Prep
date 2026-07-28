@@ -9,10 +9,13 @@
     <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="assets/app.css" rel="stylesheet">
 </head>
-<body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-unab">
     <div class="container-fluid px-4">
-        <a class="navbar-brand fw-semibold" href="index.php">Alerta Temprana UNAB</a>
+        <a class="navbar-brand navbar-brand-wrap" href="index.php">
+            <img src="assets/img/logo-unab.png" alt="UNAB" onerror="this.style.display='none'">
+            <span>Alerta Temprana UNAB</span>
+        </a>
         <div class="navbar-nav">
             <a class="nav-link" href="variables.php">Variables</a>
             <a class="nav-link" href="calculo.php">Cálculo</a>
