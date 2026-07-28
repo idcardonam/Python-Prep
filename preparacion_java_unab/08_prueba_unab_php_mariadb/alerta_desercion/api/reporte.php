@@ -47,6 +47,7 @@ if ($nivel !== '') {
     }
 }
 
+// Orden base en SQL: luego el frontend prioriza ALTO→MEDIO→BAJO→PENDIENTE
 $sql .= ' ORDER BY em.GWRPIEM_NOMBRE ASC';
 
 try {
@@ -54,24 +55,41 @@ try {
     $st->execute($params);
     $rows = $st->fetchAll();
 
-    // Resumen para panel diferenciador
+    // Resumen KPI + porcentajes (valor agregado para decisión institucional)
     $resumen = ['BAJO' => 0, 'MEDIO' => 0, 'ALTO' => 0, 'PENDIENTE' => 0, 'TOTAL' => count($rows)];
     foreach ($rows as $r) {
-        $nr = $r['nivel_riesgo'] ?? 'PENDIENTE';
+        $nr = strtoupper((string)($r['nivel_riesgo'] ?? 'PENDIENTE'));
         if (!isset($resumen[$nr])) {
             $resumen[$nr] = 0;
         }
         $resumen[$nr]++;
     }
 
-    // Catálogos de filtro
-    $periodos = $pdo->query("SELECT DISTINCT GWRPIEM_PERIODO AS v FROM GWRPIEM WHERE GWRPIEM_MATRICULADO='Y' AND GWRPIEM_PERIODO IS NOT NULL ORDER BY 1")->fetchAll(PDO::FETCH_COLUMN);
-    $programas = $pdo->query("SELECT DISTINCT GWRPIEM_PROGRAMA AS v FROM GWRPIEM WHERE GWRPIEM_MATRICULADO='Y' AND GWRPIEM_PROGRAMA IS NOT NULL ORDER BY 1")->fetchAll(PDO::FETCH_COLUMN);
+    $prioritarios = array_values(array_filter($rows, static function (array $r): bool {
+        return strtoupper((string)($r['nivel_riesgo'] ?? '')) === 'ALTO';
+    }));
+    usort($prioritarios, static function (array $a, array $b): int {
+        return (float)($b['puntaje'] ?? 0) <=> (float)($a['puntaje'] ?? 0);
+    });
+
+    $periodos = $pdo->query("SELECT DISTINCT GWRPIEM_PERIODO AS v FROM GWRPIEM WHERE GWRPIEM_MATRICULADO='Y' AND GWRPIEM_PERIODO IS NOT NULL AND GWRPIEM_PERIODO <> '' ORDER BY 1")->fetchAll(PDO::FETCH_COLUMN);
+    $programas = $pdo->query("SELECT DISTINCT GWRPIEM_PROGRAMA AS v FROM GWRPIEM WHERE GWRPIEM_MATRICULADO='Y' AND GWRPIEM_PROGRAMA IS NOT NULL AND GWRPIEM_PROGRAMA <> '' ORDER BY 1")->fetchAll(PDO::FETCH_COLUMN);
 
     json_response([
         'ok' => true,
         'data' => $rows,
         'resumen' => $resumen,
+        'prioritarios' => array_slice($prioritarios, 0, 20),
+        'meta' => [
+            'matriculados_esperados' => 80,
+            'cumple_meta_matriculados' => count($rows) === 80,
+            'clasificacion' => [
+                'BAJO' => '0 a 29.99',
+                'MEDIO' => '30 a 59.99',
+                'ALTO' => '60 a 100',
+                'PENDIENTE' => 'Sin fila en GWRPIRR',
+            ],
+        ],
         'filtros' => [
             'periodos' => $periodos,
             'programas' => $programas,
