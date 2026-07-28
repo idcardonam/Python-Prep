@@ -47,21 +47,19 @@
                     <label for="buscarVariable">Buscar variable</label>
                     <div class="vars-search-box">
                         <input type="search" id="buscarVariable"
-                               placeholder="Escriba código, nombre o descripción…"
+                               placeholder="Ejemplo: INASISTENCIA  ·  rendimiento  ·  reprobación"
                                autocomplete="off"
                                aria-describedby="hintBuscar">
                         <button type="button" class="vars-search-clear" id="btnLimpiarBuscar"
                                 title="Limpiar búsqueda" aria-label="Limpiar búsqueda">×</button>
                     </div>
-                    <div class="vars-search-hint" id="hintBuscar">
-                        Escriba cualquier parte del texto. Ejemplos rápidos:
-                    </div>
-                    <div class="vars-chips" id="chipsBusqueda" role="group" aria-label="Atajos de búsqueda">
-                        <button type="button" class="vars-chip" data-q="INASISTENCIA">Inasistencia</button>
-                        <button type="button" class="vars-chip" data-q="REPROB">Reprobación</button>
-                        <button type="button" class="vars-chip" data-q="RENDIMIENTO">Rendimiento</button>
-                        <button type="button" class="vars-chip" data-q="Activa">Solo activas (texto)</button>
-                    </div>
+                    <p class="vars-search-hint" id="hintBuscar">
+                        Escriba cualquier parte del <strong>código</strong>, <strong>nombre</strong> o <strong>descripción</strong>.
+                        Ejemplos de texto (solo guía, no son botones):
+                        <span class="vars-example">INASISTENCIA</span>,
+                        <span class="vars-example">rendimiento</span>,
+                        <span class="vars-example">reprobación</span>.
+                    </p>
                 </div>
 
                 <div class="audit-toggle" id="wrapAuditToggle" title="Muestra u oculta quién creó/modificó cada variable">
@@ -97,7 +95,6 @@
     </div>
 </main>
 
-<!-- Modal crear/editar -->
 <div class="modal fade" id="modalVariable" tabindex="-1" aria-labelledby="modalTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <form class="modal-content" id="formVariable" novalidate>
@@ -107,14 +104,12 @@
             </div>
             <div class="modal-body">
                 <div id="modalAlert" class="alert alert-danger d-none" role="alert"></div>
-
                 <input type="hidden" name="id" id="varId">
 
                 <div class="mb-3" id="wrapCodigo">
                     <label class="form-label" for="varCodigo">Código *</label>
                     <input type="text" class="form-control" name="codigo" id="varCodigo"
-                           maxlength="30" placeholder="Ejemplo: BAJO_RENDIMIENTO"
-                           autocomplete="off">
+                           maxlength="30" placeholder="Ejemplo: BAJO_RENDIMIENTO" autocomplete="off">
                     <div class="form-text">
                         Use MAYÚSCULAS. Separar palabras con guion bajo (_).
                         <strong>No use espacios</strong>.

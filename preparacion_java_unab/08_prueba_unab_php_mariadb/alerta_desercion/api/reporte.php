@@ -1,6 +1,6 @@
 <?php
 /**
- * API AJAX — Reporte con columnas REALES
+ * API AJAX — Reporte + export CSV
  */
 declare(strict_types=1);
 
@@ -9,6 +9,7 @@ require_once dirname(__DIR__) . '/config/conexion.php';
 $periodo = trim((string)($_GET['periodo'] ?? ''));
 $programa = trim((string)($_GET['programa'] ?? ''));
 $nivel = trim((string)($_GET['nivel_riesgo'] ?? ''));
+$export = strtolower(trim((string)($_GET['export'] ?? '')));
 
 $sql = "SELECT
             em.GWRPIEM_PERIODO AS periodo,
@@ -54,6 +55,30 @@ try {
     $st = $pdo->prepare($sql);
     $st->execute($params);
     $rows = $st->fetchAll();
+
+    if ($export === 'csv') {
+        $filename = 'reporte_riesgo_' . ($periodo !== '' ? $periodo : 'todos') . '_' . date('Ymd_His') . '.csv';
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        echo "\xEF\xBB\xBF"; // BOM Excel UTF-8
+        $out = fopen('php://output', 'w');
+        fputcsv($out, [
+            'Periodo', 'Codigo', 'ID_Estudiante', 'Estudiante', 'Programa', 'Nivel_acad',
+            'Campus', 'Puntaje', 'Nivel_riesgo', 'Vars_riesgo', 'Fecha_calculo', 'Usuario_calculo',
+        ], ';');
+        foreach ($rows as $r) {
+            fputcsv($out, [
+                $r['periodo'], $r['codigo'], $r['id_estudiante'], $r['estudiante'],
+                $r['programa'], $r['nivel'], $r['campus'], $r['puntaje'],
+                $r['nivel_riesgo'], $r['variables'], $r['fecha_calculo'], $r['usuario_calculo'],
+            ], ';');
+        }
+        fclose($out);
+        auditar('EXPORT_REPORTE_CSV', ['periodo' => $periodo, 'filas' => count($rows)]);
+        exit;
+    }
 
     $resumen = ['BAJO' => 0, 'MEDIO' => 0, 'ALTO' => 0, 'PENDIENTE' => 0, 'TOTAL' => count($rows)];
     foreach ($rows as $r) {

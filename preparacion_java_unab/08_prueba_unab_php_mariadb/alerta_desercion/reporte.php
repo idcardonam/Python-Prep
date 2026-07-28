@@ -29,17 +29,18 @@
     <div class="reporte-hero mb-4 p-4 rounded-3 text-white shadow-sm">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <p class="small mb-1 text-white-50">Permanencia estudiantil · referencia SPADIES / SNIES · UNAB Bucaramanga</p>
+                <p class="small mb-1 text-white-50">Permanencia estudiantil · SPADIES / SNIES · UNAB Bucaramanga</p>
                 <h1 class="h3 mb-2">Tablero de alerta temprana de deserción</h1>
                 <p class="mb-0 small">
-                    Consulta de matriculados (<code class="text-white">GWRPIEM_MATRICULADO = 'Y'</code>)
-                    con resultado consolidado (<code class="text-white">GWRPIRR</code>).
-                    Sin cálculo previo se muestra <strong>PENDIENTE</strong>.
+                    Matriculados (<code class="text-white">GWRPIEM_MATRICULADO = 'Y'</code>)
+                    con LEFT JOIN a <code class="text-white">GWRPIRR</code>.
+                    Sin cálculo se muestra <strong>PENDIENTE</strong>.
                 </p>
             </div>
             <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
                 <button type="button" class="btn btn-light btn-sm me-1" id="btnActualizar">Actualizar</button>
                 <button type="button" class="btn btn-unab-gold btn-sm me-1" id="btnRecalc">Recalcular período</button>
+                <button type="button" class="btn btn-outline-light btn-sm me-1" id="btnExportCsv">Exportar CSV</button>
                 <button type="button" class="btn btn-outline-light btn-sm" id="btnImprimir">Imprimir</button>
             </div>
         </div>
@@ -159,14 +160,14 @@
 
             <div class="card shadow-sm">
                 <div class="card-body small">
-                    <strong>Leyenda de clasificación</strong>
+                    <strong>Leyenda</strong>
                     <ul class="mb-2 mt-2">
-                        <li><span class="badge badge-nivel badge-bajo">BAJO</span> 0 a 29.99</li>
-                        <li><span class="badge badge-nivel badge-medio">MEDIO</span> 30 a 59.99</li>
-                        <li><span class="badge badge-nivel badge-alto">ALTO</span> 60 a 100</li>
-                        <li><span class="badge badge-nivel badge-pendiente">PENDIENTE</span> sin fila en GWRPIRR</li>
+                        <li><span class="badge text-bg-success">BAJO</span> 0–29.99</li>
+                        <li><span class="badge text-bg-warning text-dark">MEDIO</span> 30–59.99</li>
+                        <li><span class="badge text-bg-danger">ALTO</span> 60–100</li>
+                        <li><span class="badge text-bg-secondary">PENDIENTE</span> sin fila en GWRPIRR</li>
                     </ul>
-                    <p class="mb-0 text-muted">El color no es el único indicador: el texto del nivel siempre es visible. Meta tras recálculo masivo: 80 matriculados.</p>
+                    <p class="mb-0 text-muted">Meta tras recálculo masivo: 80 matriculados. Use <strong>Ver detalle</strong> para ver qué variables aportaron al puntaje.</p>
                 </div>
             </div>
         </div>
@@ -176,7 +177,7 @@
         <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div>
                 <strong>Detalle de estudiantes matriculados</strong>
-                <div class="small text-muted">DataTables: búsqueda, ordenamiento y paginación</div>
+                <div class="small text-muted">DataTables · GWRPIEM LEFT JOIN GWRPIRR</div>
             </div>
             <div class="btn-group btn-group-sm">
                 <button type="button" class="btn btn-outline-danger" data-quick="ALTO">Ver ALTO</button>
@@ -200,12 +201,46 @@
                     <th># Vars riesgo</th>
                     <th>Fecha cálculo</th>
                     <th>Usuario cálculo</th>
+                    <th>Detalle</th>
                 </tr>
                 </thead>
             </table>
         </div>
     </div>
 </main>
+
+<!-- Modal detalle variables aportantes -->
+<div class="modal fade" id="modalDetalle" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5 mb-0" id="detalleTitulo">Detalle del estudiante</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div id="detalleAlert" class="alert alert-warning d-none"></div>
+                <div class="detalle-meta" id="detalleMeta"></div>
+                <p class="small text-muted" id="detalleExplicacion"></p>
+                <div class="table-responsive">
+                    <table class="table table-sm vars-aporte-table" id="tablaAportes">
+                        <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Variable</th>
+                            <th>Peso</th>
+                            <th>Observación</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

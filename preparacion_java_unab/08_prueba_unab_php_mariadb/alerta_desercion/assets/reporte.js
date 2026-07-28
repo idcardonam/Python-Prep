@@ -1,9 +1,10 @@
-/* reporte.js — Tablero operativo de alerta temprana */
+/* reporte.js — Tablero + export CSV + detalle de variables aportantes */
 (function ($) {
     'use strict';
 
     let tabla;
     let ultimoData = [];
+    const modalDetalle = new bootstrap.Modal(document.getElementById('modalDetalle'));
 
     function pct(parte, total) {
         if (!total) return '0%';
@@ -19,7 +20,6 @@
             PENDIENTE: 'badge-pendiente'
         };
         const cls = map[n] || 'badge-pendiente';
-        // Texto visible + etiqueta accesible (color no es el único indicador)
         return `<span class="badge badge-nivel ${cls}" title="Nivel ${n}">${n}</span>`;
     }
 
@@ -28,12 +28,20 @@
         if (n === 'ALTO') return 1;
         if (n === 'MEDIO') return 2;
         if (n === 'BAJO') return 3;
-        return 4; // PENDIENTE al final o según necesidad operativa
+        return 4;
     }
 
     function alertar(tipo, msg) {
         $('#alertBox').removeClass('d-none alert-success alert-danger alert-warning alert-info')
             .addClass('alert-' + tipo).text(msg);
+    }
+
+    function escapeHtml(s) {
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
     }
 
     function pintarResumen(r) {
@@ -49,7 +57,6 @@
         $('#pPend').text(pct(r.PENDIENTE || 0, total));
         $('#rTotalHint').text(total === 80 ? 'OK: 80 matriculados (meta del enunciado)' : 'Matriculados visibles con filtros actuales');
 
-        // Alertas operativas
         const $a = $('#alertaOperativa');
         const $p = $('#alertaPendientes');
         if ((r.ALTO || 0) > 0) {
@@ -88,18 +95,10 @@
                     <td>${escapeHtml(r.estudiante || '')}<div class="small text-muted">${escapeHtml(r.codigo || '')}</div></td>
                     <td>${escapeHtml(r.programa || '')}</td>
                     <td><strong>${r.puntaje ?? '-'}</strong></td>
-                    <td class="small">${escapeHtml(r.variables || '-')}</td>
+                    <td class="small">${escapeHtml(r.variables ?? '-')}</td>
                 </tr>`
             );
         });
-    }
-
-    function escapeHtml(s) {
-        return String(s)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
     }
 
     function cargarFiltros(filtros) {
@@ -119,6 +118,56 @@
         $pr.val(programaActual || '');
     }
 
+    function abrirDetalle(periodo, idEstudiante) {
+        $('#detalleAlert').addClass('d-none').text('');
+        $('#detalleMeta').html('<div class="text-muted">Cargando…</div>');
+        $('#tablaAportes tbody').empty();
+        $('#detalleExplicacion').text('');
+        $('#detalleTitulo').text('Detalle del estudiante');
+        modalDetalle.show();
+
+        $.getJSON('api/detalle_estudiante.php', {
+            periodo: periodo,
+            id_estudiante: idEstudiante
+        }).done(function (resp) {
+            if (!resp.ok) {
+                $('#detalleAlert').removeClass('d-none').text(resp.mensaje || 'No se pudo cargar');
+                return;
+            }
+            const e = resp.estudiante || {};
+            $('#detalleTitulo').text((e.estudiante || 'Estudiante') + ' · ' + (e.codigo || ''));
+            $('#detalleMeta').html(
+                `<div class="item"><span class="lbl">Período</span><span class="val">${escapeHtml(e.periodo || '')}</span></div>
+                 <div class="item"><span class="lbl">Programa</span><span class="val">${escapeHtml(e.programa || '')}</span></div>
+                 <div class="item"><span class="lbl">Puntaje</span><span class="val">${e.puntaje ?? '—'}</span></div>
+                 <div class="item"><span class="lbl">Nivel</span><span class="val">${escapeHtml(e.nivel_riesgo || 'PENDIENTE')}</span></div>
+                 <div class="item"><span class="lbl">Suma pesos</span><span class="val">${resp.suma_pesos ?? '—'}</span></div>
+                 <div class="item"><span class="lbl">Tope 100</span><span class="val">${resp.puntaje_tope ?? '—'}</span></div>`
+            );
+            $('#detalleExplicacion').text(resp.explicacion || '');
+
+            const vars = resp.variables_aportan || [];
+            const $tb = $('#tablaAportes tbody');
+            if (!vars.length) {
+                $tb.append('<tr><td colspan="4" class="text-muted text-center py-3">Ninguna variable aportó al puntaje (o aún no hay cálculo / factores activos).</td></tr>');
+                return;
+            }
+            vars.forEach(function (v) {
+                $tb.append(
+                    `<tr>
+                        <td><code>${escapeHtml(v.codigo || '')}</code></td>
+                        <td>${escapeHtml(v.nombre || '')}</td>
+                        <td><strong>${v.peso ?? '—'}</strong></td>
+                        <td class="small">${escapeHtml(v.observacion || '—')}</td>
+                    </tr>`
+                );
+            });
+        }).fail(function (xhr) {
+            const msg = (xhr.responseJSON && xhr.responseJSON.mensaje) || 'Error al consultar el detalle';
+            $('#detalleAlert').removeClass('d-none').text(msg);
+        });
+    }
+
     function cargar() {
         const params = {
             periodo: $('#fPeriodo').val(),
@@ -135,7 +184,6 @@
             pintarPrioritarios(ultimoData);
             cargarFiltros(resp.filtros || {});
 
-            // Orden operativo: ALTO → MEDIO → BAJO → PENDIENTE, luego nombre
             const dataOrdenada = ultimoData.slice().sort(function (a, b) {
                 const d = ordenRiesgo(a.nivel_riesgo) - ordenRiesgo(b.nivel_riesgo);
                 if (d !== 0) return d;
@@ -151,7 +199,7 @@
                 data: dataOrdenada,
                 pageLength: 10,
                 lengthMenu: [10, 25, 50, 80, 100],
-                order: [], // ya viene ordenado por prioridad
+                order: [],
                 columns: [
                     { data: 'periodo', defaultContent: '-' },
                     { data: 'codigo', defaultContent: '-' },
@@ -163,24 +211,30 @@
                         data: 'puntaje',
                         render: function (v) { return (v === null || v === undefined || v === '') ? '-' : v; }
                     },
-                    {
-                        data: 'nivel_riesgo',
-                        render: badgeNivel
-                    },
+                    { data: 'nivel_riesgo', render: badgeNivel },
                     {
                         data: 'variables',
                         defaultContent: '0',
                         render: function (v) {
-                            // En el modelo real es cantidad (smallint), no lista de códigos
                             if (v === null || v === undefined || v === '') return '0';
                             return String(v);
                         }
                     },
                     { data: 'fecha_calculo', defaultContent: '-' },
-                    { data: 'usuario_calculo', defaultContent: '-' }
+                    { data: 'usuario_calculo', defaultContent: '-' },
+                    {
+                        data: null,
+                        orderable: false,
+                        searchable: false,
+                        render: function (row) {
+                            return `<button type="button" class="btn btn-sm btn-outline-primary btn-detalle"
+                                data-periodo="${escapeHtml(row.periodo || '')}"
+                                data-id="${escapeHtml(row.id_estudiante || '')}">Ver detalle</button>`;
+                        }
+                    }
                 ],
                 language: {
-                    search: 'Buscar:',
+                    search: 'Buscar estudiante:',
                     lengthMenu: 'Mostrar _MENU_',
                     info: 'Mostrando _START_ a _END_ de _TOTAL_',
                     paginate: { previous: 'Anterior', next: 'Siguiente' },
@@ -191,6 +245,16 @@
             const msg = (xhr.responseJSON && (xhr.responseJSON.mensaje || xhr.responseJSON.detalle)) || 'No se pudo cargar el reporte';
             alertar('danger', msg);
         });
+    }
+
+    function exportarCsv() {
+        const q = $.param({
+            periodo: $('#fPeriodo').val() || '',
+            programa: $('#fPrograma').val() || '',
+            nivel_riesgo: $('#fNivel').val() || '',
+            export: 'csv'
+        });
+        window.location.href = 'api/reporte.php?' + q;
     }
 
     function recalcularPeriodo() {
@@ -216,6 +280,7 @@
 
     $('#btnFiltrar').on('click', cargar);
     $('#btnActualizar').on('click', cargar);
+    $('#btnExportCsv').on('click', exportarCsv);
     $('#btnLimpiar').on('click', function () {
         $('#fPeriodo').val('');
         $('#fPrograma').val('');
@@ -228,6 +293,10 @@
     $('[data-quick]').on('click', function () {
         $('#fNivel').val($(this).data('quick'));
         cargar();
+    });
+
+    $('#tablaReporte').on('click', '.btn-detalle', function () {
+        abrirDetalle($(this).data('periodo'), $(this).data('id'));
     });
 
     cargar();

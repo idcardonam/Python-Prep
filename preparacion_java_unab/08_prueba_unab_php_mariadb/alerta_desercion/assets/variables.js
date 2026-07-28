@@ -1,4 +1,4 @@
-/* variables.js — CRUD GWRPIVR vía AJAX (UX amigable) */
+/* variables.js — CRUD GWRPIVR (buscador + auditoría + validación en modal) */
 (function ($) {
     'use strict';
 
@@ -7,26 +7,23 @@
     let modo = 'crear';
     let tabla;
 
+    // Columnas de auditoría (índices DataTables 0-based)
+    const COLS_AUDIT = [6, 7, 8, 9];
+
     const DT_ES = {
-        search: 'Buscar en la lista:',
-        searchPlaceholder: 'Escriba código, nombre o descripción…',
+        search: 'Buscar:',
         lengthMenu: 'Mostrar _MENU_ variables por página',
         info: 'Mostrando _START_ a _END_ de _TOTAL_ variables',
         infoEmpty: 'No hay variables para mostrar',
         infoFiltered: '(filtrado de _MAX_ en total)',
         zeroRecords: 'No se encontró ninguna variable con ese texto. Pruebe otra palabra.',
-        paginate: {
-            previous: 'Anterior',
-            next: 'Siguiente',
-            first: 'Primera',
-            last: 'Última'
-        },
+        paginate: { previous: 'Anterior', next: 'Siguiente' },
         emptyTable: 'Aún no hay variables registradas. Use “Agregar variable”.'
     };
 
     function showAlert(tipo, msg) {
-        const box = $('#alertBox');
-        box.removeClass('d-none alert-success alert-danger alert-warning alert-info')
+        $('#alertBox')
+            .removeClass('d-none alert-success alert-danger alert-warning alert-info')
             .addClass('alert-' + tipo)
             .text(msg);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -54,6 +51,18 @@
         return '<span class="badge badge-inactiva">Inactiva <small>(N)</small></span>';
     }
 
+    function aplicarAuditoria(mostrar) {
+        if (!tabla) return;
+        COLS_AUDIT.forEach(function (i) {
+            tabla.column(i).visible(!!mostrar, false);
+        });
+        tabla.columns.adjust().draw(false);
+        $('#wrapAuditToggle').toggleClass('is-on', !!mostrar);
+        try {
+            localStorage.setItem('gwrpivr_audit', mostrar ? '1' : '0');
+        } catch (e) { /* ignore */ }
+    }
+
     function cargar() {
         return $.getJSON('api/variables.php', { accion: 'listar' }).then(function (resp) {
             if (!resp.ok) {
@@ -74,13 +83,16 @@
             return;
         }
 
+        let auditOn = false;
+        try {
+            auditOn = localStorage.getItem('gwrpivr_audit') === '1';
+        } catch (e) { /* ignore */ }
+
         tabla = $('#tablaVariables').DataTable({
             data: data,
             pageLength: 10,
             lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'Todas']],
-            // Buscador arriba; cantidad / info / páginas abajo
-            dom: "<'row'<'col-12'f>>" +
-                 "<'row'<'col-12'tr>>" +
+            dom: "<'row'<'col-12'tr>>" +
                  "<'vars-dt-bottom'<'dt-len'l><'dt-info'i><'dt-pag'p>>",
             language: DT_ES,
             order: [[0, 'asc']],
@@ -93,15 +105,15 @@
                     render: function (v) {
                         if (!v) return '<span class="text-muted">—</span>';
                         const t = String(v);
-                        return t.length > 80 ? t.substring(0, 80) + '…' : t;
+                        return t.length > 90 ? t.substring(0, 90) + '…' : t;
                     }
                 },
                 { data: 'peso' },
                 { data: 'activo', render: badgeActivo },
-                { data: 'user_ins', defaultContent: '—' },
-                { data: 'date_ins', defaultContent: '—' },
-                { data: 'user_upd', defaultContent: '—' },
-                { data: 'date_upd', defaultContent: '—' },
+                { data: 'user_ins', defaultContent: '—', visible: auditOn },
+                { data: 'date_ins', defaultContent: '—', visible: auditOn },
+                { data: 'user_upd', defaultContent: '—', visible: auditOn },
+                { data: 'date_upd', defaultContent: '—', visible: auditOn },
                 {
                     data: null,
                     orderable: false,
@@ -119,11 +131,42 @@
             ]
         });
 
-        // Placeholder amigable (DataTables a veces no aplica searchPlaceholder solo)
-        const $input = $('#tablaVariables_filter input');
-        $input.attr('placeholder', DT_ES.searchPlaceholder);
-        $input.attr('aria-label', 'Buscar variables por código, nombre o descripción');
+        $('#chkAuditoria').prop('checked', auditOn);
+        $('#wrapAuditToggle').toggleClass('is-on', auditOn);
     }
+
+    // Buscador interactivo (no usa chips-botón)
+    let buscaTimer = null;
+    $('#buscarVariable').on('input', function () {
+        const q = $(this).val() || '';
+        $(this).toggleClass('has-text', q.length > 0);
+        clearTimeout(buscaTimer);
+        buscaTimer = setTimeout(function () {
+            if (tabla) tabla.search(q).draw();
+            if (q.length) {
+                $('#hintBuscar').html(
+                    'Filtrando por: <strong>' + $('<div>').text(q).html() + '</strong>. ' +
+                    'Borre el texto o use × para ver todas.'
+                );
+            } else {
+                $('#hintBuscar').html(
+                    'Escriba cualquier parte del <strong>código</strong>, <strong>nombre</strong> o <strong>descripción</strong>. ' +
+                    'Ejemplos de texto (solo guía): ' +
+                    '<span class="vars-example">INASISTENCIA</span>, ' +
+                    '<span class="vars-example">rendimiento</span>, ' +
+                    '<span class="vars-example">reprobación</span>.'
+                );
+            }
+        }, 180);
+    });
+
+    $('#btnLimpiarBuscar').on('click', function () {
+        $('#buscarVariable').val('').removeClass('has-text').trigger('input').trigger('focus');
+    });
+
+    $('#chkAuditoria').on('change', function () {
+        aplicarAuditoria(this.checked);
+    });
 
     function abrirCrear() {
         modo = 'crear';
@@ -167,23 +210,16 @@
         if (modo === 'crear') {
             const codigoRaw = ($('#varCodigo').val() || '');
             const codigo = codigoRaw.toUpperCase().trim();
-
             if (!codigo) {
                 setFieldError('#varCodigo', '#errCodigo', 'Debe escribir un código. Ejemplo: BAJO_RENDIMIENTO');
                 ok = false;
             } else if (/\s/.test(codigoRaw)) {
-                setFieldError(
-                    '#varCodigo',
-                    '#errCodigo',
-                    'El código no puede tener espacios. Use guion bajo: ejemplo BAJO_RENDIMIENTO (no “BAJO RENDIMIENTO”).'
-                );
+                setFieldError('#varCodigo', '#errCodigo',
+                    'El código no puede tener espacios. Use guion bajo: BAJO_RENDIMIENTO (no “BAJO RENDIMIENTO”).');
                 ok = false;
             } else if (!/^[A-Z0-9_\-]+$/.test(codigo)) {
-                setFieldError(
-                    '#varCodigo',
-                    '#errCodigo',
-                    'Solo se permiten letras, números, guion (-) y guion bajo (_).'
-                );
+                setFieldError('#varCodigo', '#errCodigo',
+                    'Solo se permiten letras, números, guion (-) y guion bajo (_).');
                 ok = false;
             }
             $('#varCodigo').val(codigo);
@@ -213,16 +249,12 @@
         return ok;
     }
 
-    // Normaliza código mientras escribe (feedback inmediato si pega espacios)
     $('#varCodigo').on('input', function () {
         const raw = $(this).val() || '';
         if (/\s/.test(raw)) {
-            setFieldError(
-                '#varCodigo',
-                '#errCodigo',
-                'Quitó el espacio: el código no admite espacios. Use guion bajo _'
-            );
-            showModalAlert('El código no puede contener espacios. Reemplácelos por guion bajo (_).');
+            setFieldError('#varCodigo', '#errCodigo',
+                'El código no admite espacios. Reemplácelos por guion bajo (_).');
+            showModalAlert('El código no puede contener espacios.');
         } else {
             $('#errCodigo').removeClass('show').text('');
             $(this).removeClass('is-invalid');
@@ -263,9 +295,7 @@
 
     $('#formVariable').on('submit', function (e) {
         e.preventDefault();
-        if (!validarFormularioCliente()) {
-            return;
-        }
+        if (!validarFormularioCliente()) return;
 
         const payload = {
             accion: modo === 'crear' ? 'crear' : 'actualizar',
@@ -286,7 +316,6 @@
                     showAlert('success', resp.mensaje);
                     cargar().then(initTabla);
                 } else {
-                    // Error de negocio: se muestra DENTRO del modal
                     showModalAlert(resp.mensaje || 'No fue posible guardar. Revise los datos.');
                     if (resp.campo === 'codigo' || /código|codigo|espacio/i.test(resp.mensaje || '')) {
                         setFieldError('#varCodigo', '#errCodigo', resp.mensaje);
@@ -305,7 +334,6 @@
             });
     });
 
-    // Al cerrar el modal, limpia errores (evita “basura” visual)
     modalEl.addEventListener('hidden.bs.modal', function () {
         clearModalErrors();
         $('#formVariable')[0].reset();

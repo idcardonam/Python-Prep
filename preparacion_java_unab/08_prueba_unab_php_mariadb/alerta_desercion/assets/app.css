@@ -199,28 +199,17 @@ body {
     font-weight: 650;
 }
 
-.vars-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .4rem;
-    margin-top: .55rem;
-}
-.vars-chip {
-    border: 1px solid var(--unab-borde);
-    background: #fff;
+/* Ejemplos de búsqueda: texto guía, NO botones */
+.vars-example {
+    display: inline;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: .78rem;
     color: var(--unab-azul);
-    border-radius: 999px;
-    padding: .2rem .7rem;
-    font-size: .75rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background .15s ease, border-color .15s ease;
-}
-.vars-chip:hover,
-.vars-chip.active {
-    background: var(--unab-azul);
-    border-color: var(--unab-azul);
-    color: #fff;
+    background: #e8f0f8;
+    border-radius: 4px;
+    padding: .05rem .35rem;
+    cursor: default;
+    user-select: all;
 }
 
 /* Interruptor auditoría — elegante, poco ruido */

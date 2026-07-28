@@ -1,13 +1,47 @@
 <?php
 /**
  * API AJAX — Cálculo de riesgo vía P_CALCULAR_RIESGO_ESTUDIANTE
- * La transacción vive en PHP (commit solo si P_CODIGO = 0).
+ * + listado de matriculados para barra de progreso en recálculo masivo.
  */
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/config/conexion.php';
 
-if (($_POST['accion'] ?? '') !== 'calcular') {
+$accion = $_GET['accion'] ?? $_POST['accion'] ?? '';
+
+if ($accion === 'listar_matriculados') {
+    $periodo = trim((string)($_GET['periodo'] ?? $_POST['periodo'] ?? periodo_default()));
+    if ($periodo === '') {
+        json_response(['ok' => false, 'mensaje' => 'El período es obligatorio.'], 422);
+    }
+    try {
+        $st = $pdo->prepare(
+            "SELECT GWRPIEM_ID_ESTUDIANTE AS id_estudiante,
+                    GWRPIEM_CODIGO_ESTUDIANTE AS codigo,
+                    GWRPIEM_NOMBRE_COMPLETO AS nombre
+             FROM GWRPIEM
+             WHERE GWRPIEM_MATRICULADO = 'Y'
+               AND GWRPIEM_PERIODO = ?
+             ORDER BY GWRPIEM_NOMBRE_COMPLETO"
+        );
+        $st->execute([$periodo]);
+        $rows = $st->fetchAll();
+        json_response([
+            'ok' => true,
+            'periodo' => $periodo,
+            'total' => count($rows),
+            'data' => $rows,
+        ]);
+    } catch (Throwable $e) {
+        json_response([
+            'ok' => false,
+            'mensaje' => 'No se pudo listar matriculados.',
+            'detalle' => $e->getMessage(),
+        ], 500);
+    }
+}
+
+if ($accion !== 'calcular') {
     json_response(['ok' => false, 'mensaje' => 'Acción no válida'], 400);
 }
 
@@ -25,14 +59,12 @@ if ($idEstudiante === '') {
 try {
     $pdo->beginTransaction();
 
-    // OUT params vía variables de usuario
     $sql = "CALL P_CALCULAR_RIESGO_ESTUDIANTE(:periodo, :id_est, :usuario, @p_codigo, @p_mensaje)";
     $st = $pdo->prepare($sql);
     $st->bindValue(':periodo', $periodo);
     $st->bindValue(':id_est', $idEstudiante);
     $st->bindValue(':usuario', $usuario);
     $st->execute();
-    // limpiar posibles resultsets del CALL
     while ($st->nextRowset()) { /* noop */ }
     $st->closeCursor();
 
