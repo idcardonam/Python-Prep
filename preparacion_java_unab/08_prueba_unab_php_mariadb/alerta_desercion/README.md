@@ -2,60 +2,71 @@
 
 ## Candidato
 **Iván David Cardona Mendoza**  
-Prueba: Ingeniero de Sistemas y Operación TIC / Desarrollador  
-Stack: PHP + MariaDB + Bootstrap + jQuery + DataTables
+Prueba técnica: Ingeniero de Sistemas y Operación TIC / Desarrollador  
+Stack: **PHP + MariaDB + Bootstrap + jQuery + DataTables**  
+Base de datos: `prueba_ing` (modelo **sin alteraciones**)
 
 ---
 
-## Qué resuelve
-Módulo de alerta temprana sobre la base `prueba_ing` (sin alterar el modelo de datos):
+## 1. Cumplimiento del enunciado (checklist evaluador)
 
-1. **CRUD AJAX** de variables de riesgo (`GWRPIVR`) con baja lógica Y/N.
-2. **Cálculo** vía `P_CALCULAR_RIESGO_ESTUDIANTE` con transacciones en PHP.
-3. **Reporte** de matriculados (`GWRPIEM` LEFT JOIN `GWRPIRR`) con priorización operativa.
+### 1.1 Actividades obligatorias del candidato
+
+| # | Actividad | Estado | Evidencia en el sistema |
+|---|-----------|--------|-------------------------|
+| 1 | CRUD sobre `GWRPIVR` (AJAX, Bootstrap modal, DataTables, baja lógica Y/N) | Cumple | `variables.php` + `api/variables.php` + `assets/variables.js` |
+| 2 | Procedimiento `P_CALCULAR_RIESGO_ESTUDIANTE` | Cumple | `sql/P_CALCULAR_RIESGO_ESTUDIANTE.sql` |
+| 3 | PHP `CALL` con transacciones (commit solo si `P_CODIGO = 0`) | Cumple | `api/calcular.php` |
+| 4 | Reporte DataTables `GWRPIEM` LEFT JOIN `GWRPIRR` | Cumple | `reporte.php` + `api/reporte.php` |
+| 5 | Seguridad / integridad / auditoría / calidad | Cumple | PDO prepared statements, validaciones, USER/DATE, `logs/acciones.log`, XSS con `e()` |
+
+### 1.2 Reglas de negocio
+
+| Regla | Cumple | Cómo |
+|-------|--------|------|
+| Solo estudiantes `GWRPIEM_MATRICULADO = 'Y'` | Sí | SP + reporte + listado masivo |
+| Puntaje = suma de pesos donde CE riesgo Y + CE activo Y + VR activo Y | Sí | JOINs del SP |
+| Tope `LEAST(..., 100)` | Sí | SP |
+| BAJO 0–29.99 / MEDIO 30–59.99 / ALTO 60–100 | Sí | SP + tablero |
+| `GWRPIRR_VARIABLES_RIESGO` = **cantidad** (no lista de códigos) | Sí | `COUNT`/suma de flags en SP |
+| Una fila por (periodo, estudiante): UPDATE si existe, INSERT si no | Sí | SP |
+| SP **no** hace COMMIT/ROLLBACK (lo controla PHP) | Sí | SP sin commit; PHP `beginTransaction` / `commit` / `rollBack` |
+| Cambio de pesos en GWRPIVR **no** refresca solo GWRPIRR | Sí | Hay que volver a calcular |
+| No rediseñar / alterar el modelo de datos | Sí | Solo lectura/escritura sobre tablas existentes |
+
+### 1.3 Procedimiento almacenado
+
+- Nombre: `P_CALCULAR_RIESGO_ESTUDIANTE`
+- Parámetros: `P_PERIODO`, `P_ID_ESTUDIANTE` (`%` = masivo), `P_USUARIO`, `OUT P_CODIGO`, `OUT P_MENSAJE`
+- Archivo fuente: `sql/P_CALCULAR_RIESGO_ESTUDIANTE.sql`
+- Instalación: phpMyAdmin → base `prueba_ing` → pestaña SQL → ejecutar el script
+
+### 1.4 Entregables
+
+| Entregable | Incluido |
+|------------|----------|
+| Código fuente PHP | Sí (`*.php`, `api/`, `assets/`, `config/`) |
+| Script SP SQL | Sí (`sql/P_CALCULAR_RIESGO_ESTUDIANTE.sql`) |
+| README | Sí (este archivo) |
+| Config de ejemplo | Sí (`config/config.ejemplo.php`) |
+| ZIP antes del mediodía | Responsabilidad del candidato (ver §7) |
 
 ---
 
-## Capturas sugeridas (adjuntar al ZIP / informe)
-Coloque capturas en una carpeta `capturas/` o péguelas en el PDF de entrega:
-
-| # | Pantalla | Qué demostrar |
-|---|----------|----------------|
-| 1 | `index.php` | Portada institucional UNAB |
-| 2 | `variables.php` | Listado + botón Agregar + interruptor auditoría |
-| 3 | Modal nueva variable | Validación de código con espacios (error dentro del modal) |
-| 4 | `calculo.php` | Barra de progreso en recálculo masivo |
-| 5 | `reporte.php` | KPIs 80 matriculados + cola ALTO |
-| 6 | Modal “Ver detalle” | Variables que aportaron al puntaje |
-| 7 | Export CSV | Archivo abierto en Excel |
-| 8 | phpMyAdmin | Fila en `GWRPIRR` tras el cálculo |
+## 2. Qué resuelve el sistema
+1. Administrar el catálogo de variables de riesgo (`GWRPIVR`).
+2. Calcular el riesgo consolidado por estudiante/periodo.
+3. Priorizar acompañamiento con tablero BAJO / MEDIO / ALTO / PENDIENTE.
+4. Extras de valor: detalle de variables aportantes, export CSV, barra de progreso, auditoría visible bajo interruptor, bitácora en archivo.
 
 ---
 
-## Checklist de entrega (antes del mediodía)
-- [ ] Carpeta del proyecto completa (PHP, `sql/`, `assets/`, `config/`, `README.md`)
-- [ ] `config/config.ejemplo.php` incluido (sin contraseñas reales)
-- [ ] `config/config.local.php` **NO** subir con claves sensibles si el ZIP es público; documentar cómo crearlo
-- [ ] Script `sql/P_CALCULAR_RIESGO_ESTUDIANTE.sql` ejecutable en phpMyAdmin
-- [ ] CRUD Variables funciona (crear / editar / inactivar / reactivar)
-- [ ] Cálculo individual OK (`P_CODIGO = 0`)
-- [ ] Cálculo masivo ~80 matriculados con barra de progreso
-- [ ] Reporte con LEFT JOIN y niveles BAJO/MEDIO/ALTO/PENDIENTE
-- [ ] Detalle por estudiante (variables aportantes)
-- [ ] Export CSV del reporte
-- [ ] Bitácora `logs/acciones.log` generada al operar
-- [ ] README leído y rutas de la VM verificadas
-- [ ] ZIP nombrado claramente (ej. `Cardona_Ivan_AlertaDesercion.zip`)
-
----
-
-## Instalación en la VM (XAMPP)
+## 3. Instalación en la VM (XAMPP)
 1. Encender **Apache** y **MySQL**.
-2. Proyecto en DocumentRoot (en esta prueba: `C:\xampp\htdocs\pruebaIng`).
+2. Proyecto en DocumentRoot de la prueba: `C:\xampp\htdocs\pruebaIng` (URL `http://localhost/`).
 3. Copiar `config/config.ejemplo.php` → `config/config.local.php` y ajustar usuario/clave/periodo.
-4. En phpMyAdmin → base `prueba_ing` → SQL: ejecutar `sql/P_CALCULAR_RIESGO_ESTUDIANTE.sql`.
-5. Abrir `http://localhost/` (o la ruta que apunte al DocumentRoot).
-6. Flujo: **Variables → Cálculo → Reporte**.
+4. En phpMyAdmin → `prueba_ing` → SQL: ejecutar `sql/P_CALCULAR_RIESGO_ESTUDIANTE.sql`.
+5. Abrir `http://localhost/` → flujo **Variables → Cálculo → Reporte**.
 
 ### Config mínima (`config.local.php`)
 ```php
@@ -76,48 +87,81 @@ return [
 
 ---
 
-## Decisiones técnicas (valor agregado)
-1. **PDO + transacciones en PHP**: el SP no hace COMMIT/ROLLBACK; PHP confirma solo si `P_CODIGO = 0`.
-2. **Baja lógica** en variables (`Y/N`), sin borrado físico.
-3. **Normalización de código**: mayúsculas, sin espacios, unicidad.
-4. **Auditoría**: columnas USER/DATE + interruptor “Mostrar auditoría” + `logs/acciones.log`.
-5. **Reporte LEFT JOIN**: PENDIENTE cuando aún no hay cálculo.
-6. **Detalle aportantes**: mismas reglas del SP (CE riesgo Y + CE activo Y + VR activo Y).
-7. **Export CSV** UTF-8 con BOM para Excel.
-8. **Progreso masivo**: lista matriculados y calcula uno a uno con barra visual.
-9. **UX no técnica**: mensajes claros dentro del modal; buscador guiado en español.
+## 4. Bitácora `logs/acciones.log` (verificar)
+La función `auditar()` en `config/conexion.php` escribe una línea JSON por acción.
 
-## Clasificación de riesgo
-- BAJO: 0 – 29.99  
-- MEDIO: 30 – 59.99  
-- ALTO: 60 – 100  
-- Puntaje = suma de pesos aplicables, tope 100 (`LEAST`)
-
-## Pruebas sugeridas
-1. Listar variables; ocultar/mostrar auditoría.
-2. Crear variable con espacios en código → error **dentro** del modal.
-3. Código duplicado → mensaje de unicidad.
-4. Editar peso; inactivar / reactivar.
-5. Calcular un estudiante → fila en `GWRPIRR`.
-6. Recalcular período con barra de progreso → ~80 matriculados.
-7. Reporte: filtrar ALTO; **Ver detalle**; exportar CSV.
-
-## Estructura
+**Cómo comprobarlo en la VM:**
+1. En Variables: crear o editar una variable, o inactivar una.
+2. En Cálculo: calcular un estudiante.
+3. Abrir el archivo:
+   - `C:\xampp\htdocs\pruebaIng\logs\acciones.log`
+4. Debe existir y contener líneas como:
+```json
+{"fecha":"2026-07-28T...","usuario":"IVAN.CARDONA","accion":"CREAR_VARIABLE","detalle":{...},"ip":"::1"}
 ```
-pruebaIng/   (o alerta_desercion/)
+
+Si la carpeta `logs` no existe, el sistema la crea al primer evento. Si no aparece el archivo: revise permisos de escritura de Apache sobre esa carpeta.
+
+Acciones registradas (entre otras): `CREAR_VARIABLE`, `ACTUALIZAR_VARIABLE`, `TOGGLE_VARIABLE`, `CALCULAR_RIESGO_OK`, `CALCULAR_RIESGO_ERROR`, `EXPORT_REPORTE_CSV`.
+
+---
+
+## 5. Capturas sugeridas (adjuntar al ZIP / informe)
+
+| # | Pantalla | Qué demostrar |
+|---|----------|----------------|
+| 1 | `index.php` | Portada institucional |
+| 2 | `variables.php` | CRUD + DataTables + interruptor auditoría |
+| 3 | Modal nueva variable | Error de espacios **dentro** del modal |
+| 4 | `calculo.php` | Barra de progreso masivo |
+| 5 | `reporte.php` | KPIs (~80) + cola ALTO |
+| 6 | Modal “Ver detalle” | Variables que aportaron al puntaje |
+| 7 | CSV en Excel | Exportación del reporte |
+| 8 | phpMyAdmin `GWRPIRR` | Fila tras cálculo |
+| 9 | `logs/acciones.log` | Bitácora generada |
+
+---
+
+## 6. Decisiones técnicas (valor agregado)
+1. PDO + transacciones en PHP; SP sin COMMIT/ROLLBACK.
+2. Baja lógica Y/N (sin borrado físico).
+3. Código normalizado: mayúsculas, sin espacios, único.
+4. Auditoría de columnas + interruptor “Mostrar auditoría” + log en archivo.
+5. Reporte LEFT JOIN → PENDIENTE si no hay cálculo.
+6. Detalle aportantes con la misma regla del SP.
+7. CSV UTF-8 con BOM para Excel.
+8. Recálculo masivo con progreso visual (uno a uno).
+9. UX clara para usuarios no técnicos (mensajes en español dentro del modal).
+
+---
+
+## 7. Checklist de empaquetado ZIP
+- [ ] Carpeta completa del proyecto
+- [ ] `sql/P_CALCULAR_RIESGO_ESTUDIANTE.sql`
+- [ ] `README.md` (este archivo)
+- [ ] `config/config.ejemplo.php`
+- [ ] `config.local.php` con contraseñas reales **fuera** del ZIP si aplica
+- [ ] Capturas (opcional pero recomendado)
+- [ ] Probar Variables / Cálculo / Reporte / Detalle / CSV / log
+- [ ] Nombre: `Cardona_Ivan_AlertaDesercion.zip`
+
+---
+
+## 8. Estructura
+```
+pruebaIng/
   api/                  endpoints AJAX
   assets/               js / css / img
   config/               conexion y config
   herramientas/         inspección de modelo
-  logs/                 bitácora local
-  sql/                  procedimiento
+  logs/                 bitácora local (acciones.log)
+  sql/                  procedimiento almacenado
   index.php             portada
-  variables.php         CRUD
+  variables.php         CRUD GWRPIVR
   calculo.php           cálculo + progreso
   reporte.php           tablero + detalle + CSV
-  README.md             este documento
+  README.md
 ```
 
-## Nota
-El código asume los nombres reales de columnas (`GWRPIVR_*`, `GWRPIEM_*`, `GWRPICE_*`, `GWRPIRR_*`).
-Si el entorno difiere, use `herramientas/ver_estructura.php` y ajuste solo alias/columnas, manteniendo las reglas del enunciado.
+## 9. Nota
+No se modificó el modelo de `prueba_ing`. Los nombres de columnas usados son los reales (`GWRPIVR_*`, `GWRPIEM_*`, `GWRPICE_*`, `GWRPIRR_*`).
