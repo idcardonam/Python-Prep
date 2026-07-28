@@ -1,7 +1,20 @@
-/* Estilos ligeros — entrega limpia y legible */
+/* Estilos — entrega limpia + tablero de reporte */
 body { font-family: "Segoe UI", Arial, sans-serif; }
-.badge-nivel { font-size: .75rem; letter-spacing: .02em; }
+.badge-nivel { font-size: .75rem; letter-spacing: .02em; padding: .45em .65em; }
 .badge-bajo { background:#198754; }
 .badge-medio { background:#ffc107; color:#212529; }
 .badge-alto { background:#dc3545; }
 .badge-pendiente { background:#6c757d; }
+
+.reporte-hero {
+    background: linear-gradient(120deg, #0b3d91 0%, #1a6bb5 55%, #0f766e 100%);
+}
+.kpi-card { border-top: 3px solid #dee2e6; }
+.kpi-card.border-success { border-top-color: #198754 !important; }
+.kpi-card.border-warning { border-top-color: #ffc107 !important; }
+.kpi-card.border-danger { border-top-color: #dc3545 !important; }
+
+@media print {
+    .navbar, #btnActualizar, #btnRecalc, #btnImprimir, #btnFiltrar, #btnLimpiar, .btn-group { display: none !important; }
+    .reporte-hero { background: #0b3d91 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
