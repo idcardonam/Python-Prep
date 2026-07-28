@@ -25,32 +25,29 @@
 </nav>
 
 <main class="container-fluid px-4 py-4">
-    <!-- Encabezado institucional -->
     <div class="reporte-hero mb-4 p-4 rounded-3 text-white shadow-sm">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <p class="small mb-1 text-white-50">Permanencia estudiantil · referencia SPADIES / SNIES</p>
+                <p class="small mb-1 text-white-50">Permanencia estudiantil · referencia SPADIES / SNIES · UNAB Bucaramanga</p>
                 <h1 class="h3 mb-2">Tablero de alerta temprana de deserción</h1>
                 <p class="mb-0 small">
-                    Consulta directa de estudiantes matriculados (<code class="text-white">GWRPIEM_MATRICULADO = 'Y'</code>)
+                    Consulta de matriculados (<code class="text-white">GWRPIEM_MATRICULADO = 'Y'</code>)
                     con resultado consolidado (<code class="text-white">GWRPIRR</code>).
-                    Si aún no hay cálculo, el nivel se muestra como <strong>PENDIENTE</strong> (no se oculta el caso).
+                    Sin cálculo previo se muestra <strong>PENDIENTE</strong>.
                 </p>
             </div>
             <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                <button type="button" class="btn btn-light btn-sm me-1" id="btnActualizar">Actualizar tablero</button>
-                <button type="button" class="btn btn-warning btn-sm me-1" id="btnRecalc">Recalcular período</button>
-                <button type="button" class="btn btn-outline-light btn-sm" id="btnImprimir">Imprimir / PDF</button>
+                <button type="button" class="btn btn-light btn-sm me-1" id="btnActualizar">Actualizar</button>
+                <button type="button" class="btn btn-unab-gold btn-sm me-1" id="btnRecalc">Recalcular período</button>
+                <button type="button" class="btn btn-outline-light btn-sm" id="btnImprimir">Imprimir</button>
             </div>
         </div>
     </div>
 
-    <!-- Alerta operativa (se llena por JS) -->
     <div id="alertaOperativa" class="alert alert-danger d-none shadow-sm" role="alert"></div>
     <div id="alertaPendientes" class="alert alert-warning d-none shadow-sm" role="alert"></div>
     <div id="alertBox" class="alert d-none" role="alert"></div>
 
-    <!-- KPIs -->
     <div class="row g-3 mb-3" id="panelResumen">
         <div class="col-6 col-md">
             <div class="card kpi-card shadow-sm h-100">
@@ -64,7 +61,7 @@
         <div class="col-6 col-md">
             <div class="card kpi-card shadow-sm h-100 border-success">
                 <div class="card-body">
-                    <div class="text-muted small">BAJO <span class="text-success">(0–29.99)</span></div>
+                    <div class="text-muted small">BAJO (0–29.99)</div>
                     <div class="fs-3 fw-bold text-success" id="rBajo">0</div>
                     <div class="small" id="pBajo">0%</div>
                 </div>
@@ -73,7 +70,7 @@
         <div class="col-6 col-md">
             <div class="card kpi-card shadow-sm h-100 border-warning">
                 <div class="card-body">
-                    <div class="text-muted small">MEDIO <span class="text-warning">(30–59.99)</span></div>
+                    <div class="text-muted small">MEDIO (30–59.99)</div>
                     <div class="fs-3 fw-bold text-warning" id="rMedio">0</div>
                     <div class="small" id="pMedio">0%</div>
                 </div>
@@ -82,7 +79,7 @@
         <div class="col-6 col-md">
             <div class="card kpi-card shadow-sm h-100 border-danger">
                 <div class="card-body">
-                    <div class="text-muted small">ALTO <span class="text-danger">(60–100)</span></div>
+                    <div class="text-muted small">ALTO (60–100)</div>
                     <div class="fs-3 fw-bold text-danger" id="rAlto">0</div>
                     <div class="small" id="pAlto">0%</div>
                 </div>
@@ -91,7 +88,7 @@
         <div class="col-6 col-md">
             <div class="card kpi-card shadow-sm h-100">
                 <div class="card-body">
-                    <div class="text-muted small">PENDIENTE de cálculo</div>
+                    <div class="text-muted small">PENDIENTE</div>
                     <div class="fs-3 fw-bold text-secondary" id="rPend">0</div>
                     <div class="small" id="pPend">0%</div>
                 </div>
@@ -100,7 +97,6 @@
     </div>
 
     <div class="row g-3 mb-3">
-        <!-- Prioritarios ALTO -->
         <div class="col-lg-5">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -125,12 +121,11 @@
                     </div>
                 </div>
                 <div class="card-footer small text-muted bg-white">
-                    Idea operativa: estos casos deberían entrar primero a tutoría / bienestar / seguimiento académico.
+                    Estos casos deberían entrar primero a tutoría / bienestar / seguimiento académico.
                 </div>
             </div>
         </div>
 
-        <!-- Leyenda + filtros -->
         <div class="col-lg-7">
             <div class="card shadow-sm mb-3">
                 <div class="card-body">
@@ -154,7 +149,7 @@
                             </select>
                         </div>
                         <div class="col-md-3 d-grid gap-1">
-                            <button class="btn btn-primary" id="btnFiltrar">Aplicar filtros</button>
+                            <button class="btn btn-unab" id="btnFiltrar">Aplicar filtros</button>
                             <button class="btn btn-outline-secondary btn-sm" id="btnLimpiar">Limpiar</button>
                         </div>
                     </div>
@@ -163,30 +158,26 @@
 
             <div class="card shadow-sm">
                 <div class="card-body small">
-                    <strong>Leyenda de clasificación (enunciado)</strong>
+                    <strong>Leyenda de clasificación</strong>
                     <ul class="mb-2 mt-2">
-                        <li><span class="badge badge-nivel badge-bajo">BAJO</span> puntaje 0 a 29.99</li>
-                        <li><span class="badge badge-nivel badge-medio">MEDIO</span> puntaje 30 a 59.99</li>
-                        <li><span class="badge badge-nivel badge-alto">ALTO</span> puntaje 60 a 100</li>
-                        <li><span class="badge badge-nivel badge-pendiente">PENDIENTE</span> matriculado sin fila en GWRPIRR</li>
+                        <li><span class="badge badge-nivel badge-bajo">BAJO</span> 0 a 29.99</li>
+                        <li><span class="badge badge-nivel badge-medio">MEDIO</span> 30 a 59.99</li>
+                        <li><span class="badge badge-nivel badge-alto">ALTO</span> 60 a 100</li>
+                        <li><span class="badge badge-nivel badge-pendiente">PENDIENTE</span> sin fila en GWRPIRR</li>
                     </ul>
-                    <p class="mb-0 text-muted">
-                        El color <em>no</em> es el único indicador: cada nivel incluye texto explícito en la columna “Nivel riesgo”.
-                        Tras un recálculo masivo esperado: <strong>80 estudiantes matriculados</strong>.
-                    </p>
+                    <p class="mb-0 text-muted">El color no es el único indicador: el texto del nivel siempre es visible. Meta tras recálculo masivo: 80 matriculados.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tabla principal DataTables -->
     <div class="card shadow-sm">
         <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div>
                 <strong>Detalle de estudiantes matriculados</strong>
-                <div class="small text-muted">Búsqueda global, ordenamiento y paginación con DataTables</div>
+                <div class="small text-muted">DataTables: búsqueda, ordenamiento y paginación</div>
             </div>
-            <div class="btn-group btn-group-sm" role="group" aria-label="Atajos de nivel">
+            <div class="btn-group btn-group-sm">
                 <button type="button" class="btn btn-outline-danger" data-quick="ALTO">Ver ALTO</button>
                 <button type="button" class="btn btn-outline-warning" data-quick="MEDIO">Ver MEDIO</button>
                 <button type="button" class="btn btn-outline-success" data-quick="BAJO">Ver BAJO</button>
@@ -205,7 +196,7 @@
                     <th>Campus</th>
                     <th>Puntaje</th>
                     <th>Nivel riesgo</th>
-                    <th># Variables riesgo</th>
+                    <th># Vars riesgo</th>
                     <th>Fecha cálculo</th>
                     <th>Usuario cálculo</th>
                 </tr>

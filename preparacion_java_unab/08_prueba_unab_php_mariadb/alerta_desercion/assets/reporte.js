@@ -194,7 +194,7 @@
     }
 
     function recalcularPeriodo() {
-        const periodo = $('#fPeriodo').val() || prompt('Período a recalcular (ej. 202601):', '');
+        const periodo = $('#fPeriodo').val() || prompt('Período a recalcular (ej. 202630):', '202630');
         if (!periodo) return;
         if (!confirm('¿Recalcular TODOS los matriculados del período ' + periodo + '?')) return;
 
