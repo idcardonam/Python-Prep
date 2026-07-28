@@ -1,0 +1,7 @@
+/* Estilos ligeros — entrega limpia y legible */
+body { font-family: "Segoe UI", Arial, sans-serif; }
+.badge-nivel { font-size: .75rem; letter-spacing: .02em; }
+.badge-bajo { background:#198754; }
+.badge-medio { background:#ffc107; color:#212529; }
+.badge-alto { background:#dc3545; }
+.badge-pendiente { background:#6c757d; }
