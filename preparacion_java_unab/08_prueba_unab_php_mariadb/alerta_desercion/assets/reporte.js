@@ -4,7 +4,8 @@
 
     let tabla;
     let ultimoData = [];
-    const modalDetalle = new bootstrap.Modal(document.getElementById('modalDetalle'));
+    const modalDetalleEl = document.getElementById('modalDetalle');
+    const modalDetalle = modalDetalleEl ? new bootstrap.Modal(modalDetalleEl) : null;
 
     function pct(parte, total) {
         if (!total) return '0%';
@@ -119,6 +120,10 @@
     }
 
     function abrirDetalle(periodo, idEstudiante) {
+        if (!modalDetalle) {
+            alertar('warning', 'Falta actualizar reporte.php (modal de detalle).');
+            return;
+        }
         $('#detalleAlert').addClass('d-none').text('');
         $('#detalleMeta').html('<div class="text-muted">Cargando…</div>');
         $('#tablaAportes tbody').empty();

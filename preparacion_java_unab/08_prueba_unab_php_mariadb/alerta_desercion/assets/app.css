@@ -283,14 +283,16 @@ body {
 .acciones-cell {
     display: flex;
     flex-direction: column;
-    gap: .4rem;
-    min-width: 110px;
+    gap: .55rem;
+    min-width: 118px;
+    padding: .15rem 0;
 }
 
 .acciones-cell .btn {
     width: 100%;
     border-radius: 8px;
     font-weight: 600;
+    padding: .35rem .5rem;
 }
 
 /* DataTables: ocultamos filter nativo (usamos el buscador custom) */
