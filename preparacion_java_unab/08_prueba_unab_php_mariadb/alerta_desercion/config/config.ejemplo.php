@@ -18,5 +18,5 @@ return [
     // Usuario de auditoría de la sesión de prueba (sin login en alcance)
     'app_user' => 'IVAN.CARDONA',
     // Período académico por defecto (ajústalo al valor real de GWRPIEM)
-    'periodo_default' => '202601',
+    'periodo_default' => '202630',
 ];

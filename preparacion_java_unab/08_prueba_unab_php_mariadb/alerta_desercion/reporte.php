@@ -202,7 +202,7 @@
                     <th>Campus</th>
                     <th>Puntaje</th>
                     <th>Nivel riesgo</th>
-                    <th>Variables de riesgo</th>
+                    <th># Variables riesgo</th>
                     <th>Fecha cálculo</th>
                     <th>Usuario cálculo</th>
                 </tr>

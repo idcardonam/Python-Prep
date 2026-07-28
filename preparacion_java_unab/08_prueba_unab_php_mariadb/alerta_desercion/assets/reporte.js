@@ -169,10 +169,11 @@
                     },
                     {
                         data: 'variables',
-                        defaultContent: '-',
+                        defaultContent: '0',
                         render: function (v) {
-                            if (!v) return '-';
-                            return `<span class="small">${escapeHtml(v)}</span>`;
+                            // En el modelo real es cantidad (smallint), no lista de códigos
+                            if (v === null || v === undefined || v === '') return '0';
+                            return String(v);
                         }
                     },
                     { data: 'fecha_calculo', defaultContent: '-' },
