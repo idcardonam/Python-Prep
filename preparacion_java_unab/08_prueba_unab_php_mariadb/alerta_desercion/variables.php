@@ -41,11 +41,37 @@
 
     <div class="card card-vars shadow-sm">
         <div class="card-body">
-            <div class="vars-search-help">
-                <strong>¿Cómo buscar?</strong>
-                Escriba en el cuadro de búsqueda cualquier parte del
-                <em>código</em>, <em>nombre</em> o <em>descripción</em>.
-                Ejemplo: <code>INASISTENCIA</code> o <code>rendimiento</code>.
+
+            <div class="vars-toolbar">
+                <div class="vars-search-wrap">
+                    <label for="buscarVariable">Buscar variable</label>
+                    <div class="vars-search-box">
+                        <input type="search" id="buscarVariable"
+                               placeholder="Escriba código, nombre o descripción…"
+                               autocomplete="off"
+                               aria-describedby="hintBuscar">
+                        <button type="button" class="vars-search-clear" id="btnLimpiarBuscar"
+                                title="Limpiar búsqueda" aria-label="Limpiar búsqueda">×</button>
+                    </div>
+                    <div class="vars-search-hint" id="hintBuscar">
+                        Escriba cualquier parte del texto. Ejemplos rápidos:
+                    </div>
+                    <div class="vars-chips" id="chipsBusqueda" role="group" aria-label="Atajos de búsqueda">
+                        <button type="button" class="vars-chip" data-q="INASISTENCIA">Inasistencia</button>
+                        <button type="button" class="vars-chip" data-q="REPROB">Reprobación</button>
+                        <button type="button" class="vars-chip" data-q="RENDIMIENTO">Rendimiento</button>
+                        <button type="button" class="vars-chip" data-q="Activa">Solo activas (texto)</button>
+                    </div>
+                </div>
+
+                <div class="audit-toggle" id="wrapAuditToggle" title="Muestra u oculta quién creó/modificó cada variable">
+                    <input class="form-check-input" type="checkbox" role="switch"
+                           id="chkAuditoria" aria-describedby="lblAuditoria">
+                    <label class="audit-toggle-label" for="chkAuditoria" id="lblAuditoria">
+                        <strong>Mostrar auditoría</strong>
+                        Creado por · fechas · modificado por
+                    </label>
+                </div>
             </div>
 
             <div class="table-responsive">
@@ -71,7 +97,7 @@
     </div>
 </main>
 
-<!-- Modal crear/editar: solo título + cerrar en el encabezado -->
+<!-- Modal crear/editar -->
 <div class="modal fade" id="modalVariable" tabindex="-1" aria-labelledby="modalTitulo" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <form class="modal-content" id="formVariable" novalidate>
