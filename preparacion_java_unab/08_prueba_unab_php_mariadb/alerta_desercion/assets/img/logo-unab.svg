@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 44" role="img" aria-label="UNAB">
+  <rect width="160" height="44" rx="6" fill="#ffffff"/>
+  <rect x="0" y="0" width="8" height="44" rx="0" fill="#C4A106"/>
+  <text x="22" y="29" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="700" fill="#003B70" letter-spacing="1.5">UNAB</text>
+  <text x="100" y="28" font-family="Segoe UI, Arial, sans-serif" font-size="9" fill="#0055A4" letter-spacing="0.4">BUCARAMANGA</text>
+</svg>
