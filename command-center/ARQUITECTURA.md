@@ -1,47 +1,38 @@
 # Arquitectura real del Command Center (qué sí / qué no)
 
-## Tu visión (correcta)
-1. Crear proyecto → subir reunión/PDF/imagen/controversias  
-2. Iniciar análisis → preguntas, riesgos, millas extra (sugeridas por IA), estimaciones  
-3. Tú respondes preguntas + check de millas  
-4. Vista paso a paso (crear archivo, SQL, prueba…) con checks  
-5. Fase pruebas / entregables / bloqueos (“falta autorización del jefe”)  
-6. Código con identidad segura y humanizada  
+## Loop que usas (confirmado)
+1. Creas el proyecto en la app con todo lo de la reunión (notas, controversias, rutas PDF/imagen).
+2. Clic **Generar .md del proyecto** → descarga `PARA_CURSOR_<slug>.md` → lo guardas en `command-center/`.
+3. Nuevo chat Cursor: `procesa command-center/PARA_CURSOR_<slug>.md`
+4. El agente responde + JSON → lo pegas/importas en la app → tablero con preguntas, riesgos, millas, pasos.
+5. Apruebas millas / respondes / o actualizas requerimientos o diseño → nuevo `.md` → `procesa` → nuevo JSON.
+6. La app hace **merge**: no se pierde lo ya checkeado ni las respuestas; se actualiza el camino.
 
 ## Qué NO puede hacer una página HTML sola
 - Abrir sola un chat de Cursor y “mandar” al agente como API oficial pública.
-- Cursor hoy **no** expone “créame un chat y codea esto” para llamarlo desde tu `app.html` como si fuera WhatsApp.
+- Cursor hoy **no** expone “créame un chat y codea esto” para llamarlo desde tu `app.html`.
 
-## Qué SÍ podemos hacer (y funciona bien)
-### Modo A — Recomendado ahora (sin pagar APIs)
-- `app.html` = torre de control (proyectos, archivos, pasos, bloqueos, semáforo).
-- Un clic genera/actualiza `PARA_CURSOR.md` (+ copia adjuntos a `INBOX/`).
-- En Cursor escribes `procesa` → yo (agente) lleno el análisis.
-- La app tiene botón **“Importar respuesta de Cursor”**: pegas mi JSON/markdown y se llenan preguntas, millas, pasos, riesgos en la UI.
+## Qué SÍ funciona
+### Modo A — Recomendado (sin pagar APIs)
+- `app.html` = torre de control.
+- Genera `PARA_CURSOR_<slug>.md` por proyecto y modo.
+- Cursor `procesa` → JSON → import merge.
+- Botones en Tablero: actualizar requerimientos / ajuste camino (diseño-features) / fase código.
 
-### Modo B — API propia con IA (si quieres menos fricción)
-- Servidor local (`api/server.py`) con tu API key (OpenAI/Anthropic/etc.).
-- La app llama `POST /analizar` y rellena sola preguntas/millas/pasos.
-- Cursor sigue siendo mejor para **escribir código en el repo** con contexto de archivos.
-- Implica: clave personal, costo por uso, no subir la key al Git.
+### Modo B — API propia con IA (después)
+- `api/server.py` + tu API key → menos fricción.
+- Cursor sigue mejor para escribir código en el repo.
 
-### Modo C — “Todo automático dentro de Cursor”
-- No depende de HTML: trabajamos solo en Cursor con `AGENTS.md` + carpetas.
-- Menos tablero visual; más velocidad de código.
+### Modo C — Solo Cursor
+- Sin tablero visual; solo `AGENTS.md` + carpetas.
 
-**Decisión V1.5:** Modo A completo en la UI + esqueleto Modo B listo para cuando pongas API key.
+**Decisión V1.6:** Modo A con archivos nombrados + merge + modos de actualización.
 
-## Adjuntos (PDF / imágenes)
-Carpeta:
+## Adjuntos
 ```
-C:\dev\command-center\INBOX\proyecto-xxx\
-  reunion.txt
-  audio\
-  adjuntos\   ← PDF, PNG, JPG
+C:\dev\command-center\INBOX\<slug>\adjuntos\   ← PDF, PNG, JPG
 ```
-En la app: zona “Adjuntos” (guardas archivos ahí y anotas la lista en el proyecto).
-En Cursor: me dices `procesa` y, si los archivos están en el workspace, puedo leer imágenes/PDF texto cuando aplique.
+Anota rutas en la app. Si están en el workspace, Cursor puede leerlas al hacer `procesa`.
 
-## Cuando el equipo te manda código ajeno
-Fase del proyecto: **integración / adaptación**.
-Pasos fijos en la app: mapear repo → no romper → alinear seguridad → PR pequeño → pruebas.
+## Código ajeno del equipo
+Fase **integracion**: mapear → no romper → elevar seguridad → PR pequeño → pruebas.

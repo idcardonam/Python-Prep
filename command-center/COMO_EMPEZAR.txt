@@ -1,30 +1,32 @@
-COMMAND CENTER — CÓMO EMPEZAR (actualizado)
-===========================================
+COMMAND CENTER — CÓMO EMPEZAR (V1.6)
+====================================
 
-1) Abre en el Explorador:
+1) Copia/actualiza archivos a:
    C:\dev\command-center
 
-2) Doble clic en:
-   INICIAR.html
-   (o directo: app.html)
+2) Doble clic:
+   INICIAR.html  (abre app.html)
 
-3) Flujo SIN doble trabajo mental:
-   a) Pestaña ENTRADA → pegas transcript / notas / controversias
-   b) Creas o eliges PROYECTO
-   c) Clic "Preparar PARA_CURSOR.md" → Descargar
-   d) Guarda/mueve el archivo descargado como:
-      C:\dev\command-center\PARA_CURSOR.md
-   e) En el chat de Cursor escribes solo:
-      procesa
+3) Loop oficial:
+   a) Entrada → + Nuevo proyecto
+   b) Pega reunión + controversias + rutas de PDF/imagen
+      (carpeta: C:\dev\command-center\INBOX\<slug>\adjuntos\)
+   c) Elige modo (análisis inicial / actualizar req / ajuste camino / fase código)
+   d) Generar .md del proyecto → Descargar
+      Archivo: PARA_CURSOR_<slug>.md
+      Guardar en: C:\dev\command-center\
+   e) Nuevo chat Cursor:
+      procesa command-center/PARA_CURSOR_<slug>.md
+   f) Pega el JSON → Importar / merge (conserva checks y respuestas)
+   g) Tablero: responde preguntas + aprueba millas
+   h) Si cambian requisitos o quieres diseño/features:
+      Tablero → "Nuevo .md: actualizar..." o "ajuste camino"
+      → descarga otra vez → procesa → import merge
+   i) Pasos: marca lo hecho (el merge no lo borra)
+   j) Bloqueo: Tablero → campo Bloqueo
 
-4) Yo leo PARA_CURSOR.md y te devuelvo:
-   entendido, preguntas, riesgos, plan, texto para el JP,
-   millas extra y pasos de código.
+4) Millas extra: las propone la IA; tú checkeas.
 
-5) Audio:
-   C:\dev\command-center\INBOX\audio\
-   (la app trabaja con TEXTO; pegas la transcripción)
+5) API propia (opcional): ver api/README.md
 
-Los .md del Command Center son memoria.
-La app (app.html) es tu tablero.
-Cursor es el cerebro.
+6) Identidad: IDENTITY_CODE.md (+ pestaña Identidad)

@@ -26,6 +26,10 @@ textarea{min-height:110px;resize:vertical}
 .hidden{display:none!important}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem}
 .banner{background:#eef4fa;border:1px dashed var(--bd);border-radius:12px;padding:.8rem;margin-bottom:1rem;font-size:.9rem}
+.steps-flow{counter-reset:step;list-style:none;padding:0;margin:.4rem 0 0}
+.steps-flow li{position:relative;padding:.45rem 0 .45rem 2.1rem;border-bottom:1px solid #e4ebf4}
+.steps-flow li:last-child{border-bottom:0}
+.steps-flow li::before{counter-increment:step;content:counter(step);position:absolute;left:0;top:.45rem;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--azul);color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center}
 .sem{display:inline-flex;align-items:center;gap:.35rem;font-weight:700}
 .dot{width:.65rem;height:.65rem;border-radius:50%}.dot.g{background:var(--ok)}.dot.y{background:var(--warn)}.dot.r{background:var(--bad)}
 table{width:100%;border-collapse:collapse;font-size:.9rem}
@@ -38,13 +42,14 @@ th,td{border-bottom:1px solid var(--bd);padding:.5rem .3rem;text-align:left;vert
 .out{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:.75rem;font-family:Consolas,monospace;font-size:.8rem;white-space:pre-wrap;max-height:240px;overflow:auto}
 #toast{position:fixed;bottom:1rem;right:1rem;background:#111827;color:#fff;padding:.7rem 1rem;border-radius:10px;display:none;z-index:9}
 .two{display:grid;grid-template-columns:1.1fr .9fr;gap:.8rem}
+.hint{background:#fff8e6;border:1px solid #ebd9a0;border-radius:10px;padding:.65rem .8rem;font-size:.88rem;margin:.5rem 0}
 @media(max-width:900px){.two{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header>
   <h1>Torre de control — Command Center</h1>
-  <p>Tú capturas. La IA sugiere millas/preguntas/pasos. Tú checkeas y avanzas. Cursor escribe el código con identidad segura.</p>
+  <p>Reunión → .md del proyecto → Cursor <code>procesa</code> → JSON → Tablero. Actualizas sin perder lo ya hecho.</p>
   <nav>
     <button data-tab="hoy" class="active">Hoy</button>
     <button data-tab="entrada">Entrada</button>
@@ -56,10 +61,14 @@ th,td{border-bottom:1px solid var(--bd);padding:.5rem .3rem;text-align:left;vert
 </header>
 <main>
 <div class="banner">
-  <strong>Cómo funciona de verdad:</strong> Cursor no se puede “mandar” desde el navegador como una API mágica oficial.
-  Flujo estable: <em>Entrada → Preparar → en Cursor escribes <code>procesa</code> → Importas mi respuesta → Tablero/Pasos se llenan</em>.
-  Las <strong>millas extra las propongo yo</strong> (distintas por proyecto). Tú solo checkeas cuáles van.
-  Adjuntos: carpeta <code>INBOX/&lt;proyecto&gt;/adjuntos/</code>.
+  <strong>Loop oficial (Modo A):</strong>
+  <ol class="steps-flow">
+    <li>Creas el proyecto aquí con notas de reunión, controversias y rutas de PDF/imágenes.</li>
+    <li>Eliges modo → <em>Generar .md</em> → se descarga con el <strong>nombre del proyecto</strong> (guárdalo en <code>C:\dev\command-center\</code>).</li>
+    <li>Nuevo chat en Cursor: <code>procesa command-center/NOMBRE.md</code></li>
+    <li>Cursor te da JSON → lo descargas/pegas aquí → Importar (con <strong>merge</strong>: no borra checks ni respuestas).</li>
+    <li>Apruebas millas / respondes preguntas / o pides actualizar → nuevo .md → nuevo JSON → merge otra vez.</li>
+  </ol>
 </div>
 
 <section id="tab-hoy" class="tab">
@@ -83,28 +92,43 @@ th,td{border-bottom:1px solid var(--bd);padding:.5rem .3rem;text-align:left;vert
     <textarea id="inTexto" placeholder="Pega aquí TODO lo hablado..."></textarea>
     <label>Controversias / lo que siguió</label>
     <textarea id="inCont" placeholder="Desacuerdos, cambios de criterio, lo que quedó en el aire..."></textarea>
-    <label>Lista de adjuntos (PDF/imagen) — guárdalos en disco y anota nombres</label>
+    <label>Lista de adjuntos (PDF/imagen) — guárdalos en disco y anota rutas</label>
     <textarea id="inAdj" placeholder="Ej:\nINBOX/mi-proyecto/adjuntos/requerimiento.pdf\nINBOX/mi-proyecto/adjuntos/mockup.png"></textarea>
-    <p class="muted">Crea en el Explorador: <code>C:\dev\command-center\INBOX\nombre-proyecto\adjuntos\</code> y suelta ahí PDF/PNG. Anota las rutas arriba.</p>
-    <div class="row">
-      <button class="btn btn-main" id="btnSaveIn">Guardar entrada</button>
-      <button class="btn btn-gold" id="btnPrep">Preparar PARA_CURSOR.md (análisis)</button>
-    </div>
+    <p class="muted">Carpeta en disco: <code>C:\dev\command-center\INBOX\&lt;slug&gt;\adjuntos\</code></p>
+    <label>Ajustes del camino (opcional — “quiero agregar esto / cambiar diseño…”)</label>
+    <textarea id="inAjuste" placeholder="Ej: agregar exportación Excel; cambiar colores del header; nueva pantalla de detalle..."></textarea>
+    <button class="btn btn-main" id="btnSaveIn">Guardar entrada</button>
   </div>
+
   <div class="card">
-    <h2>2) Paquete para Cursor</h2>
-    <div class="out" id="outPack">Aún no generado.</div>
-    <div class="row" style="margin-top:.55rem">
-      <button class="btn btn-main" id="btnDl">Descargar PARA_CURSOR.md</button>
+    <h2>2) Generar .md del proyecto (para Cursor)</h2>
+    <p class="muted">El archivo se descarga como <code>PARA_CURSOR_&lt;slug&gt;.md</code>. Guárdalo dentro de <code>command-center</code>.</p>
+    <label>Modo del paquete</label>
+    <select id="selModo">
+      <option value="analisis_inicial">Análisis inicial (primera vez)</option>
+      <option value="actualizar_requerimientos">Actualizar requerimientos</option>
+      <option value="ajuste_camino">Ajuste del camino (features / diseño / alcance)</option>
+      <option value="fase_codigo">Fase código (ya hay millas/pasos aprobados)</option>
+    </select>
+    <div class="row">
+      <button class="btn btn-gold" id="btnPrep">Generar .md del proyecto</button>
+      <button class="btn btn-main" id="btnDl">Descargar .md</button>
       <button class="btn btn-ghost" id="btnCopy">Copiar</button>
     </div>
-    <p class="muted">Guárdalo como <code>C:\dev\command-center\PARA_CURSOR.md</code> → en Cursor escribe <strong>procesa</strong>.</p>
+    <div class="hint" id="hintCmd">Tras descargar, en Cursor: <code>procesa command-center/PARA_CURSOR_&lt;slug&gt;.md</code></div>
+    <div class="out" id="outPack">Aún no generado.</div>
   </div>
+
   <div class="card">
-    <h2>3) Importar respuesta de Cursor (aquí nace la magia en la UI)</h2>
-    <p class="muted">Cuando te responda el análisis, pide: “exporta JSON del tablero” o pega el bloque JSON que te dé. Se llenan preguntas, riesgos, millas y pasos.</p>
-    <textarea id="importJson" placeholder='Pega aquí el JSON de análisis...' style="min-height:140px"></textarea>
-    <button class="btn btn-main" id="btnImport">Importar al proyecto</button>
+    <h2>3) Importar JSON de Cursor → llena el tablero</h2>
+    <p class="muted">Pega el bloque JSON (o el markdown que lo contenga). La importación hace <strong>merge</strong>: conserva respuestas, checks de millas y pasos ya hechos; actualiza/añade el resto.</p>
+    <textarea id="importJson" placeholder='Pega aquí el JSON de Cursor...' style="min-height:140px"></textarea>
+    <div class="row">
+      <button class="btn btn-main" id="btnImport">Importar / merge al proyecto</button>
+      <label style="display:flex;gap:.4rem;align-items:center;font-weight:500;color:var(--tx);margin:0">
+        <input type="checkbox" id="chkReplace" style="width:auto;margin:0" /> Reemplazar todo (peligroso)
+      </label>
+    </div>
   </div>
 </section>
 
@@ -112,7 +136,7 @@ th,td{border-bottom:1px solid var(--bd);padding:.5rem .3rem;text-align:left;vert
   <div class="card">
     <h2>Proyectos</h2>
     <table>
-      <thead><tr><th>Proyecto</th><th>Fase</th><th>Semáforo</th><th>Entrega</th><th></th></tr></thead>
+      <thead><tr><th>Proyecto</th><th>Fase</th><th>Semáforo</th><th>Entrega</th><th>Archivo .md</th><th></th></tr></thead>
       <tbody id="tbProj"></tbody>
     </table>
   </div>
@@ -144,12 +168,16 @@ th,td{border-bottom:1px solid var(--bd);padding:.5rem .3rem;text-align:left;vert
     <input id="estTotal" placeholder="Ej: 2 días (L+L) si responden P0 hoy" />
     <label>Bloqueo actual (si no puedes seguir)</label>
     <input id="bloqueo" placeholder="Ej: Falta autorización del JP para crear tabla X" />
-    <button class="btn btn-main" id="btnSaveBoard">Guardar tablero</button>
+    <div class="row">
+      <button class="btn btn-main" id="btnSaveBoard">Guardar tablero</button>
+      <button class="btn btn-gold" id="btnPrepUpdate">Nuevo .md: actualizar requerimientos</button>
+      <button class="btn btn-ghost" id="btnPrepAjuste">Nuevo .md: ajuste camino / diseño</button>
+    </div>
   </div>
   <div class="two">
     <div class="card">
-      <h2>Preguntas a resolver (rellénalas)</h2>
-      <div id="boxPreguntas" class="muted">Aún no hay. Corre <code>procesa</code> e importa la respuesta.</div>
+      <h2>Preguntas a resolver</h2>
+      <div id="boxPreguntas" class="muted">Aún no hay. Corre <code>procesa</code> e importa JSON.</div>
     </div>
     <div class="card">
       <h2>Riesgos a atender</h2>
@@ -157,10 +185,14 @@ th,td{border-bottom:1px solid var(--bd);padding:.5rem .3rem;text-align:left;vert
     </div>
   </div>
   <div class="card">
-    <h2>Milla extra sugerida por IA (distinta por proyecto)</h2>
-    <p class="muted">No las inventas tú de un catálogo eterno. Llegan del análisis. Checkea las que sí van al código.</p>
+    <h2>Milla extra sugerida por IA (aprueba o no)</h2>
+    <p class="muted">Checkea las que sí van. Si quieres más o cambiar alcance/diseño, usa “ajuste camino”.</p>
     <div id="boxMillas" class="checks muted">Sin sugerencias aún.</div>
     <button class="btn btn-ghost" id="btnSaveMillas">Guardar checks de milla extra</button>
+  </div>
+  <div class="card">
+    <h2>Texto para el JP (del último análisis)</h2>
+    <div id="boxPm" class="muted">—</div>
   </div>
 </section>
 
@@ -168,11 +200,11 @@ th,td{border-bottom:1px solid var(--bd);padding:.5rem .3rem;text-align:left;vert
   <div class="card">
     <h2>Ejecución paso a paso</h2>
     <select id="stepsProj"></select>
-    <p class="muted">Ve marcando lo hecho. Si te bloqueas, pon el motivo en Tablero → Bloqueo.</p>
+    <p class="muted">Marca lo hecho. Al importar un JSON nuevo, los pasos ya hechos se conservan por título.</p>
     <div id="boxPasos" class="muted">Sin pasos. Se generan al importar el análisis.</div>
     <div class="row" style="margin-top:.6rem">
       <button class="btn btn-main" id="btnSaveSteps">Guardar avance de pasos</button>
-      <button class="btn btn-gold" id="btnPrepCodigo">Preparar PARA_CURSOR (fase código)</button>
+      <button class="btn btn-gold" id="btnPrepCodigo">Generar .md fase código</button>
     </div>
   </div>
 </section>
@@ -180,7 +212,7 @@ th,td{border-bottom:1px solid var(--bd);padding:.5rem .3rem;text-align:left;vert
 <section id="tab-identidad" class="tab hidden">
   <div class="card">
     <h2>Identidad (editable; se manda en cada análisis)</h2>
-    <p class="muted">La versión robusta vive también en <code>IDENTITY_CODE.md</code>. Aquí puedes afinar frases cortas.</p>
+    <p class="muted">También vive en <code>IDENTITY_CODE.md</code>.</p>
     <textarea id="ident" style="min-height:260px"></textarea>
     <button class="btn btn-main" id="btnIdent">Guardar</button>
   </div>
@@ -199,25 +231,46 @@ const DEFAULT_IDENT = `Identidad Iván — eje seguridad + claridad:
 Ver detalle completo en IDENTITY_CODE.md`;
 
 const store={
-  load(){try{return JSON.parse(localStorage.getItem('cc_v3'))||null}catch(e){return null}},
-  save(d){localStorage.setItem('cc_v3',JSON.stringify(d))}
+  load(){try{return JSON.parse(localStorage.getItem('cc_v4'))||JSON.parse(localStorage.getItem('cc_v3'))||null}catch(e){return null}},
+  save(d){localStorage.setItem('cc_v4',JSON.stringify(d))}
 };
-let state=store.load()||{projects:[],identity:DEFAULT_IDENT,lastPack:''};
+let state=store.load()||{projects:[],identity:DEFAULT_IDENT,lastPack:'',lastFile:''};
 let packText=state.lastPack||'';
+let lastFile=state.lastFile||'';
 
 const $=id=>document.getElementById(id);
-const toast=m=>{const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)};
+const toast=m=>{const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2400)};
 const uid=()=>'p_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const semL=s=>s==='r'?'🔴 Bloqueado':s==='y'?'🟡 Riesgo':'🟢 En tiempo';
 const phaseL={aclaracion:'Aclaración',desarrollo:'Desarrollo',pruebas:'Pruebas',entrega:'Entrega',integracion:'Adaptación código ajeno'};
+const modoL={
+  analisis_inicial:'Análisis inicial',
+  actualizar_requerimientos:'Actualizar requerimientos',
+  ajuste_camino:'Ajuste del camino (features/diseño)',
+  fase_codigo:'Fase código',
+  guardado:'Guardado'
+};
 
+function slugify(name){
+  return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'proyecto';
+}
+function mdName(p){return 'PARA_CURSOR_'+(p.slug||slugify(p.name))+'.md'}
 function proj(id){return state.projects.find(p=>p.id===id)}
+function activeProj(){return proj($('inProj').value||$('boardProj').value||$('stepsProj').value)}
+
 function fillSelects(){
   const opts=state.projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')||'<option value="">(sin proyectos)</option>';
   ['inProj','boardProj','stepsProj'].forEach(id=>{const v=$(id).value;$(id).innerHTML=opts;if(v)$(id).value=v});
 }
-function persist(){store.save(state);fillSelects();renderHoy();renderProyectos();renderBoard();renderSteps()}
+function persist(){store.save(state);fillSelects();renderHoy();renderProyectos();renderBoard();renderSteps();updateHint()}
+
+function updateHint(){
+  const p=activeProj();
+  const f=lastFile||(p?mdName(p):'PARA_CURSOR_<slug>.md');
+  $('hintCmd').innerHTML=`Tras descargar, guárdalo en <code>C:\\dev\\command-center\\${esc(f)}</code> → nuevo chat Cursor: <code>procesa command-center/${esc(f)}</code>`;
+}
 
 function renderHoy(){
   $('hoySem').innerHTML=state.projects.length?state.projects.map(p=>`<div class="sem"><span class="dot ${p.sem||'y'}"></span>${esc(p.name)}</div>`).join(''):'Sin proyectos';
@@ -235,10 +288,11 @@ function renderProyectos(){
     <td><span class="phase">${phaseL[p.phase]||p.phase||'—'}</span></td>
     <td class="sem"><span class="dot ${p.sem||'y'}"></span>${semL(p.sem||'y')}</td>
     <td>${esc(p.estimacion||'—')}</td>
+    <td><code>${esc(mdName(p))}</code></td>
     <td><button class="btn btn-ghost" data-go="${p.id}">Abrir tablero</button></td>
-  </tr>`).join('')||'<tr><td colspan="5" class="muted">Sin proyectos</td></tr>';
+  </tr>`).join('')||'<tr><td colspan="6" class="muted">Sin proyectos</td></tr>';
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{
-    $('boardProj').value=b.dataset.go;$('stepsProj').value=b.dataset.go;
+    $('boardProj').value=b.dataset.go;$('stepsProj').value=b.dataset.go;$('inProj').value=b.dataset.go;
     document.querySelector('[data-tab="tablero"]').click();
   });
 }
@@ -271,6 +325,8 @@ function renderBoard(){
     <span class="muted">Beneficio: ${esc(m.beneficio||'—')}</span><br>
     <span class="muted">Riesgo: ${esc(m.riesgo||'—')} · Si se hace bien: ${esc(m.mitigacion||'—')}</span></span>
   </label>`).join(''):'Sin sugerencias aún (llegan del análisis IA).';
+
+  $('boxPm').textContent=p.pm_update||'—';
 }
 
 function renderSteps(){
@@ -288,53 +344,125 @@ function renderSteps(){
 
 function newProject(){
   const name=(prompt('Nombre del proyecto:')||'').trim(); if(!name) return;
-  const slug=name.toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi,'-').replace(/^-|-$/g,'');
-  const p={id:uid(),name,slug,phase:'aclaracion',sem:'y',estimacion:'',bloqueo:'',
+  const slug=slugify(name);
+  const p={id:uid(),name,slug,phase:'aclaracion',sem:'y',estimacion:'',bloqueo:'',pm_update:'',
     entradas:[],preguntas:[],riesgos:[],millas:[],pasos:[],adjuntos:[],createdAt:new Date().toISOString()};
-  state.projects.unshift(p); persist(); $('inProj').value=p.id; toast('Proyecto creado. Crea carpeta INBOX/'+slug+'/adjuntos en disco');
+  state.projects.unshift(p); persist(); $('inProj').value=p.id;
+  toast('Proyecto creado → crea INBOX/'+slug+'/adjuntos en disco');
+}
+
+function normKey(s){return String(s||'').trim().toLowerCase().replace(/\s+/g,' ')}
+
+/** Merge: conserva respuestas, ok de millas y done de pasos por texto/título. */
+function mergeList(oldArr, newArr, keyFn, keepFns){
+  const old=Array.isArray(oldArr)?oldArr:[];
+  const neu=Array.isArray(newArr)?newArr:[];
+  if(!neu.length) return old;
+  const map=new Map(old.map(x=>[keyFn(x),x]));
+  return neu.map(n=>{
+    const prev=map.get(keyFn(n));
+    if(!prev) return {...n};
+    const out={...n};
+    keepFns.forEach(fn=>fn(out,prev));
+    return out;
+  });
+}
+
+function mergeIntoProject(p, data, replace){
+  if(data.estimacion!=null && data.estimacion!=='') p.estimacion=data.estimacion;
+  if(data.phase) p.phase=data.phase;
+  if(data.sem) p.sem=data.sem;
+  if(data.pm_update) p.pm_update=data.pm_update;
+  if(data.bloqueo!=null) p.bloqueo=data.bloqueo;
+
+  if(replace){
+    if(Array.isArray(data.preguntas)) p.preguntas=data.preguntas;
+    if(Array.isArray(data.riesgos)) p.riesgos=data.riesgos;
+    if(Array.isArray(data.millas)) p.millas=data.millas;
+    if(Array.isArray(data.pasos)) p.pasos=data.pasos;
+    return;
+  }
+
+  if(Array.isArray(data.preguntas)){
+    p.preguntas=mergeList(p.preguntas, data.preguntas,
+      q=>normKey(q.texto),
+      [(out,prev)=>{ if(prev.respuesta && !out.respuesta) out.respuesta=prev.respuesta; }]
+    );
+  }
+  if(Array.isArray(data.riesgos)){
+    p.riesgos=mergeList(p.riesgos, data.riesgos, r=>normKey(r.titulo), []);
+  }
+  if(Array.isArray(data.millas)){
+    p.millas=mergeList(p.millas, data.millas,
+      m=>normKey(m.titulo),
+      [(out,prev)=>{ if(prev.ok) out.ok=true; }]
+    );
+  }
+  if(Array.isArray(data.pasos)){
+    p.pasos=mergeList(p.pasos, data.pasos,
+      s=>normKey(s.title),
+      [(out,prev)=>{ if(prev.done) out.done=true; }]
+    );
+  }
 }
 
 function buildPack(kind){
-  const p=proj($('inProj').value||$('boardProj').value); if(!p){alert('Crea un proyecto');return ''}
+  const p=activeProj(); if(!p){alert('Crea un proyecto');return ''}
   const origen=$('inOrigen').value.trim();
   const texto=$('inTexto').value.trim();
   const cont=$('inCont').value.trim();
   const adj=$('inAdj').value.trim();
-  if(texto||cont||adj){
-    p.entradas.unshift({at:new Date().toISOString(),origen,texto,cont,adj});
+  const ajuste=$('inAjuste').value.trim();
+  if(texto||cont||adj||ajuste){
+    p.entradas.unshift({at:new Date().toISOString(),origen,texto,cont,adj,ajuste,modo:kind});
     if(adj) p.adjuntos=adj.split(/\n+/).map(x=>x.trim()).filter(Boolean);
   }
   const latest=p.entradas[0]||{};
   const respuestas=(p.preguntas||[]).filter(q=>q.respuesta).map(q=>`- (${q.prioridad}) ${q.texto}\n  R: ${q.respuesta}`).join('\n');
   const millasOk=(p.millas||[]).filter(m=>m.ok).map(m=>`- ${m.titulo}`).join('\n');
+  const millasPend=(p.millas||[]).filter(m=>!m.ok).map(m=>`- ${m.titulo}`).join('\n');
+  const pasosHechos=(p.pasos||[]).filter(s=>s.done).map(s=>`- [x] ${s.title}`).join('\n');
+  const pasosPend=(p.pasos||[]).filter(s=>!s.done).map(s=>`- [ ] ${s.title}`).join('\n');
+  const archivo=mdName(p);
+
   const pack=`# SOLICITUD DE PROCESAMIENTO
 Comando: **procesa** según PLAYBOOK.md + AGENTS.md + IDENTITY_CODE.md
+Archivo: \`${archivo}\`
 
 ## Modo
 ${kind||'analisis_inicial'}
+(${modoL[kind]||kind})
+
+## Regla de continuidad (OBLIGATORIA)
+- Mismo idioma/estructura del proyecto: no reinventar desde cero.
+- **MERGE**, no wipe: conservar preguntas ya respondidas, millas ya aprobadas (\`ok:true\`) y pasos ya hechos (\`done:true\`).
+- Actualizar/añadir solo lo que cambió por nuevas notas, requerimientos, diseño o features.
+- Si una milla/paso ya no aplica, márcalo en el texto del análisis; en JSON puedes omitirlo o dejarlo con nota en detail — la app preservará checks por título.
+- Incluye diseño/UI si el modo es ajuste_camino o si las notas lo piden.
 
 ## Proyecto
 - Nombre: ${p.name}
-- Slug carpeta: ${p.slug}
+- Slug: ${p.slug}
 - Fase: ${p.phase}
 - Semáforo: ${semL(p.sem)}
-- Estimación: ${p.estimacion||'(pedir en análisis)'}
+- Estimación actual: ${p.estimacion||'(pedir en análisis)'}
 - Bloqueo: ${p.bloqueo||'(ninguno)'}
 
 ## Instrucciones para la IA
 1. Entendido (sin inventar)
-2. Preguntas P0/P1/P2 humanizadas (si ya hay respuestas, no repetirlas)
+2. Preguntas P0/P1/P2 (no repetir las ya respondidas abajo)
 3. Riesgos + mitigación
-4. **Millas extra NUEVAS** (no catálogo genérico repetido): para ESTE proyecto, 3–6 ideas con beneficio/riesgo/mitigación
-5. Plan de entregas con estimación S/M/L/XL
-6. Pasos de ejecución checkeables (crear archivos, SQL, UI, pruebas…)
+4. Millas extra NUEVAS o actualizadas para ESTE proyecto (beneficio/riesgo/mitigación)
+5. Plan de entregas S/M/L/XL
+6. Pasos checkeables (archivos, SQL, UI/diseño, pruebas…)
 7. Texto 60s para JP
-8. Al final, EXPORTA un bloque JSON (ver formato) para importar en la app
+8. Al final: bloque JSON importable (schema abajo)
 
 ## Formato JSON obligatorio al final
 \`\`\`json
 {
   "project": "${p.name}",
+  "modo": "${kind||'analisis_inicial'}",
   "estimacion": "...",
   "phase": "aclaracion|desarrollo|pruebas|entrega|integracion",
   "sem": "g|y|r",
@@ -345,14 +473,24 @@ ${kind||'analisis_inicial'}
   "pm_update": "texto corto para el JP"
 }
 \`\`\`
+En millas/pasos ya aprobados o hechos, respeta \`ok:true\` / \`done:true\` del estado actual.
 
 ## Identidad
 ${state.identity}
 
-## Millas ya aprobadas por Iván
+## Estado actual — Millas aprobadas
 ${millasOk||'(ninguna aún)'}
 
-## Respuestas ya dadas a preguntas
+## Estado actual — Millas pendientes / no checkeadas
+${millasPend||'(ninguna)'}
+
+## Estado actual — Pasos hechos
+${pasosHechos||'(ninguno)'}
+
+## Estado actual — Pasos pendientes
+${pasosPend||'(ninguno)'}
+
+## Respuestas ya dadas
 ${respuestas||'(ninguna)'}
 
 ## Adjuntos (rutas)
@@ -361,40 +499,41 @@ ${(p.adjuntos||[]).join('\n')||latest.adj||'(ninguno anotado)'}
 ## Controversias
 ${latest.cont||cont||'(ninguna)'}
 
+## Ajustes del camino / diseño / features nuevas
+${ajuste||latest.ajuste||'(ninguno en este paquete)'}
+
 ## Origen
 ${latest.origen||origen||'(n/a)'}
 
 ## Transcript / notas
-${latest.texto||texto||'(vacío)'}
+${latest.texto||texto||'(vacío — usa estado actual + ajustes)'}
 `;
-  packText=pack; state.lastPack=pack; persist(); $('outPack').textContent=pack; return pack;
+  packText=pack; lastFile=archivo; state.lastPack=pack; state.lastFile=archivo; persist();
+  $('outPack').textContent=pack; updateHint(); return pack;
 }
 
 function downloadPack(){
-  const pack=packText||buildPack(); if(!pack) return;
+  const p=activeProj();
+  const pack=packText||buildPack($('selModo').value); if(!pack) return;
+  const name=lastFile||(p?mdName(p):'PARA_CURSOR.md');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([pack],{type:'text/markdown;charset=utf-8'}));
-  a.download='PARA_CURSOR.md'; a.click();
-  toast('Descarga listo → guárdalo en C:\\\\dev\\\\command-center\\\\PARA_CURSOR.md');
+  a.download=name; a.click();
+  toast('Descarga: '+name+' → guárdalo en command-center');
 }
 
 function importAnalysis(){
   let raw=$('importJson').value.trim(); if(!raw){alert('Pega el JSON');return}
   const m=raw.match(/\{[\s\S]*\}/); if(!m){alert('No veo un JSON válido');return}
   let data; try{data=JSON.parse(m[0])}catch(e){alert('JSON inválido: '+e.message);return}
-  let p=proj($('inProj').value||$('boardProj').value);
-  if(!p && data.project){ p=state.projects.find(x=>x.name===data.project) }
+  let p=activeProj();
+  if(!p && data.project){ p=state.projects.find(x=>x.name===data.project||x.slug===slugify(data.project)) }
   if(!p){alert('Selecciona el proyecto destino');return}
-  if(data.estimacion) p.estimacion=data.estimacion;
-  if(data.phase) p.phase=data.phase;
-  if(data.sem) p.sem=data.sem;
-  if(Array.isArray(data.preguntas)) p.preguntas=data.preguntas;
-  if(Array.isArray(data.riesgos)) p.riesgos=data.riesgos;
-  if(Array.isArray(data.millas)) p.millas=data.millas;
-  if(Array.isArray(data.pasos)) p.pasos=data.pasos;
-  if(data.pm_update) p.pm_update=data.pm_update;
-  persist(); $('boardProj').value=p.id; $('stepsProj').value=p.id;
-  toast('Análisis importado al tablero');
+  const replace=$('chkReplace').checked;
+  mergeIntoProject(p, data, replace);
+  p.lastImportAt=new Date().toISOString();
+  persist(); $('boardProj').value=p.id; $('stepsProj').value=p.id; $('inProj').value=p.id;
+  toast(replace?'Importado (reemplazo completo)':'Importado con merge — progreso conservado');
   document.querySelector('[data-tab="tablero"]').click();
 }
 
@@ -404,21 +543,22 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   $('tab-'+b.dataset.tab).classList.remove('hidden');
   if(b.dataset.tab==='tablero') renderBoard();
   if(b.dataset.tab==='pasos') renderSteps();
+  if(b.dataset.tab==='entrada') updateHint();
 });
 
 $('btnNew').onclick=newProject;
 $('btnSaveIn').onclick=()=>{buildPack('guardado');toast('Entrada guardada')};
-$('btnPrep').onclick=()=>{buildPack('analisis_inicial');toast('Paquete de análisis listo')};
+$('btnPrep').onclick=()=>{buildPack($('selModo').value);toast('Paquete listo — descarga el .md')};
 $('btnDl').onclick=downloadPack;
-$('btnCopy').onclick=async()=>{const p=packText||buildPack(); if(!p)return; await navigator.clipboard.writeText(p); toast('Copiado')};
+$('btnCopy').onclick=async()=>{const p=packText||buildPack($('selModo').value); if(!p)return; await navigator.clipboard.writeText(p); toast('Copiado')};
 $('btnImport').onclick=importAnalysis;
 $('boardProj').onchange=renderBoard;
 $('stepsProj').onchange=renderSteps;
+$('inProj').onchange=updateHint;
 $('btnSaveBoard').onclick=()=>{
   const p=proj($('boardProj').value); if(!p)return;
   p.phase=$('selPhase').value; p.sem=$('selSem').value;
   p.estimacion=$('estTotal').value.trim(); p.bloqueo=$('bloqueo').value.trim();
-  // save question answers
   document.querySelectorAll('[data-qr]').forEach(t=>{ const i=+t.dataset.qr; if(p.preguntas[i]) p.preguntas[i].respuesta=t.value.trim(); });
   persist(); toast('Tablero guardado');
 };
@@ -428,12 +568,17 @@ $('btnSaveMillas').onclick=()=>{
   persist(); toast('Millas actualizadas');
 };
 $('btnSaveSteps').onclick=()=>{toast('Avance de pasos guardado');persist()};
-$('btnPrepCodigo').onclick=()=>{
-  const p=proj($('stepsProj').value); if(p) $('inProj').value=p.id;
-  buildPack('fase_codigo');
+function goPrep(mode){
+  const p=activeProj()||proj($('boardProj').value)||proj($('stepsProj').value);
+  if(p){ $('inProj').value=p.id; }
+  $('selModo').value=mode;
+  buildPack(mode);
   document.querySelector('[data-tab="entrada"]').click();
-  toast('Paquete fase código listo — descarga y di procesa');
-};
+  toast('Paquete '+modoL[mode]+' listo — descarga .md');
+}
+$('btnPrepCodigo').onclick=()=>goPrep('fase_codigo');
+$('btnPrepUpdate').onclick=()=>goPrep('actualizar_requerimientos');
+$('btnPrepAjuste').onclick=()=>goPrep('ajuste_camino');
 $('ident').value=state.identity||DEFAULT_IDENT;
 $('btnIdent').onclick=()=>{state.identity=$('ident').value;persist();toast('Identidad guardada')};
 if(packText) $('outPack').textContent=packText;

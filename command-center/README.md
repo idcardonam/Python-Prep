@@ -1,26 +1,28 @@
 # Command Center — Iván (UNAB / Dev híbrido)
 
-Sistema personal de trabajo: trazabilidad, preguntas, riesgos y entregas.
-**No es código de UNAB.** Vive en tu PC personal: `C:\dev\command-center`
+Torre de control personal: reuniones → análisis Cursor → tablero (preguntas, riesgos, millas, pasos).
+**No es código de UNAB.** Vive en tu PC: `C:\dev\command-center`
 
-## Uso rápido
-1. En reunión → llena `templates/MEETING_INTAKE.md` (o pégalo en `INBOX/`).
-2. En Cursor (esta carpeta) → pégame transcript/PDF/imagen.
-3. Yo respondo con el formato del `PLAYBOOK.md`.
-4. Proyecto confirmado → copia `PROJECTS/_plantilla` a `PROJECTS/nombre-proyecto`.
-5. Código de apps → `C:\dev\projects\` (no aquí). Pruebas PHP → `C:\xampp\htdocs\` cuando toque.
+## Loop (Modo A)
+1. Abre `INICIAR.html` → crea proyecto, pega reunión + rutas PDF.
+2. Genera `PARA_CURSOR_<slug>.md` y guárdalo en esta carpeta.
+3. En Cursor: `procesa command-center/PARA_CURSOR_<slug>.md`
+4. Importa el JSON en la app (**merge**: no pierde checks/respuestas).
+5. Actualizas requisitos o diseño → nuevo `.md` → `procesa` → nuevo JSON.
+
+Detalle: `COMO_EMPEZAR.txt`, `ARQUITECTURA.md`, `PLAYBOOK.md`, `AGENTS.md`.
 
 ## Estructura
 ```
 command-center/
-  PLAYBOOK.md
-  AGENTS.md
-  STANDARDS.md
-  templates/
-  INBOX/
+  app.html
+  PLAYBOOK.md  AGENTS.md  IDENTITY_CODE.md  STANDARDS.md
+  INBOX/<slug>/adjuntos/
   PROJECTS/_plantilla/
+  templates/
+  api/          (opcional, Modo B)
 ```
 
 ## Regla de oro
-Aquí guardamos **contexto y decisiones**.  
-Los secretos (claves, datos personales reales) **no** van a Git ni al chat sin enmascarar.
+Aquí va **contexto y decisiones**. Secretos/PII reales no van a Git ni al chat sin enmascarar.
+Código de apps → `C:\dev\projects\` (no aquí). PHP de prueba → `C:\xampp\htdocs\` cuando toque.

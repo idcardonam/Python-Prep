@@ -1,8 +1,14 @@
-# SOLICITUD DE PROCESAMIENTO
+# SOLICITUD DE PROCESAMIENTO (stub)
 
-Comando: **procesa este archivo según PLAYBOOK.md y AGENTS.md**
+La app genera archivos **por proyecto**:
 
-(Archivo vacío de ejemplo. La app `app.html` genera aquí el contenido real
-cuando descargas PARA_CURSOR.md y lo reemplazas en esta carpeta.)
+`PARA_CURSOR_<slug>.md`
 
-Cuando Iván escriba en el chat: `procesa` — leer este archivo y responder con el PLAYBOOK.
+Ejemplo de comando en Cursor:
+
+```
+procesa command-center/PARA_CURSOR_mi-proyecto.md
+```
+
+Si solo escribes `procesa` sin ruta, lee este stub o el último `.md` que Iván indique.
+Responde con PLAYBOOK + JSON al final (ver AGENTS.md). Regla: **merge**, no wipe.
