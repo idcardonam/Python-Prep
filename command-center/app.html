@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Command Center UNAB — Torre de control</title>
+<style>
+:root{
+  --azul:#003B70; --azul2:#0055A4; --dorado:#C4A106; --bg:#f3f6fa; --tx:#1f2937; --bd:#d5deea;
+  --ok:#157347; --warn:#b58100; --bad:#b42318;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--tx)}
+header{background:linear-gradient(90deg,var(--azul),var(--azul2));color:#fff;padding:1rem 1.25rem;border-bottom:4px solid var(--dorado);display:flex;flex-wrap:wrap;gap:.75rem;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:1.2rem}
+header p{margin:.2rem 0 0;opacity:.9;font-size:.88rem}
+nav{display:flex;flex-wrap:wrap;gap:.4rem}
+nav button{border:0;background:rgba(255,255,255,.14);color:#fff;padding:.45rem .75rem;border-radius:999px;cursor:pointer;font-weight:600}
+nav button.active{background:var(--dorado);color:#111}
+main{max-width:1100px;margin:0 auto;padding:1rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.8rem}
+.card{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:1rem;box-shadow:0 6px 18px rgba(0,59,112,.05);margin-bottom:1rem}
+.card h2{margin:0 0 .7rem;font-size:1.02rem;color:var(--azul)}
+.muted{color:#5b6573;font-size:.9rem}
+label{display:block;font-weight:650;color:var(--azul);margin:.35rem 0;font-size:.88rem}
+input,select,textarea{width:100%;border:1.5px solid var(--bd);border-radius:10px;padding:.6rem .7rem;font:inherit;margin-bottom:.55rem}
+textarea{min-height:120px;resize:vertical}
+.btn{border:0;border-radius:10px;padding:.6rem .9rem;font-weight:700;cursor:pointer}
+.btn-main{background:var(--azul2);color:#fff}
+.btn-gold{background:var(--dorado);color:#111}
+.btn-ghost{background:#e8eef5;color:var(--azul)}
+.btn-bad{background:#fdeCEC;color:var(--bad)}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.hidden{display:none!important}
+.sem{display:inline-flex;align-items:center;gap:.35rem;font-weight:700}
+.dot{width:.7rem;height:.7rem;border-radius:50%}
+.dot.g{background:var(--ok)}.dot.y{background:var(--warn)}.dot.r{background:var(--bad)}
+.pill{display:inline-block;padding:.15rem .5rem;border-radius:999px;background:#e8eef5;font-size:.78rem;font-weight:700;color:var(--azul)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{border-bottom:1px solid var(--bd);padding:.55rem .35rem;text-align:left;vertical-align:top}
+.checks label{font-weight:500;color:var(--tx);display:flex;gap:.5rem;align-items:flex-start;margin:.35rem 0}
+.checks input{width:auto;margin:.2rem 0 0}
+.banner{background:#eef4fa;border:1px dashed var(--bd);border-radius:12px;padding:.8rem;margin-bottom:1rem;font-size:.92rem}
+#toast{position:fixed;bottom:1rem;right:1rem;background:#111827;color:#fff;padding:.7rem 1rem;border-radius:10px;display:none;z-index:9}
+.out{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:.8rem;font-family:Consolas,monospace;font-size:.82rem;white-space:pre-wrap;max-height:280px;overflow:auto}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Torre de control — Command Center</h1>
+    <p>Pegas aquí. Guardas proyecto. Un clic prepara el paquete. En Cursor solo escribes: <strong>procesa</strong></p>
+  </div>
+  <nav id="nav">
+    <button data-tab="hoy" class="active">Hoy</button>
+    <button data-tab="inbox">Entrada</button>
+    <button data-tab="proyectos">Proyectos</button>
+    <button data-tab="pendientes">Pendientes</button>
+    <button data-tab="milla">Milla extra</button>
+    <button data-tab="identidad">Identidad</button>
+  </nav>
+</header>
+<main>
+  <div class="banner">
+    <strong>Sin doble trabajo mental:</strong> esta app guarda todo en tu navegador y puede descargar
+    <code>PARA_CURSOR.md</code> a tu carpeta. Luego en Cursor dices solo <code>procesa</code> y yo leo ese archivo.
+    La “magia” de análisis sigue en Cursor (seguro y sin APIs raras). La app es tu memoria + semáforo + recordatorios.
+  </div>
+
+  <!-- HOY -->
+  <section id="tab-hoy" class="tab">
+    <div class="grid">
+      <div class="card"><h2>Semáforo personal</h2><div id="hoySemaforo" class="muted">Sin proyectos aún</div></div>
+      <div class="card"><h2>Pendientes de hoy</h2><div id="hoyPendientes" class="muted">—</div></div>
+      <div class="card"><h2>Próxima entrega</h2><div id="hoyEntrega" class="muted">—</div></div>
+    </div>
+    <div class="card">
+      <h2>Atajo: procesar reunión ahora</h2>
+      <p class="muted">Te lleva a Entrada con foco. Flujo: pegar → crear/actualizar proyecto → preparar Cursor.</p>
+      <button class="btn btn-main" id="btnIrInbox">Ir a Entrada</button>
+    </div>
+  </section>
+
+  <!-- INBOX -->
+  <section id="tab-inbox" class="tab hidden">
+    <div class="card">
+      <h2>1) Entrada de reunión / correo / PDF (texto)</h2>
+      <label>Proyecto</label>
+      <div class="row">
+        <select id="inProyecto" style="flex:1"></select>
+        <button class="btn btn-ghost" type="button" id="btnNuevoDesdeInbox">+ Nuevo proyecto</button>
+      </div>
+      <label>Origen</label>
+      <input id="inOrigen" placeholder="Reunión JP / correo / WhatsApp — fecha" />
+      <label>Pega transcript, notas o lo que te enviaron (texto)</label>
+      <textarea id="inTexto" placeholder="Aquí TODO lo de la reunión o el hilo que siguió..."></textarea>
+      <label>Controversias / lo que se siguió hablando (opcional)</label>
+      <textarea id="inControversia" placeholder="Ej: Bienestar quiere Excel sí o sí; TIC no quiere tabla nueva esta semana..."></textarea>
+      <div class="row">
+        <button class="btn btn-main" id="btnGuardarEntrada">Guardar en proyecto</button>
+        <button class="btn btn-gold" id="btnPrepararCursor">Preparar PARA_CURSOR.md</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>2) Paquete generado</h2>
+      <p class="muted">Descarga este archivo dentro de <code>C:\dev\command-center\</code> (reemplaza si ya existe). Luego en el chat de Cursor escribe: <strong>procesa</strong></p>
+      <div class="out" id="outPack">Aún no generado.</div>
+      <div class="row" style="margin-top:.6rem">
+        <button class="btn btn-main" id="btnDescargar">Descargar PARA_CURSOR.md</button>
+        <button class="btn btn-ghost" id="btnCopiarPack">Copiar texto</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROYECTOS -->
+  <section id="tab-proyectos" class="tab hidden">
+    <div class="card">
+      <h2>Proyectos</h2>
+      <div class="row" style="margin-bottom:.6rem">
+        <button class="btn btn-main" id="btnNuevoProyecto">Crear proyecto</button>
+      </div>
+      <table>
+        <thead><tr><th>Proyecto</th><th>Semáforo</th><th>Entrega</th><th>Falta</th><th></th></tr></thead>
+        <tbody id="tablaProyectos"></tbody>
+      </table>
+    </div>
+    <div class="card hidden" id="detalleProyecto">
+      <h2 id="detTitulo">Detalle</h2>
+      <label>Estado / semáforo</label>
+      <select id="detSem">
+        <option value="g">🟢 En tiempo</option>
+        <option value="y">🟡 Riesgo controlado</option>
+        <option value="r">🔴 Bloqueado</option>
+      </select>
+      <label>Objetivo</label>
+      <textarea id="detObjetivo"></textarea>
+      <label>Próxima entrega (qué + cuándo)</label>
+      <input id="detEntrega" />
+      <label>Lo que falta</label>
+      <textarea id="detFalta"></textarea>
+      <label>Notas de avance</label>
+      <textarea id="detNotas"></textarea>
+      <div class="row">
+        <button class="btn btn-main" id="btnGuardarDet">Guardar proyecto</button>
+        <button class="btn btn-gold" id="btnPackDesdeDet">Preparar Cursor con este proyecto</button>
+        <button class="btn btn-bad" id="btnBorrarProj">Eliminar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PENDIENTES -->
+  <section id="tab-pendientes" class="tab hidden">
+    <div class="card">
+      <h2>Pendientes / recordatorios</h2>
+      <div class="row">
+        <input id="pendTexto" placeholder="Ej: Preguntar al JP si hay tabla para observaciones" style="flex:1" />
+        <select id="pendProj"></select>
+        <button class="btn btn-main" id="btnAddPend">Agregar</button>
+      </div>
+      <table>
+        <thead><tr><th>Hecho</th><th>Tarea</th><th>Proyecto</th><th></th></tr></thead>
+        <tbody id="tablaPend"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MILLA EXTRA -->
+  <section id="tab-milla" class="tab hidden">
+    <div class="card">
+      <h2>Milla extra (elige qué incluir en el código)</h2>
+      <p class="muted">Marca solo lo que aporta valor real. Eso viaja en PARA_CURSOR.md para que el código no se adorne solo.</p>
+      <label>Proyecto</label>
+      <select id="millaProj"></select>
+      <div class="checks" id="millaChecks"></div>
+      <label>Otra milla extra (tu idea)</label>
+      <input id="millaOtra" placeholder="Ej: modo impresión limpio para reuniones con decanos" />
+      <button class="btn btn-main" id="btnGuardarMilla">Guardar millas del proyecto</button>
+    </div>
+  </section>
+
+  <!-- IDENTIDAD -->
+  <section id="tab-identidad" class="tab hidden">
+    <div class="card">
+      <h2>Identidad de programación</h2>
+      <p class="muted">Se incluye automáticamente en cada PARA_CURSOR.md para que el código se sienta propio, no genérico de IA.</p>
+      <textarea id="identidadTexto" style="min-height:220px"></textarea>
+      <button class="btn btn-main" id="btnSaveIdent">Guardar identidad</button>
+    </div>
+  </section>
+</main>
+<div id="toast"></div>
+
+<script>
+const MILLA_CATALOG = [
+  {id:'audit_ui', label:'Auditoría visible bajo interruptor (sin saturar la UI)'},
+  {id:'empty_human', label:'Mensajes vacíos/error humanizados (sin tono robótico)'},
+  {id:'export', label:'Export CSV/Excel con BOM para Excel'},
+  {id:'progress', label:'Barra de progreso en procesos largos'},
+  {id:'detail_modal', label:'Detalle “por qué salió este resultado”'},
+  {id:'soft_delete', label:'Baja lógica en vez de borrar'},
+  {id:'smoke_test', label:'Checklist de prueba manual de 5 pasos en README corto'},
+  {id:'security_notes', label:'Notas de seguridad en el PR/entrega (quién accede / datos sensibles)'},
+  {id:'pm_summary', label:'Resumen listo para pegarle al JP (60s)'},
+  {id:'no_break', label:'Plan explícito de no romper módulos vecinos'},
+];
+
+const DEFAULT_IDENTITY = `Identidad Iván:
+- Código claro, nombres del negocio, funciones cortas.
+- Comentarios solo del "por qué".
+- Errores humanizados; logs técnicos aparte.
+- SQL parametrizado; transacciones si hay integridad.
+- Sin secretos en código.
+- Cambios pequeños y reversibles.
+- UI en español sobrio, institucional, sin relleno de IA.
+- Milla extra solo si está checkeada.`;
+
+const store = {
+  load() {
+    const raw = localStorage.getItem('cc_v2');
+    if (!raw) {
+      return { projects: [], pendientes: [], identity: DEFAULT_IDENTITY, lastPack: '' };
+    }
+    return JSON.parse(raw);
+  },
+  save(data) { localStorage.setItem('cc_v2', JSON.stringify(data)); }
+};
+
+let state = store.load();
+let selectedId = null;
+let lastPackText = state.lastPack || '';
+
+function uid(){ return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.style.display='block'; setTimeout(()=>t.style.display='none',2200); }
+function semLabel(s){ return s==='r'?'🔴 Bloqueado': s==='y'?'🟡 Riesgo':'🟢 En tiempo'; }
+
+function ensureSelects(){
+  const opts = state.projects.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+  ['inProyecto','pendProj','millaProj'].forEach(id=>{
+    const el=document.getElementById(id);
+    const cur=el.value;
+    el.innerHTML = opts || '<option value="">(sin proyectos)</option>';
+    if (cur) el.value=cur;
+  });
+}
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function renderHoy(){
+  const box=document.getElementById('hoySemaforo');
+  if(!state.projects.length){ box.innerHTML='Sin proyectos aún. Crea uno en Entrada o Proyectos.'; }
+  else{
+    box.innerHTML = state.projects.map(p=>`<div class="sem" style="margin:.25rem 0"><span class="dot ${p.sem||'y'}"></span>${escapeHtml(p.name)} — ${semLabel(p.sem||'y')}</div>`).join('');
+  }
+  const pend = state.pendientes.filter(x=>!x.done);
+  document.getElementById('hoyPendientes').innerHTML = pend.length
+    ? '<ul style="margin:0;padding-left:1.1rem">'+pend.slice(0,6).map(x=>`<li>${escapeHtml(x.text)}</li>`).join('')+'</ul>'
+    : 'No hay pendientes abiertos.';
+  const withE = state.projects.filter(p=>p.entrega).sort((a,b)=>(a.entrega||'').localeCompare(b.entrega||''));
+  document.getElementById('hoyEntrega').innerHTML = withE.length
+    ? `<strong>${escapeHtml(withE[0].name)}</strong><br>${escapeHtml(withE[0].entrega)}`
+    : 'Sin fechas cargadas.';
+}
+
+function renderProyectos(){
+  const tb=document.getElementById('tablaProyectos');
+  tb.innerHTML = state.projects.map(p=>`<tr>
+    <td><strong>${escapeHtml(p.name)}</strong><div class="muted">${escapeHtml((p.objetivo||'').slice(0,80))}</div></td>
+    <td><span class="sem"><span class="dot ${p.sem||'y'}"></span>${semLabel(p.sem||'y')}</span></td>
+    <td>${escapeHtml(p.entrega||'—')}</td>
+    <td>${escapeHtml(p.falta||'—')}</td>
+    <td><button class="btn btn-ghost" data-open="${p.id}">Abrir</button></td>
+  </tr>`).join('') || '<tr><td colspan="5" class="muted">No hay proyectos</td></tr>';
+  tb.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openProject(b.dataset.open));
+}
+
+function openProject(id){
+  const p=state.projects.find(x=>x.id===id); if(!p) return;
+  selectedId=id;
+  document.getElementById('detalleProyecto').classList.remove('hidden');
+  document.getElementById('detTitulo').textContent=p.name;
+  document.getElementById('detSem').value=p.sem||'y';
+  document.getElementById('detObjetivo').value=p.objetivo||'';
+  document.getElementById('detEntrega').value=p.entrega||'';
+  document.getElementById('detFalta').value=p.falta||'';
+  document.getElementById('detNotas').value=p.notas||'';
+  document.getElementById('inProyecto').value=id;
+  document.getElementById('millaProj').value=id;
+  renderMilla();
+}
+
+function renderPend(){
+  const tb=document.getElementById('tablaPend');
+  const pname=id=>{ const p=state.projects.find(x=>x.id===id); return p?p.name:'General'; };
+  tb.innerHTML = state.pendientes.map((t,i)=>`<tr>
+    <td><input type="checkbox" data-check="${i}" ${t.done?'checked':''}></td>
+    <td>${escapeHtml(t.text)}</td>
+    <td>${escapeHtml(pname(t.projectId))}</td>
+    <td><button class="btn btn-ghost" data-del="${i}">✕</button></td>
+  </tr>`).join('') || '<tr><td colspan="4" class="muted">Sin pendientes</td></tr>';
+  tb.querySelectorAll('[data-check]').forEach(c=>c.onchange=()=>{ state.pendientes[+c.dataset.check].done=c.checked; persist(); });
+  tb.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ state.pendientes.splice(+b.dataset.del,1); persist(); });
+}
+
+function renderMilla(){
+  const id=document.getElementById('millaProj').value;
+  const p=state.projects.find(x=>x.id===id);
+  const selected=new Set((p&&p.millas)||[]);
+  document.getElementById('millaChecks').innerHTML = MILLA_CATALOG.map(m=>`
+    <label><input type="checkbox" value="${m.id}" ${selected.has(m.id)?'checked':''}> <span>${m.label}</span></label>`).join('');
+  document.getElementById('millaOtra').value=(p&&p.millaOtra)||'';
+}
+
+function persist(){ store.save(state); ensureSelects(); renderHoy(); renderProyectos(); renderPend(); }
+
+function newProject(name){
+  const n=(name||prompt('Nombre del proyecto:','Nuevo proyecto')||'').trim();
+  if(!n) return null;
+  const p={ id:uid(), name:n, sem:'y', objetivo:'', entrega:'', falta:'', notas:'', entradas:[], millas:[], millaOtra:'', createdAt:new Date().toISOString() };
+  state.projects.unshift(p); persist(); openProject(p.id); toast('Proyecto creado'); return p;
+}
+
+function buildPack(){
+  const id=document.getElementById('inProyecto').value || selectedId;
+  const p=state.projects.find(x=>x.id===id);
+  if(!p){ alert('Crea o selecciona un proyecto primero'); return ''; }
+  const origen=document.getElementById('inOrigen').value.trim();
+  const texto=document.getElementById('inTexto').value.trim();
+  const cont=document.getElementById('inControversia').value.trim();
+  if(texto){
+    p.entradas = p.entradas||[];
+    p.entradas.unshift({ at:new Date().toISOString(), origen, texto, cont });
+  }
+  const millas = (p.millas||[]).map(id=>{
+    const m=MILLA_CATALOG.find(x=>x.id===id); return m?('- [x] '+m.label):'';
+  }).filter(Boolean);
+  if(p.millaOtra) millas.push('- [x] '+p.millaOtra);
+
+  const latest = (p.entradas&&p.entradas[0]) || {origen, texto, cont};
+  const pack = `<!-- PARA_CURSOR.md — generado por Command Center app -->
+# SOLICITUD DE PROCESAMIENTO
+
+Comando: **procesa este archivo según PLAYBOOK.md y AGENTS.md**
+
+## Proyecto
+- Nombre: ${p.name}
+- Semáforo: ${semLabel(p.sem||'y')}
+- Objetivo: ${p.objetivo||'(por definir)'}
+- Próxima entrega: ${p.entrega||'(por definir)'}
+- Lo que falta: ${p.falta||'(por definir)'}
+
+## Lo que necesito que hagas YA
+1. Lo que entendiste
+2. Preguntas humanizadas P0/P1/P2
+3. Riesgos (seguridad, datos, no romper conexiones)
+4. Plan de entregas con estimación realista (S/M/L/XL)
+5. Texto listo para el JP (60s)
+6. Si ya hay suficientes respuestas: estructura de inicio de código + pasos numerados para copiar al PC empresa
+7. Proponer millas extra notables (además de las ya checkeadas) y pedir confirmación antes de codearlas
+
+## Millas extra aprobadas para el código
+${millas.length?millas.join('\n'):'(ninguna marcada aún)'}
+
+## Identidad de código
+${state.identity}
+
+## Controversias / hilo siguiente
+${latest.cont||cont||'(ninguna)'}
+
+## Origen
+${latest.origen||origen||'(no indicado)'}
+
+## Transcript / notas
+${latest.texto||texto||'(vacío)'}
+
+## Pendientes abiertos del usuario
+${state.pendientes.filter(x=>!x.done).map(x=>'- '+x.text).join('\n')||'(ninguno)'}
+`;
+  lastPackText=pack; state.lastPack=pack; persist();
+  document.getElementById('outPack').textContent=pack;
+  return pack;
+}
+
+function downloadPack(){
+  const pack=lastPackText||buildPack(); if(!pack) return;
+  const blob=new Blob([pack],{type:'text/markdown;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='PARA_CURSOR.md';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Descargado. Muévelo a C:\\dev\\command-center\\PARA_CURSOR.md');
+}
+
+// tabs
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.add('hidden'));
+  document.getElementById('tab-'+b.dataset.tab).classList.remove('hidden');
+  if(b.dataset.tab==='milla') renderMilla();
+});
+
+document.getElementById('btnIrInbox').onclick=()=>document.querySelector('[data-tab="inbox"]').click();
+document.getElementById('btnNuevoProyecto').onclick=()=>newProject();
+document.getElementById('btnNuevoDesdeInbox').onclick=()=>{ const p=newProject(); if(p) document.getElementById('inProyecto').value=p.id; };
+document.getElementById('btnGuardarEntrada').onclick=()=>{
+  const id=document.getElementById('inProyecto').value; if(!id){ alert('Crea un proyecto primero'); return; }
+  const p=state.projects.find(x=>x.id===id);
+  p.entradas=p.entradas||[];
+  p.entradas.unshift({
+    at:new Date().toISOString(),
+    origen:document.getElementById('inOrigen').value.trim(),
+    texto:document.getElementById('inTexto').value.trim(),
+    cont:document.getElementById('inControversia').value.trim()
+  });
+  if(!p.objetivo && p.entradas[0].texto) p.objetivo = p.entradas[0].texto.slice(0,140);
+  persist(); toast('Entrada guardada en el proyecto');
+};
+document.getElementById('btnPrepararCursor').onclick=()=>{ buildPack(); toast('Paquete listo'); };
+document.getElementById('btnDescargar').onclick=downloadPack;
+document.getElementById('btnCopiarPack').onclick=async()=>{
+  const pack=lastPackText||buildPack(); if(!pack) return;
+  await navigator.clipboard.writeText(pack); toast('Copiado');
+};
+document.getElementById('btnGuardarDet').onclick=()=>{
+  const p=state.projects.find(x=>x.id===selectedId); if(!p) return;
+  p.sem=document.getElementById('detSem').value;
+  p.objetivo=document.getElementById('detObjetivo').value.trim();
+  p.entrega=document.getElementById('detEntrega').value.trim();
+  p.falta=document.getElementById('detFalta').value.trim();
+  p.notas=document.getElementById('detNotas').value.trim();
+  persist(); toast('Proyecto actualizado');
+};
+document.getElementById('btnPackDesdeDet').onclick=()=>{
+  if(selectedId) document.getElementById('inProyecto').value=selectedId;
+  document.querySelector('[data-tab="inbox"]').click();
+  buildPack();
+};
+document.getElementById('btnBorrarProj').onclick=()=>{
+  if(!selectedId||!confirm('¿Eliminar proyecto de la torre de control?')) return;
+  state.projects=state.projects.filter(x=>x.id!==selectedId);
+  selectedId=null; document.getElementById('detalleProyecto').classList.add('hidden'); persist();
+};
+document.getElementById('btnAddPend').onclick=()=>{
+  const text=document.getElementById('pendTexto').value.trim(); if(!text) return;
+  state.pendientes.unshift({ text, projectId:document.getElementById('pendProj').value, done:false });
+  document.getElementById('pendTexto').value=''; persist();
+};
+document.getElementById('btnGuardarMilla').onclick=()=>{
+  const id=document.getElementById('millaProj').value; const p=state.projects.find(x=>x.id===id); if(!p) return;
+  p.millas=[...document.querySelectorAll('#millaChecks input:checked')].map(x=>x.value);
+  p.millaOtra=document.getElementById('millaOtra').value.trim();
+  persist(); toast('Millas guardadas');
+};
+document.getElementById('millaProj').onchange=renderMilla;
+document.getElementById('identidadTexto').value=state.identity||DEFAULT_IDENTITY;
+document.getElementById('btnSaveIdent').onclick=()=>{ state.identity=document.getElementById('identidadTexto').value; persist(); toast('Identidad guardada'); };
+
+if(lastPackText) document.getElementById('outPack').textContent=lastPackText;
+persist();
+</script>
+</body>
+</html>
