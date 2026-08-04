@@ -1,0 +1,36 @@
+COMMAND CENTER — FLUJO SIMPLE (V2)
+=================================
+
+La app es OPCIONAL. Lo importante es Cursor + carpeta del código.
+
+FLUJO QUE SÍ QUIERES
+--------------------
+1) Pegas la reunión / generas PARA_CURSOR_<slug>.md
+2) En Cursor (carpeta command-center abierta):
+     procesa PARA_CURSOR_<slug>.md
+3) Respondes las dudas en el chat
+4) Generas .md pactado (o dices "ya pactado, a código")
+5) Cursor EMPIEZA A CREAR CÓDIGO
+6) Tú lo pones en el PC real, pruebas, escribes: sigue
+7) Cursor entrega el siguiente bloque hasta terminar
+
+DÓNDE VA EL CÓDIGO (el proyecto de verdad)
+-----------------------------------------
+  C:\dev\projects\<slug>\
+  o si es PHP/XAMPP:
+  C:\xampp\htdocs\<slug>\
+
+El Command Center (C:\dev\command-center) solo guarda contexto/.md.
+NO es la app que estás construyendo.
+
+APP HTML (opcional)
+-------------------
+Solo si quieres un tablero visual. NO necesitas Importar/merge
+para poder codear. Ignórala si te enreda.
+
+FRASE MÁGICA CUANDO YA RESPONDISTE TODO
+---------------------------------------
+  Ya respondí todo. Pactado. Fase código.
+  Crea el proyecto en C:\dev\projects\<slug> (o htdocs).
+  Empieza por la estructura y el primer archivo.
+  Al final dime qué pegar/probar y yo escribo: sigue

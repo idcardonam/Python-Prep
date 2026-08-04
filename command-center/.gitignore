@@ -1,0 +1,9 @@
+# Nunca subir secretos ni dumps
+.env
+*.local
+**/config.local.php
+**/secrets/
+INBOX/*.txt
+INBOX/*.md
+!INBOX/.gitkeep
+*.log

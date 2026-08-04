@@ -1,0 +1,96 @@
+nombre: "IVAN DAVID CARDONA"
+titulo: "INGENIERO DE SISTEMAS"
+
+contacto:
+  telefono: "304 558 7767"
+  email: "idcm@hotmail.es"
+  linkedin: "https://n9.cl/lajpr"
+
+perfil: |
+  Ingeniero de Sistemas y Especialista en Seguridad Informática con experiencia
+  comprobada en soporte técnico, administración de infraestructura TIC y gestión
+  de incidentes en entornos corporativos de alta exigencia operativa. Integro la
+  atención de primer nivel a usuarios, el diagnóstico de fallas en redes y
+  servicios, la documentación de solicitudes y el cumplimiento de políticas de
+  seguridad de la información. Cuento con sólida trayectoria en el mantenimiento
+  de plataformas, la administración de bases de datos SQL, la actualización de
+  inventarios de hardware y software, y el seguimiento de la continuidad de los
+  servicios tecnológicos. Domino entornos Windows y Linux, herramientas de
+  análisis de datos, automatización de procesos y desarrollo de soluciones con
+  Python, React, PHP y CSS, lo que me permite aportar en la resolución de
+  incidentes, la integración de sistemas y la mejora de la operación diaria. Mi
+  formación y experiencia en auditoría TIC, junto con conocimientos en ISO 27001,
+  COBIT, NIST, ITIL y GDPR, fortalecen mi criterio para ejecutar soporte con
+  orientación al servicio, trazabilidad y rigor técnico, entregando intervenciones
+  oportunas, documentadas y alineadas a las necesidades de organizaciones que
+  requieren estabilidad, control y confiabilidad en su ecosistema digital.
+
+experiencia:
+  - cargo: "ANALISTA TIC"
+    empresa: "Organizacion Servicios y Asesorias"
+    periodo: "Marzo 2025 - Junio 2026"
+    rol: "Análista de soporte y Seguridad Informatica"
+    bullets:
+      - "Soporte técnico de primer nivel y atención de incidentes en plataformas y servicios TIC."
+      - "Desarrollo de automatizaciones corporativas y aplicaciones utilizando Python y React."
+      - "Documentación de solicitudes, fallos corregidos y escalamiento de casos al equipo especializado."
+      - "Administración de bases de datos e integración de sistemas para la continuidad operativa."
+      - "Aplicación de políticas de seguridad informática en los desarrollos y servicios TIC."
+
+  - cargo: "Profesional Auditorias Tecnología de la información"
+    empresa: "Financiera Comultrasan"
+    periodo: "Sep 2023 - Ene 2025"
+    bullets:
+      - "Planeación y Ejecución de Auditorías Internas de TI."
+      - "Gestión de Riesgos de TI."
+      - "Análisis y Gestión de Bases de Datos e inventarios de activos tecnológicos."
+      - "Ciberseguridad y Cumplimiento Normativo."
+      - "Pruebas de rendimiento y optimización."
+
+  - cargo: "Ingeniero de Sistemas / Auditor Interno"
+    empresa: "Constructodo de la Guajira S.A.S"
+    periodo: "Nov 2019 - May 2023"
+    bullets:
+      - "Planeación estratégica y estructuración de procesos internos."
+      - "Análisis de riesgos y creación de políticas de seguridad."
+      - "Análisis de datos, elaboración de métricas e informes de seguimiento operativo."
+
+formacion_academica:
+  - titulo: "Especialista en Seguridad Informática"
+    institucion: "Corporación Universitaria Minuto de Dios"
+    periodo: "2023"
+  - titulo: "Ingeniero de Sistemas"
+    institucion: "Universidad Popular del César"
+    periodo: "2022 | TP Vigente"
+  - titulo: "Técnico en Análisis y Desarrollo de Sistemas"
+    institucion: "Uparsistem"
+    periodo: "2014"
+
+formacion_complementaria:
+  - titulo: "AUDITOR INTERNO ISO/IEC 27001:2022 (32 horas)"
+    institucion: "SGS Academy"
+    periodo: "2023"
+  - titulo: "Auditor Interno en Sistemas Integrados (32 horas)"
+    institucion: "Eidec"
+    periodo: "2022"
+  - titulo: "Sistemas Integrados de Gestión (120 horas)"
+    institucion: "Eidec"
+    periodo: "2022"
+
+conocimientos:
+  - "ISO 27001."
+  - "COBIT."
+  - "NIST."
+  - "ITIL."
+  - "GDPR."
+  - "Windows / Linux."
+  - "SQL."
+  - "Bases de datos."
+  - "Redes e infraestructura."
+  - "Scrum."
+  - "Power BI."
+  - "Excel."
+  - "Python."
+  - "React."
+
+referencias: "Referencias a solicitud"

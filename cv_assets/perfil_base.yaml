@@ -1,0 +1,97 @@
+# Perfil base - Ivan David Cardona Mendoza
+# Se adapta por vacante manteniendo el diseño original
+
+nombre: "IVAN DAVID CARDONA"
+titulo: "INGENIERO DE SISTEMAS"
+
+contacto:
+  telefono: "304 558 7767"
+  email: "idcm@hotmail.es"
+  linkedin: "https://n9.cl/lajpr"
+
+perfil: |
+  Ingeniero de Sistemas y Especialista en Seguridad Informática con un
+  enfoque estratégico de 360 grados: integro el desarrollo ágil de
+  software, el análisis avanzado de datos y el rigor de la ciberseguridad.
+  Cuento con experiencia comprobada en el diseño de soluciones
+  tecnológicas escalables, combinando la automatización de procesos
+  corporativos complejos con el procesamiento de bases de datos para
+  la toma de decisiones. Domino tecnologías como Python, React, SQL
+  y PHP, lo que me permite construir ecosistemas digitales eficientes,
+  desarrollar integraciones robustas y aplicar modelos de análisis y
+  Machine Learning para la optimización de operaciones. Mi capacidad
+  de desarrollo está fuertemente respaldada por sólidos conocimientos
+  en auditoría, normativas corporativas (ISO 27001, COBIT) y gestión de
+  riesgos TIC, facultándome para entregar aplicaciones institucionales
+  que no solo son innovadoras y de alto rendimiento, sino altamente
+  estables, documentadas y blindadas desde su arquitectura.
+
+experiencia:
+  - cargo: "ANALISTA TIC"
+    empresa: "Organizacion Servicios y Asesorias"
+    periodo: "Marzo 2025 - Junio 2026"
+    rol: "Análista de soporte y Seguridad Informatica"
+    bullets:
+      - "Desarrollo de automatizaciones corporativas y aplicaciones utilizando Python y React."
+      - "Diseño de macros avanzadas para la optimización de procesos de nómina y contabilidad."
+      - "Análisis de datos e integración de sistemas para respaldar la toma de decisiones."
+      - "Soporte técnico especializado y aplicación de políticas de seguridad en los desarrollos TIC."
+
+  - cargo: "Profesional Auditorias Tecnología de la información"
+    empresa: "Financiera Comultrasan"
+    periodo: "Sep 2023 - Ene 2025"
+    bullets:
+      - "Planeación y Ejecución de Auditorías Internas de TI."
+      - "Gestión de Riesgos de TI."
+      - "Análisis y Gestión de Bases de Datos."
+      - "Elaboración de Macros de datos"
+      - "Evaluación y Seguimiento de Controles Internos."
+      - "Ciberseguridad y Cumplimiento Normativo."
+      - "Pruebas de rendimiento y optimización."
+
+  - cargo: "Ingeniero de Sistemas / Auditor Interno"
+    empresa: "Constructodo de la Guajira S.A.S"
+    periodo: "Nov 2019 - May 2023"
+    bullets:
+      - "Planeación estratégica y estructuración de procesos internos."
+      - "Análisis de riesgos y creación de políticas de seguridad."
+      - "Análisis de datos, elaboración de métricas para estrategias comerciales y informes de Machine Learning."
+
+formacion_academica:
+  - titulo: "Especialista en Seguridad Informática"
+    institucion: "Corporación Universitaria Minuto de Dios"
+    periodo: "2023"
+  - titulo: "Ingeniero de Sistemas"
+    institucion: "Universidad Popular del César"
+    periodo: "2022 | TP Vigente"
+  - titulo: "Técnico en Análisis y Desarrollo de Sistemas"
+    institucion: "Uparsistem"
+    periodo: "2014"
+
+formacion_complementaria:
+  - titulo: "AUDITOR INTERNO ISO/IEC 27001:2022 (32 horas)"
+    institucion: "SGS Academy"
+    periodo: "2023"
+  - titulo: "Auditor Interno en Sistemas Integrados (32 horas)"
+    institucion: "Eidec"
+    periodo: "2022"
+  - titulo: "Sistemas Integrados de Gestión (120 horas)"
+    institucion: "Eidec"
+    periodo: "2022"
+
+conocimientos:
+  - "ISO 27001."
+  - "COBIT."
+  - "NIST."
+  - "ITIL."
+  - "GDPR."
+  - "Scrum."
+  - "Power BI."
+  - "Visual Basic."
+  - "CSS."
+  - ".PHP."
+  - "SQL."
+  - "Bases de datos"
+  - "Excel"
+
+referencias: "Referencias a solicitud"
