@@ -1,32 +1,36 @@
-COMMAND CENTER — CÓMO EMPEZAR (V1.6)
-====================================
+COMMAND CENTER — FLUJO SIMPLE (V2)
+=================================
 
-1) Copia/actualiza archivos a:
-   C:\dev\command-center
+La app es OPCIONAL. Lo importante es Cursor + carpeta del código.
 
-2) Doble clic:
-   INICIAR.html  (abre app.html)
+FLUJO QUE SÍ QUIERES
+--------------------
+1) Pegas la reunión / generas PARA_CURSOR_<slug>.md
+2) En Cursor (carpeta command-center abierta):
+     procesa PARA_CURSOR_<slug>.md
+3) Respondes las dudas en el chat
+4) Generas .md pactado (o dices "ya pactado, a código")
+5) Cursor EMPIEZA A CREAR CÓDIGO
+6) Tú lo pones en el PC real, pruebas, escribes: sigue
+7) Cursor entrega el siguiente bloque hasta terminar
 
-3) Loop oficial:
-   a) Entrada → + Nuevo proyecto
-   b) Pega reunión + controversias + rutas de PDF/imagen
-      (carpeta: C:\dev\command-center\INBOX\<slug>\adjuntos\)
-   c) Elige modo (análisis inicial / actualizar req / ajuste camino / fase código)
-   d) Generar .md del proyecto → Descargar
-      Archivo: PARA_CURSOR_<slug>.md
-      Guardar en: C:\dev\command-center\
-   e) Nuevo chat Cursor:
-      procesa command-center/PARA_CURSOR_<slug>.md
-   f) Pega el JSON → Importar / merge (conserva checks y respuestas)
-   g) Tablero: responde preguntas + aprueba millas
-   h) Si cambian requisitos o quieres diseño/features:
-      Tablero → "Nuevo .md: actualizar..." o "ajuste camino"
-      → descarga otra vez → procesa → import merge
-   i) Pasos: marca lo hecho (el merge no lo borra)
-   j) Bloqueo: Tablero → campo Bloqueo
+DÓNDE VA EL CÓDIGO (el proyecto de verdad)
+-----------------------------------------
+  C:\dev\projects\<slug>\
+  o si es PHP/XAMPP:
+  C:\xampp\htdocs\<slug>\
 
-4) Millas extra: las propone la IA; tú checkeas.
+El Command Center (C:\dev\command-center) solo guarda contexto/.md.
+NO es la app que estás construyendo.
 
-5) API propia (opcional): ver api/README.md
+APP HTML (opcional)
+-------------------
+Solo si quieres un tablero visual. NO necesitas Importar/merge
+para poder codear. Ignórala si te enreda.
 
-6) Identidad: IDENTITY_CODE.md (+ pestaña Identidad)
+FRASE MÁGICA CUANDO YA RESPONDISTE TODO
+---------------------------------------
+  Ya respondí todo. Pactado. Fase código.
+  Crea el proyecto en C:\dev\projects\<slug> (o htdocs).
+  Empieza por la estructura y el primer archivo.
+  Al final dime qué pegar/probar y yo escribo: sigue

@@ -1,50 +1,45 @@
-# PLAYBOOK — Idioma de trabajo (siempre igual)
+# PLAYBOOK — Flujo real (simple)
 
 ## Rol
-Desarrollador híbrido (PHP, Java, Python, SQL) con enfoque de seguridad,
-trazabilidad y entregas claras. Equipo: UNAB u otros, stack adaptable.
+Desarrollador híbrido (PHP, Java, Python, SQL). Seguridad, claridad, entregas útiles.
 
-## Loop con la app (Modo A)
-1. Iván crea/actualiza proyecto en `app.html` (notas, PDF paths, controversias, ajustes).
-2. Genera y guarda `PARA_CURSOR_<slug>.md` en `command-center/`.
-3. En Cursor: `procesa command-center/PARA_CURSOR_<slug>.md`
-4. Tú respondes + JSON al final → él importa (merge) → tablero/pasos.
-5. Si aprueba millas, actualiza requerimientos, o pide diseño/features → nuevo `.md` → `procesa` otra vez → nuevo JSON → merge.
+## Flujo oficial (lo que Iván quiere)
+```
+1) Llena contexto (reunión / .md / chat)
+2) IA hace preguntas
+3) Iván responde TODAS
+4) Nuevo .md pactado  →  YA ES FASE CÓDIGO
+5) IA crea el proyecto archivo por archivo
+6) Iván lo pone en el PC real y prueba
+7) Dice "listo" / "sigue" → IA entrega el siguiente bloque
+8) Hasta terminar el proyecto
+```
 
-## Cuando Iván envía reunión / PDF / imagen / audio→texto / ajuste
-Responder **siempre** en este orden:
+**No hace falta importar JSON ni merge para avanzar.**  
+El JSON/app es opcional (solo si quiere un tablero visual). No bloquea el código.
 
-1. **Lo que entendí** (5–10 líneas, sin inventar)
-2. **Preguntas humanizadas** (P0 / P1 / P2) — omitir las ya respondidas
-3. **Riesgos** (seguridad, datos, integraciones, plazo, impacto en otros módulos)
-4. **Estándar propuesto** (naming, capas, logs, validaciones, UI/diseño si aplica, pruebas mínimas)
-5. **Plan de entregas** (S/M/L/XL + supuestos)
-6. **Trazabilidad** (qué actualizar en PROJECT / REQUIREMENTS / DECISIONS / OPEN_QUESTIONS)
-7. **Qué decirle al JP** (semáforo + bloqueo + próxima entrega)
-8. **JSON importable** (schema en AGENTS.md) — con merge-friendly titles
+## Checks = guía, no candado
+Cuando digas “mira esto / hazlo en el proyecto real”:
+- Es para que Iván copie/pruebe en su PC.
+- **No** esperes que marque checkboxes en una app para continuar.
+- Si dice “listo”, “sigue”, “ya lo puse” → entrega el **siguiente** archivo/paso.
+- Si hay error al probar → lo arreglas y sigues.
 
-## Modos del `.md`
-| Modo | Qué hacer |
-|------|-----------|
-| `analisis_inicial` | Primer mapa completo del proyecto |
-| `actualizar_requerimientos` | Incorporar cambios de requisitos; no wipe |
-| `ajuste_camino` | Features, diseño, alcance mid-flight; no wipe |
-| `fase_codigo` | Plan de implementación con millas ya aprobadas |
+## Si el `.md` ya trae respuestas (modo pactado / fase_codigo)
+1. Confirma en 5 líneas qué vas a construir (sin repreguntar lo resuelto).
+2. Indica carpeta real del código, ej. `C:\dev\projects\<slug>` o `C:\xampp\htdocs\<slug>`.
+3. **Empieza a crear código ya** (estructura + primer archivo útil).
+4. Al final de cada bloque: “Haz esto en el PC → prueba X → escribe **sigue**”.
+5. Repite hasta cerrar el alcance pactado.
 
-## Estimaciones
-No forzar “8 horas exactas”. Usar rangos honestos:
-- **S** &lt; 2h · **M** medio día · **L** 1 día · **XL** 2+ días  
-Indicar supuestos (“si la BD ya existe”, “si hay API documentada”).
+## Si aún faltan dudas
+Solo entonces: preguntas P0/P1/P2. Cuando las responda → código (no otro laberinto).
 
-## Antes de codear
-- Criterios de aceptación claros
-- Fuera de alcance explícito
-- No asumir framework ni servidor Git (GitHub/GitLab/Azure) hasta confirmarlo
+## Durante el código
+- Un bloque claro por turno (archivos concretos + dónde pegarlos).
+- Seguridad: validar, SQL parametrizado, sin secretos, errores claros.
+- No rehacer todo el sistema sin acuerdo.
+- Cambios mínimos si hay código ajeno.
 
-## Durante el desarrollo (PC personal → PC empresa)
-- Generar código ordenado por pasos numerados
-- Checklist de archivos a copiar
-- No romper conexiones existentes: cambios mínimos, reversibles, con prueba
-
-## Cierre del día (DAYLOG)
-Iván anota: Recibí / Hice / Entregué / Bloqueos / Próximo paso.
+## Estimaciones (si preguntan)
+S &lt; 2h · M medio día · L 1 día · XL 2+ días, con supuestos.
