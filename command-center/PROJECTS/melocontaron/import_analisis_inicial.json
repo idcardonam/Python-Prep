@@ -1,0 +1,223 @@
+{
+  "project": "MELOCONTARON",
+  "modo": "analisis_inicial",
+  "estimacion": "MVP operativo L–XL (tras cerrar P0); producto completo varios XL. Supuesto: sin FE DIAN en V1, 1 caja, inventario simple, LAN-first.",
+  "phase": "aclaracion",
+  "sem": "y",
+  "preguntas": [
+    {
+      "prioridad": "P0",
+      "texto": "¿El MVP del primer mes es solo parqueadero→mesa→caja→cocina→salida, o también inventario/reportes/FE desde el día 1?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P0",
+      "texto": "Con poco internet: ¿aceptan servidor local en caja (LAN) + sync cuando haya red, o necesitan 100% nube?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P0",
+      "texto": "¿El cliente pide solo con mesero/caja, o también desde la carta QR (self-service)?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P0",
+      "texto": "¿Cuántas mesas, meseros, cajas y estaciones de cocina hay en un día pico?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P0",
+      "texto": "Parqueadero: ¿tarifa fija moto/carro u otros, fija o por tiempo? ¿Se cobra siempre junto con la comida?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P0",
+      "texto": "¿Ya tienen NIT, resolución DIAN, impresora y proveedor FE, o V1 es ticket/factura interna con IVA y FE después?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P1",
+      "texto": "¿Stack preferido (Python/PHP/otro) o aceptan recomendación PWA + API + SQL?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P1",
+      "texto": "¿Logo y fotos de platos/finca ya existen o hay que diseñar/tomar?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P1",
+      "texto": "¿La propina voluntaria se reparte con reglas/porcentajes configurables por admin?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P1",
+      "texto": "Inventario: ¿recetas (BOM) desde V1 para “alcanza para N platos”, o stock simple por producto del menú primero?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P1",
+      "texto": "¿Definirán minutos de preparación por producto o el sistema solo registrará tiempos reales?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P2",
+      "texto": "¿Hay una sola entrada/salida de vehículos? ¿Motos y carros comparten control?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P2",
+      "texto": "¿Login por persona (PIN/usuario) desde el día 1 o puestos compartidos por estación/rol?",
+      "respuesta": ""
+    },
+    {
+      "prioridad": "P2",
+      "texto": "¿Presupuesto aproximado de hardware (caja + cocina + impresora) y si ya hay TV HDMI en cocina?",
+      "respuesta": ""
+    }
+  ],
+  "riesgos": [
+    {
+      "titulo": "Internet inestable en finca",
+      "detalle": "Si la app depende de nube, se cae el servicio en el momento de mayor venta.",
+      "mitigacion": "Diseño LAN-first / PWA con cola local y sincronización diferida; router dedicado al POS."
+    },
+    {
+      "titulo": "Alcance demasiado amplio",
+      "detalle": "Operación + inventario fino + FE + web + contable en un solo golpe atrasa el dolor real.",
+      "mitigacion": "MVP por fases; FE DIAN y contable ampliado fuera de V1."
+    },
+    {
+      "titulo": "Facturación electrónica DIAN",
+      "detalle": "Requiere NIT, resolución, proveedor tecnológico y pruebas; no es un print HTML.",
+      "mitigacion": "V1 ticket/factura interna con IVA correcto; FE como fase con proveedor."
+    },
+    {
+      "titulo": "Pedidos incompletos o sin cierre",
+      "detalle": "Hoy ya molesta al cliente; un sistema sin estado por ítem lo replica.",
+      "mitigacion": "Estados por ítem y por pedido; alertas a mesero; no cerrar cuenta a ciegas."
+    },
+    {
+      "titulo": "Salida de vehículo sin pago",
+      "detalle": "Una moto/carro del combo puede salir si no hay control de placa vs cuenta.",
+      "mitigacion": "Pantalla/salida exige placa y muestra deuda; alerta si intentan liberar sin pagar."
+    },
+    {
+      "titulo": "Inventario incorrecto",
+      "detalle": "“Hay para 40 hamburguesas” falso genera sobreventa o desconfianza.",
+      "mitigacion": "Empezar stock simple; recetas después; conteos físicos; carta oculta agotados."
+    },
+    {
+      "titulo": "Adopción del personal",
+      "detalle": "Equipo acostumbrado a papel/radio puede rechazar pantallas complejas.",
+      "mitigacion": "UI de pocos toques, letras grandes, capacitación por rol, piloto en un turno."
+    }
+  ],
+  "millas": [
+    {
+      "titulo": "Modo LAN-first con cola offline",
+      "beneficio": "El restaurante sigue vendiendo aunque falle el ISP; reduce pelea operativa el sábado.",
+      "riesgo": "Sync conflictivo si hay dos cajas sin diseño de conflicto.",
+      "mitigacion": "V1 una caja autoridad; sync con marcas de tiempo; pruebas de corte de red.",
+      "ok": false
+    },
+    {
+      "titulo": "KDS cocina con semáforo por vencer",
+      "beneficio": "Prioriza lo que se está demorando; baja quejas por espera.",
+      "riesgo": "Alertas ruidosas si los umbrales son malos.",
+      "mitigacion": "Umbrales configurables por tipo de plato; sonido solo en rojo.",
+      "ok": false
+    },
+    {
+      "titulo": "Cuenta visita unificada (comida + parqueadero + propina)",
+      "beneficio": "Un solo cobro por nombre/titular; menos fugas y menos vueltas del cliente.",
+      "riesgo": "Error al vincular placa/titular duplicado.",
+      "mitigacion": "Búsqueda por nombre y placa; confirmación visual antes de cobrar.",
+      "ok": false
+    },
+    {
+      "titulo": "Carta QR visual ligada a stock",
+      "beneficio": "Cliente ve fotos y no pide lo agotado; menos errores y mejor experiencia.",
+      "riesgo": "Fotos pesadas en red mala.",
+      "mitigacion": "Imágenes optimizadas y cache PWA; modo solo lectura offline.",
+      "ok": false
+    },
+    {
+      "titulo": "Cierre de caja con propina e IVA separados",
+      "beneficio": "Ganancias claras del día; propina repartible; base limpia para FE futura.",
+      "riesgo": "Mal clasificar transferencia vs efectivo.",
+      "mitigacion": "Medio de pago obligatorio por transacción; reporte de arqueo.",
+      "ok": false
+    },
+    {
+      "titulo": "Alerta de salida por placa sin pago",
+      "beneficio": "Evita que se escape una moto/carro del combo sin liquidar.",
+      "riesgo": "Falsos positivos si hay dos visitas con placa parecida.",
+      "mitigacion": "Placa normalizada + estado de cuenta visible; override solo admin con motivo.",
+      "ok": false
+    }
+  ],
+  "pasos": [
+    {
+      "title": "Cerrar P0 con dueño (MVP, LAN/nube, quién pide, capacidad, tarifas, factura)",
+      "detail": "Responder en app.html las 6 P0; sin eso no se fija estimación ni stack.",
+      "done": false
+    },
+    {
+      "title": "Congelar MVP V1 y fuera de alcance",
+      "detail": "Propuesta: visita completa + cocina checks/alertas + salida + carta QR lectura + cierre diario; FE/BOM/web marketing fase 2.",
+      "done": false
+    },
+    {
+      "title": "Mapear mesas, roles y catálogo mínimo de productos",
+      "detail": "Lista de mesas, productos con precio/IVA, tipos vehículo/tarifas; CSV o hoja simple.",
+      "done": false
+    },
+    {
+      "title": "Definir modelo SQL cuenta_visita / pedido / item_pedido / pago / vehiculo",
+      "detail": "Incluir estados, propina, medio pago, timestamps; transacciones en cobro.",
+      "done": false
+    },
+    {
+      "title": "Wireframes por rol: parqueadero, mesero, caja, cocina, admin",
+      "detail": "Una composición clara por pantalla; cocina full-bleed cola; caja cobro simple.",
+      "done": false
+    },
+    {
+      "title": "Recomendación hardware cerrada (caja + cocina + impresora + red local)",
+      "detail": "Mini-PC/PC caja + UPS + térmica 80mm; tablet/TV cocina; celulares operación; router LAN.",
+      "done": false
+    },
+    {
+      "title": "Recoger logo y fotos (platos + finca) para carta, factura y web",
+      "detail": "Assets en INBOX/melocontaron/adjuntos/; definir tipografías/colores marca campestre.",
+      "done": false
+    },
+    {
+      "title": "Borrador página web restaurante campestre Bucaramanga",
+      "detail": "Hero marca + foto lugar; sin cards de stats; CTA reserva/WhatsApp/cómo llegar; móvil OK.",
+      "done": false
+    },
+    {
+      "title": "Prototipo LAN del flujo feliz visita (sin FE)",
+      "detail": "Parqueadero→mesa→pedido→pago→cocina check→aviso mesero→salida por placa.",
+      "done": false
+    },
+    {
+      "title": "Prueba en sitio con corte de internet",
+      "detail": "Validar que caja/cocina siguen; documentar en DAYLOG resultados.",
+      "done": false
+    },
+    {
+      "title": "Diseño ticket/factura impresa con logo, IVA y propina",
+      "detail": "Campos listos para FE futura; no secretos en código de impresión.",
+      "done": false
+    },
+    {
+      "title": "Backlog fase 2: BOM inventario, promos, métricas meseros, FE DIAN",
+      "detail": "Queda documentado; no mezclar en sprint MVP salvo P0 que lo exija.",
+      "done": false
+    }
+  ],
+  "pm_update": "🟡 MELOCONTARON en aclaración: flujo manual entendido (parqueadero→mesa→caja→cocina→salida). Falta decidir MVP del primer mes y si operamos LAN-first por el internet de la finca. Próxima entrega tras P0: plan MVP con pasos y demo del flujo visita. V1 propuesta sin FE DIAN completa."
+}
