@@ -1,0 +1,24 @@
+COMMAND CENTER — CÓMO EMPEZAR (lee esto primero)
+================================================
+
+1) Abre esta carpeta en el Explorador de Windows:
+   C:\dev\command-center
+
+2) Da doble clic al archivo:
+   INICIAR.html
+   (Se abre en Chrome o Edge. ESA es tu "app" de entrada.)
+
+3) Los archivos .md NO se ejecutan.
+   Son notas/plantillas. Si quieres verlos:
+   - clic derecho → Abrir con → Bloc de notas
+   - o ábrelos dentro de Cursor (aparecen a la izquierda)
+
+4) Grabaciones:
+   Crea la carpeta: C:\dev\command-center\INBOX\audio
+   Ahí guarda .m4a / .mp3
+   En INICIAR.html pegas la TRANSCRIPCIÓN o el resumen en texto.
+
+5) Flujo real:
+   Reunión → texto en INICIAR.html → Copiar → pegar en chat de Cursor → yo te respondo.
+
+No necesitas "correr" nada más para iniciar.
