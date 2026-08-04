@@ -3,462 +3,440 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Command Center UNAB — Torre de control</title>
+<title>Command Center — Torre de control</title>
 <style>
-:root{
-  --azul:#003B70; --azul2:#0055A4; --dorado:#C4A106; --bg:#f3f6fa; --tx:#1f2937; --bd:#d5deea;
-  --ok:#157347; --warn:#b58100; --bad:#b42318;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--tx)}
-header{background:linear-gradient(90deg,var(--azul),var(--azul2));color:#fff;padding:1rem 1.25rem;border-bottom:4px solid var(--dorado);display:flex;flex-wrap:wrap;gap:.75rem;justify-content:space-between;align-items:center}
-header h1{margin:0;font-size:1.2rem}
-header p{margin:.2rem 0 0;opacity:.9;font-size:.88rem}
-nav{display:flex;flex-wrap:wrap;gap:.4rem}
-nav button{border:0;background:rgba(255,255,255,.14);color:#fff;padding:.45rem .75rem;border-radius:999px;cursor:pointer;font-weight:600}
+:root{--azul:#003B70;--azul2:#0055A4;--dorado:#C4A106;--bg:#f3f6fa;--tx:#1f2937;--bd:#d5deea;--ok:#157347;--warn:#b58100;--bad:#b42318}
+*{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--tx)}
+header{background:linear-gradient(90deg,var(--azul),var(--azul2));color:#fff;padding:1rem 1.2rem;border-bottom:4px solid var(--dorado)}
+header h1{margin:0;font-size:1.15rem}header p{margin:.25rem 0 0;opacity:.92;font-size:.88rem}
+nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem}
+nav button{border:0;background:rgba(255,255,255,.14);color:#fff;padding:.42rem .7rem;border-radius:999px;cursor:pointer;font-weight:600}
 nav button.active{background:var(--dorado);color:#111}
 main{max-width:1100px;margin:0 auto;padding:1rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.8rem}
-.card{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:1rem;box-shadow:0 6px 18px rgba(0,59,112,.05);margin-bottom:1rem}
-.card h2{margin:0 0 .7rem;font-size:1.02rem;color:var(--azul)}
+.card{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:1rem;margin-bottom:1rem;box-shadow:0 6px 18px rgba(0,59,112,.05)}
+.card h2{margin:0 0 .65rem;font-size:1.02rem;color:var(--azul)}
 .muted{color:#5b6573;font-size:.9rem}
-label{display:block;font-weight:650;color:var(--azul);margin:.35rem 0;font-size:.88rem}
-input,select,textarea{width:100%;border:1.5px solid var(--bd);border-radius:10px;padding:.6rem .7rem;font:inherit;margin-bottom:.55rem}
-textarea{min-height:120px;resize:vertical}
-.btn{border:0;border-radius:10px;padding:.6rem .9rem;font-weight:700;cursor:pointer}
-.btn-main{background:var(--azul2);color:#fff}
-.btn-gold{background:var(--dorado);color:#111}
-.btn-ghost{background:#e8eef5;color:var(--azul)}
-.btn-bad{background:#fdeCEC;color:var(--bad)}
+label{display:block;font-weight:650;color:var(--azul);margin:.35rem 0;font-size:.86rem}
+input,select,textarea{width:100%;border:1.5px solid var(--bd);border-radius:10px;padding:.58rem .7rem;font:inherit;margin-bottom:.5rem}
+textarea{min-height:110px;resize:vertical}
+.btn{border:0;border-radius:10px;padding:.55rem .85rem;font-weight:700;cursor:pointer}
+.btn-main{background:var(--azul2);color:#fff}.btn-gold{background:var(--dorado);color:#111}
+.btn-ghost{background:#e8eef5;color:var(--azul)}.btn-bad{background:#fdecec;color:var(--bad)}
 .row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
 .hidden{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem}
+.banner{background:#eef4fa;border:1px dashed var(--bd);border-radius:12px;padding:.8rem;margin-bottom:1rem;font-size:.9rem}
 .sem{display:inline-flex;align-items:center;gap:.35rem;font-weight:700}
-.dot{width:.7rem;height:.7rem;border-radius:50%}
-.dot.g{background:var(--ok)}.dot.y{background:var(--warn)}.dot.r{background:var(--bad)}
-.pill{display:inline-block;padding:.15rem .5rem;border-radius:999px;background:#e8eef5;font-size:.78rem;font-weight:700;color:var(--azul)}
-table{width:100%;border-collapse:collapse;font-size:.92rem}
-th,td{border-bottom:1px solid var(--bd);padding:.55rem .35rem;text-align:left;vertical-align:top}
-.checks label{font-weight:500;color:var(--tx);display:flex;gap:.5rem;align-items:flex-start;margin:.35rem 0}
-.checks input{width:auto;margin:.2rem 0 0}
-.banner{background:#eef4fa;border:1px dashed var(--bd);border-radius:12px;padding:.8rem;margin-bottom:1rem;font-size:.92rem}
+.dot{width:.65rem;height:.65rem;border-radius:50%}.dot.g{background:var(--ok)}.dot.y{background:var(--warn)}.dot.r{background:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{border-bottom:1px solid var(--bd);padding:.5rem .3rem;text-align:left;vertical-align:top}
+.item{border:1px solid var(--bd);border-radius:12px;padding:.7rem .8rem;margin:.45rem 0;background:#fbfcfe}
+.item h3{margin:0 0 .35rem;font-size:.95rem;color:var(--azul)}
+.checks label{font-weight:500;color:var(--tx);display:flex;gap:.5rem;align-items:flex-start;margin:.3rem 0}
+.checks input{width:auto;margin:.15rem 0 0}
+.phase{display:inline-block;padding:.12rem .5rem;border-radius:999px;background:#e8eef5;font-size:.75rem;font-weight:700;color:var(--azul)}
+.out{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:.75rem;font-family:Consolas,monospace;font-size:.8rem;white-space:pre-wrap;max-height:240px;overflow:auto}
 #toast{position:fixed;bottom:1rem;right:1rem;background:#111827;color:#fff;padding:.7rem 1rem;border-radius:10px;display:none;z-index:9}
-.out{background:#0f172a;color:#e2e8f0;border-radius:12px;padding:.8rem;font-family:Consolas,monospace;font-size:.82rem;white-space:pre-wrap;max-height:280px;overflow:auto}
+.two{display:grid;grid-template-columns:1.1fr .9fr;gap:.8rem}
+@media(max-width:900px){.two{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <h1>Torre de control — Command Center</h1>
-    <p>Pegas aquí. Guardas proyecto. Un clic prepara el paquete. En Cursor solo escribes: <strong>procesa</strong></p>
-  </div>
-  <nav id="nav">
+  <h1>Torre de control — Command Center</h1>
+  <p>Tú capturas. La IA sugiere millas/preguntas/pasos. Tú checkeas y avanzas. Cursor escribe el código con identidad segura.</p>
+  <nav>
     <button data-tab="hoy" class="active">Hoy</button>
-    <button data-tab="inbox">Entrada</button>
+    <button data-tab="entrada">Entrada</button>
     <button data-tab="proyectos">Proyectos</button>
-    <button data-tab="pendientes">Pendientes</button>
-    <button data-tab="milla">Milla extra</button>
+    <button data-tab="tablero">Tablero proyecto</button>
+    <button data-tab="pasos">Pasos / ejecución</button>
     <button data-tab="identidad">Identidad</button>
   </nav>
 </header>
 <main>
-  <div class="banner">
-    <strong>Sin doble trabajo mental:</strong> esta app guarda todo en tu navegador y puede descargar
-    <code>PARA_CURSOR.md</code> a tu carpeta. Luego en Cursor dices solo <code>procesa</code> y yo leo ese archivo.
-    La “magia” de análisis sigue en Cursor (seguro y sin APIs raras). La app es tu memoria + semáforo + recordatorios.
+<div class="banner">
+  <strong>Cómo funciona de verdad:</strong> Cursor no se puede “mandar” desde el navegador como una API mágica oficial.
+  Flujo estable: <em>Entrada → Preparar → en Cursor escribes <code>procesa</code> → Importas mi respuesta → Tablero/Pasos se llenan</em>.
+  Las <strong>millas extra las propongo yo</strong> (distintas por proyecto). Tú solo checkeas cuáles van.
+  Adjuntos: carpeta <code>INBOX/&lt;proyecto&gt;/adjuntos/</code>.
+</div>
+
+<section id="tab-hoy" class="tab">
+  <div class="grid">
+    <div class="card"><h2>Semáforo</h2><div id="hoySem" class="muted">—</div></div>
+    <div class="card"><h2>Bloqueos</h2><div id="hoyBloq" class="muted">—</div></div>
+    <div class="card"><h2>Próximo paso</h2><div id="hoyNext" class="muted">—</div></div>
   </div>
+</section>
 
-  <!-- HOY -->
-  <section id="tab-hoy" class="tab">
-    <div class="grid">
-      <div class="card"><h2>Semáforo personal</h2><div id="hoySemaforo" class="muted">Sin proyectos aún</div></div>
-      <div class="card"><h2>Pendientes de hoy</h2><div id="hoyPendientes" class="muted">—</div></div>
-      <div class="card"><h2>Próxima entrega</h2><div id="hoyEntrega" class="muted">—</div></div>
+<section id="tab-entrada" class="tab hidden">
+  <div class="card">
+    <h2>1) Crear / elegir proyecto y pegar todo</h2>
+    <div class="row">
+      <select id="inProj" style="flex:1"></select>
+      <button class="btn btn-ghost" id="btnNew">+ Nuevo proyecto</button>
     </div>
-    <div class="card">
-      <h2>Atajo: procesar reunión ahora</h2>
-      <p class="muted">Te lleva a Entrada con foco. Flujo: pegar → crear/actualizar proyecto → preparar Cursor.</p>
-      <button class="btn btn-main" id="btnIrInbox">Ir a Entrada</button>
+    <label>Origen</label>
+    <input id="inOrigen" placeholder="Reunión / correo / chat — fecha" />
+    <label>Transcript / notas de reunión</label>
+    <textarea id="inTexto" placeholder="Pega aquí TODO lo hablado..."></textarea>
+    <label>Controversias / lo que siguió</label>
+    <textarea id="inCont" placeholder="Desacuerdos, cambios de criterio, lo que quedó en el aire..."></textarea>
+    <label>Lista de adjuntos (PDF/imagen) — guárdalos en disco y anota nombres</label>
+    <textarea id="inAdj" placeholder="Ej:\nINBOX/mi-proyecto/adjuntos/requerimiento.pdf\nINBOX/mi-proyecto/adjuntos/mockup.png"></textarea>
+    <p class="muted">Crea en el Explorador: <code>C:\dev\command-center\INBOX\nombre-proyecto\adjuntos\</code> y suelta ahí PDF/PNG. Anota las rutas arriba.</p>
+    <div class="row">
+      <button class="btn btn-main" id="btnSaveIn">Guardar entrada</button>
+      <button class="btn btn-gold" id="btnPrep">Preparar PARA_CURSOR.md (análisis)</button>
     </div>
-  </section>
+  </div>
+  <div class="card">
+    <h2>2) Paquete para Cursor</h2>
+    <div class="out" id="outPack">Aún no generado.</div>
+    <div class="row" style="margin-top:.55rem">
+      <button class="btn btn-main" id="btnDl">Descargar PARA_CURSOR.md</button>
+      <button class="btn btn-ghost" id="btnCopy">Copiar</button>
+    </div>
+    <p class="muted">Guárdalo como <code>C:\dev\command-center\PARA_CURSOR.md</code> → en Cursor escribe <strong>procesa</strong>.</p>
+  </div>
+  <div class="card">
+    <h2>3) Importar respuesta de Cursor (aquí nace la magia en la UI)</h2>
+    <p class="muted">Cuando te responda el análisis, pide: “exporta JSON del tablero” o pega el bloque JSON que te dé. Se llenan preguntas, riesgos, millas y pasos.</p>
+    <textarea id="importJson" placeholder='Pega aquí el JSON de análisis...' style="min-height:140px"></textarea>
+    <button class="btn btn-main" id="btnImport">Importar al proyecto</button>
+  </div>
+</section>
 
-  <!-- INBOX -->
-  <section id="tab-inbox" class="tab hidden">
-    <div class="card">
-      <h2>1) Entrada de reunión / correo / PDF (texto)</h2>
-      <label>Proyecto</label>
-      <div class="row">
-        <select id="inProyecto" style="flex:1"></select>
-        <button class="btn btn-ghost" type="button" id="btnNuevoDesdeInbox">+ Nuevo proyecto</button>
-      </div>
-      <label>Origen</label>
-      <input id="inOrigen" placeholder="Reunión JP / correo / WhatsApp — fecha" />
-      <label>Pega transcript, notas o lo que te enviaron (texto)</label>
-      <textarea id="inTexto" placeholder="Aquí TODO lo de la reunión o el hilo que siguió..."></textarea>
-      <label>Controversias / lo que se siguió hablando (opcional)</label>
-      <textarea id="inControversia" placeholder="Ej: Bienestar quiere Excel sí o sí; TIC no quiere tabla nueva esta semana..."></textarea>
-      <div class="row">
-        <button class="btn btn-main" id="btnGuardarEntrada">Guardar en proyecto</button>
-        <button class="btn btn-gold" id="btnPrepararCursor">Preparar PARA_CURSOR.md</button>
-      </div>
-    </div>
-    <div class="card">
-      <h2>2) Paquete generado</h2>
-      <p class="muted">Descarga este archivo dentro de <code>C:\dev\command-center\</code> (reemplaza si ya existe). Luego en el chat de Cursor escribe: <strong>procesa</strong></p>
-      <div class="out" id="outPack">Aún no generado.</div>
-      <div class="row" style="margin-top:.6rem">
-        <button class="btn btn-main" id="btnDescargar">Descargar PARA_CURSOR.md</button>
-        <button class="btn btn-ghost" id="btnCopiarPack">Copiar texto</button>
-      </div>
-    </div>
-  </section>
+<section id="tab-proyectos" class="tab hidden">
+  <div class="card">
+    <h2>Proyectos</h2>
+    <table>
+      <thead><tr><th>Proyecto</th><th>Fase</th><th>Semáforo</th><th>Entrega</th><th></th></tr></thead>
+      <tbody id="tbProj"></tbody>
+    </table>
+  </div>
+</section>
 
-  <!-- PROYECTOS -->
-  <section id="tab-proyectos" class="tab hidden">
+<section id="tab-tablero" class="tab hidden">
+  <div class="card">
+    <h2>Tablero del proyecto</h2>
+    <select id="boardProj"></select>
+    <div class="row" style="margin:.4rem 0">
+      <span class="phase" id="boardPhase">fase</span>
+      <span class="sem" id="boardSem"></span>
+    </div>
+    <label>Fase</label>
+    <select id="selPhase">
+      <option value="aclaracion">Aclaración</option>
+      <option value="desarrollo">Desarrollo</option>
+      <option value="pruebas">Pruebas</option>
+      <option value="entrega">Entrega</option>
+      <option value="integracion">Adaptación a código ajeno</option>
+    </select>
+    <label>Semáforo</label>
+    <select id="selSem">
+      <option value="g">🟢 En tiempo</option>
+      <option value="y">🟡 Riesgo</option>
+      <option value="r">🔴 Bloqueado</option>
+    </select>
+    <label>Estimación total (texto)</label>
+    <input id="estTotal" placeholder="Ej: 2 días (L+L) si responden P0 hoy" />
+    <label>Bloqueo actual (si no puedes seguir)</label>
+    <input id="bloqueo" placeholder="Ej: Falta autorización del JP para crear tabla X" />
+    <button class="btn btn-main" id="btnSaveBoard">Guardar tablero</button>
+  </div>
+  <div class="two">
     <div class="card">
-      <h2>Proyectos</h2>
-      <div class="row" style="margin-bottom:.6rem">
-        <button class="btn btn-main" id="btnNuevoProyecto">Crear proyecto</button>
-      </div>
-      <table>
-        <thead><tr><th>Proyecto</th><th>Semáforo</th><th>Entrega</th><th>Falta</th><th></th></tr></thead>
-        <tbody id="tablaProyectos"></tbody>
-      </table>
+      <h2>Preguntas a resolver (rellénalas)</h2>
+      <div id="boxPreguntas" class="muted">Aún no hay. Corre <code>procesa</code> e importa la respuesta.</div>
     </div>
-    <div class="card hidden" id="detalleProyecto">
-      <h2 id="detTitulo">Detalle</h2>
-      <label>Estado / semáforo</label>
-      <select id="detSem">
-        <option value="g">🟢 En tiempo</option>
-        <option value="y">🟡 Riesgo controlado</option>
-        <option value="r">🔴 Bloqueado</option>
-      </select>
-      <label>Objetivo</label>
-      <textarea id="detObjetivo"></textarea>
-      <label>Próxima entrega (qué + cuándo)</label>
-      <input id="detEntrega" />
-      <label>Lo que falta</label>
-      <textarea id="detFalta"></textarea>
-      <label>Notas de avance</label>
-      <textarea id="detNotas"></textarea>
-      <div class="row">
-        <button class="btn btn-main" id="btnGuardarDet">Guardar proyecto</button>
-        <button class="btn btn-gold" id="btnPackDesdeDet">Preparar Cursor con este proyecto</button>
-        <button class="btn btn-bad" id="btnBorrarProj">Eliminar</button>
-      </div>
+    <div class="card">
+      <h2>Riesgos a atender</h2>
+      <div id="boxRiesgos" class="muted">—</div>
     </div>
-  </section>
+  </div>
+  <div class="card">
+    <h2>Milla extra sugerida por IA (distinta por proyecto)</h2>
+    <p class="muted">No las inventas tú de un catálogo eterno. Llegan del análisis. Checkea las que sí van al código.</p>
+    <div id="boxMillas" class="checks muted">Sin sugerencias aún.</div>
+    <button class="btn btn-ghost" id="btnSaveMillas">Guardar checks de milla extra</button>
+  </div>
+</section>
 
-  <!-- PENDIENTES -->
-  <section id="tab-pendientes" class="tab hidden">
-    <div class="card">
-      <h2>Pendientes / recordatorios</h2>
-      <div class="row">
-        <input id="pendTexto" placeholder="Ej: Preguntar al JP si hay tabla para observaciones" style="flex:1" />
-        <select id="pendProj"></select>
-        <button class="btn btn-main" id="btnAddPend">Agregar</button>
-      </div>
-      <table>
-        <thead><tr><th>Hecho</th><th>Tarea</th><th>Proyecto</th><th></th></tr></thead>
-        <tbody id="tablaPend"></tbody>
-      </table>
+<section id="tab-pasos" class="tab hidden">
+  <div class="card">
+    <h2>Ejecución paso a paso</h2>
+    <select id="stepsProj"></select>
+    <p class="muted">Ve marcando lo hecho. Si te bloqueas, pon el motivo en Tablero → Bloqueo.</p>
+    <div id="boxPasos" class="muted">Sin pasos. Se generan al importar el análisis.</div>
+    <div class="row" style="margin-top:.6rem">
+      <button class="btn btn-main" id="btnSaveSteps">Guardar avance de pasos</button>
+      <button class="btn btn-gold" id="btnPrepCodigo">Preparar PARA_CURSOR (fase código)</button>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- MILLA EXTRA -->
-  <section id="tab-milla" class="tab hidden">
-    <div class="card">
-      <h2>Milla extra (elige qué incluir en el código)</h2>
-      <p class="muted">Marca solo lo que aporta valor real. Eso viaja en PARA_CURSOR.md para que el código no se adorne solo.</p>
-      <label>Proyecto</label>
-      <select id="millaProj"></select>
-      <div class="checks" id="millaChecks"></div>
-      <label>Otra milla extra (tu idea)</label>
-      <input id="millaOtra" placeholder="Ej: modo impresión limpio para reuniones con decanos" />
-      <button class="btn btn-main" id="btnGuardarMilla">Guardar millas del proyecto</button>
-    </div>
-  </section>
-
-  <!-- IDENTIDAD -->
-  <section id="tab-identidad" class="tab hidden">
-    <div class="card">
-      <h2>Identidad de programación</h2>
-      <p class="muted">Se incluye automáticamente en cada PARA_CURSOR.md para que el código se sienta propio, no genérico de IA.</p>
-      <textarea id="identidadTexto" style="min-height:220px"></textarea>
-      <button class="btn btn-main" id="btnSaveIdent">Guardar identidad</button>
-    </div>
-  </section>
+<section id="tab-identidad" class="tab hidden">
+  <div class="card">
+    <h2>Identidad (editable; se manda en cada análisis)</h2>
+    <p class="muted">La versión robusta vive también en <code>IDENTITY_CODE.md</code>. Aquí puedes afinar frases cortas.</p>
+    <textarea id="ident" style="min-height:260px"></textarea>
+    <button class="btn btn-main" id="btnIdent">Guardar</button>
+  </div>
+</section>
 </main>
 <div id="toast"></div>
-
 <script>
-const MILLA_CATALOG = [
-  {id:'audit_ui', label:'Auditoría visible bajo interruptor (sin saturar la UI)'},
-  {id:'empty_human', label:'Mensajes vacíos/error humanizados (sin tono robótico)'},
-  {id:'export', label:'Export CSV/Excel con BOM para Excel'},
-  {id:'progress', label:'Barra de progreso en procesos largos'},
-  {id:'detail_modal', label:'Detalle “por qué salió este resultado”'},
-  {id:'soft_delete', label:'Baja lógica en vez de borrar'},
-  {id:'smoke_test', label:'Checklist de prueba manual de 5 pasos en README corto'},
-  {id:'security_notes', label:'Notas de seguridad en el PR/entrega (quién accede / datos sensibles)'},
-  {id:'pm_summary', label:'Resumen listo para pegarle al JP (60s)'},
-  {id:'no_break', label:'Plan explícito de no romper módulos vecinos'},
-];
+const DEFAULT_IDENT = `Identidad Iván — eje seguridad + claridad:
+- Claridad para compañeros; nombres del negocio.
+- Seguridad por defecto: validar frontera, SQL parametrizado, sin secretos en código, mínimo privilegio, no loguear PII.
+- Transacciones en multi-paso; baja lógica si aplica.
+- Errores humanizados al usuario; detalle en log.
+- Cambios mínimos/reversibles; no romper módulos vecinos.
+- Al entrar a código ajeno: mapear → adaptar → elevar seguridad sin reescribir todo.
+- Milla extra: propuesta IA por proyecto (beneficio+riesgo), no adorno repetido.
+Ver detalle completo en IDENTITY_CODE.md`;
 
-const DEFAULT_IDENTITY = `Identidad Iván:
-- Código claro, nombres del negocio, funciones cortas.
-- Comentarios solo del "por qué".
-- Errores humanizados; logs técnicos aparte.
-- SQL parametrizado; transacciones si hay integridad.
-- Sin secretos en código.
-- Cambios pequeños y reversibles.
-- UI en español sobrio, institucional, sin relleno de IA.
-- Milla extra solo si está checkeada.`;
-
-const store = {
-  load() {
-    const raw = localStorage.getItem('cc_v2');
-    if (!raw) {
-      return { projects: [], pendientes: [], identity: DEFAULT_IDENTITY, lastPack: '' };
-    }
-    return JSON.parse(raw);
-  },
-  save(data) { localStorage.setItem('cc_v2', JSON.stringify(data)); }
+const store={
+  load(){try{return JSON.parse(localStorage.getItem('cc_v3'))||null}catch(e){return null}},
+  save(d){localStorage.setItem('cc_v3',JSON.stringify(d))}
 };
+let state=store.load()||{projects:[],identity:DEFAULT_IDENT,lastPack:''};
+let packText=state.lastPack||'';
 
-let state = store.load();
-let selectedId = null;
-let lastPackText = state.lastPack || '';
+const $=id=>document.getElementById(id);
+const toast=m=>{const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)};
+const uid=()=>'p_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const semL=s=>s==='r'?'🔴 Bloqueado':s==='y'?'🟡 Riesgo':'🟢 En tiempo';
+const phaseL={aclaracion:'Aclaración',desarrollo:'Desarrollo',pruebas:'Pruebas',entrega:'Entrega',integracion:'Adaptación código ajeno'};
 
-function uid(){ return 'p_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.style.display='block'; setTimeout(()=>t.style.display='none',2200); }
-function semLabel(s){ return s==='r'?'🔴 Bloqueado': s==='y'?'🟡 Riesgo':'🟢 En tiempo'; }
-
-function ensureSelects(){
-  const opts = state.projects.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
-  ['inProyecto','pendProj','millaProj'].forEach(id=>{
-    const el=document.getElementById(id);
-    const cur=el.value;
-    el.innerHTML = opts || '<option value="">(sin proyectos)</option>';
-    if (cur) el.value=cur;
-  });
+function proj(id){return state.projects.find(p=>p.id===id)}
+function fillSelects(){
+  const opts=state.projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')||'<option value="">(sin proyectos)</option>';
+  ['inProj','boardProj','stepsProj'].forEach(id=>{const v=$(id).value;$(id).innerHTML=opts;if(v)$(id).value=v});
 }
-
-function escapeHtml(s){
-  return String(s||'').replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-}
+function persist(){store.save(state);fillSelects();renderHoy();renderProyectos();renderBoard();renderSteps()}
 
 function renderHoy(){
-  const box=document.getElementById('hoySemaforo');
-  if(!state.projects.length){ box.innerHTML='Sin proyectos aún. Crea uno en Entrada o Proyectos.'; }
-  else{
-    box.innerHTML = state.projects.map(p=>`<div class="sem" style="margin:.25rem 0"><span class="dot ${p.sem||'y'}"></span>${escapeHtml(p.name)} — ${semLabel(p.sem||'y')}</div>`).join('');
-  }
-  const pend = state.pendientes.filter(x=>!x.done);
-  document.getElementById('hoyPendientes').innerHTML = pend.length
-    ? '<ul style="margin:0;padding-left:1.1rem">'+pend.slice(0,6).map(x=>`<li>${escapeHtml(x.text)}</li>`).join('')+'</ul>'
-    : 'No hay pendientes abiertos.';
-  const withE = state.projects.filter(p=>p.entrega).sort((a,b)=>(a.entrega||'').localeCompare(b.entrega||''));
-  document.getElementById('hoyEntrega').innerHTML = withE.length
-    ? `<strong>${escapeHtml(withE[0].name)}</strong><br>${escapeHtml(withE[0].entrega)}`
-    : 'Sin fechas cargadas.';
+  $('hoySem').innerHTML=state.projects.length?state.projects.map(p=>`<div class="sem"><span class="dot ${p.sem||'y'}"></span>${esc(p.name)}</div>`).join(''):'Sin proyectos';
+  const bloq=state.projects.filter(p=>p.bloqueo);
+  $('hoyBloq').innerHTML=bloq.length?bloq.map(p=>`<div><strong>${esc(p.name)}:</strong> ${esc(p.bloqueo)}</div>`).join(''):'Sin bloqueos';
+  const p=state.projects.find(x=>(x.pasos||[]).some(s=>!s.done))||state.projects[0];
+  if(!p){$('hoyNext').textContent='—';return}
+  const next=(p.pasos||[]).find(s=>!s.done);
+  $('hoyNext').innerHTML=next?`<strong>${esc(p.name)}</strong><br>${esc(next.title)}`:'Sin pasos pendientes (revisa fase pruebas/entrega)';
 }
 
 function renderProyectos(){
-  const tb=document.getElementById('tablaProyectos');
-  tb.innerHTML = state.projects.map(p=>`<tr>
-    <td><strong>${escapeHtml(p.name)}</strong><div class="muted">${escapeHtml((p.objetivo||'').slice(0,80))}</div></td>
-    <td><span class="sem"><span class="dot ${p.sem||'y'}"></span>${semLabel(p.sem||'y')}</span></td>
-    <td>${escapeHtml(p.entrega||'—')}</td>
-    <td>${escapeHtml(p.falta||'—')}</td>
-    <td><button class="btn btn-ghost" data-open="${p.id}">Abrir</button></td>
-  </tr>`).join('') || '<tr><td colspan="5" class="muted">No hay proyectos</td></tr>';
-  tb.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openProject(b.dataset.open));
+  $('tbProj').innerHTML=state.projects.map(p=>`<tr>
+    <td><strong>${esc(p.name)}</strong></td>
+    <td><span class="phase">${phaseL[p.phase]||p.phase||'—'}</span></td>
+    <td class="sem"><span class="dot ${p.sem||'y'}"></span>${semL(p.sem||'y')}</td>
+    <td>${esc(p.estimacion||'—')}</td>
+    <td><button class="btn btn-ghost" data-go="${p.id}">Abrir tablero</button></td>
+  </tr>`).join('')||'<tr><td colspan="5" class="muted">Sin proyectos</td></tr>';
+  document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{
+    $('boardProj').value=b.dataset.go;$('stepsProj').value=b.dataset.go;
+    document.querySelector('[data-tab="tablero"]').click();
+  });
 }
 
-function openProject(id){
-  const p=state.projects.find(x=>x.id===id); if(!p) return;
-  selectedId=id;
-  document.getElementById('detalleProyecto').classList.remove('hidden');
-  document.getElementById('detTitulo').textContent=p.name;
-  document.getElementById('detSem').value=p.sem||'y';
-  document.getElementById('detObjetivo').value=p.objetivo||'';
-  document.getElementById('detEntrega').value=p.entrega||'';
-  document.getElementById('detFalta').value=p.falta||'';
-  document.getElementById('detNotas').value=p.notas||'';
-  document.getElementById('inProyecto').value=id;
-  document.getElementById('millaProj').value=id;
-  renderMilla();
+function renderBoard(){
+  const p=proj($('boardProj').value); if(!p){return}
+  $('boardPhase').textContent=phaseL[p.phase]||'Aclaración';
+  $('boardSem').innerHTML=`<span class="dot ${p.sem||'y'}"></span> ${semL(p.sem||'y')}`;
+  $('selPhase').value=p.phase||'aclaracion';
+  $('selSem').value=p.sem||'y';
+  $('estTotal').value=p.estimacion||'';
+  $('bloqueo').value=p.bloqueo||'';
+
+  const pregs=p.preguntas||[];
+  $('boxPreguntas').innerHTML=pregs.length?pregs.map((q,i)=>`<div class="item">
+    <h3>${esc(q.prioridad||'P1')} — ${esc(q.texto)}</h3>
+    <label>Tu respuesta</label>
+    <textarea data-qr="${i}">${esc(q.respuesta||'')}</textarea>
+  </div>`).join(''):'Aún no hay. Corre procesa e importa JSON.';
+
+  const ries=p.riesgos||[];
+  $('boxRiesgos').innerHTML=ries.length?ries.map(r=>`<div class="item"><h3>${esc(r.titulo)}</h3>
+    <div class="muted">${esc(r.detalle||'')}</div>
+    <div><strong>Mitigación:</strong> ${esc(r.mitigacion||'—')}</div></div>`).join(''):'—';
+
+  const millas=p.millas||[];
+  $('boxMillas').innerHTML=millas.length?millas.map((m,i)=>`<label>
+    <input type="checkbox" data-milla="${i}" ${m.ok?'checked':''}>
+    <span><strong>${esc(m.titulo)}</strong><br>
+    <span class="muted">Beneficio: ${esc(m.beneficio||'—')}</span><br>
+    <span class="muted">Riesgo: ${esc(m.riesgo||'—')} · Si se hace bien: ${esc(m.mitigacion||'—')}</span></span>
+  </label>`).join(''):'Sin sugerencias aún (llegan del análisis IA).';
 }
 
-function renderPend(){
-  const tb=document.getElementById('tablaPend');
-  const pname=id=>{ const p=state.projects.find(x=>x.id===id); return p?p.name:'General'; };
-  tb.innerHTML = state.pendientes.map((t,i)=>`<tr>
-    <td><input type="checkbox" data-check="${i}" ${t.done?'checked':''}></td>
-    <td>${escapeHtml(t.text)}</td>
-    <td>${escapeHtml(pname(t.projectId))}</td>
-    <td><button class="btn btn-ghost" data-del="${i}">✕</button></td>
-  </tr>`).join('') || '<tr><td colspan="4" class="muted">Sin pendientes</td></tr>';
-  tb.querySelectorAll('[data-check]').forEach(c=>c.onchange=()=>{ state.pendientes[+c.dataset.check].done=c.checked; persist(); });
-  tb.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ state.pendientes.splice(+b.dataset.del,1); persist(); });
+function renderSteps(){
+  const p=proj($('stepsProj').value); if(!p){return}
+  const pasos=p.pasos||[];
+  $('boxPasos').innerHTML=pasos.length?pasos.map((s,i)=>`<label class="item" style="display:flex;gap:.6rem">
+    <input type="checkbox" data-step="${i}" ${s.done?'checked':''}>
+    <span><strong>${esc(s.title)}</strong><br><span class="muted">${esc(s.detail||'')}</span></span>
+  </label>`).join(''):'Sin pasos aún.';
+  document.querySelectorAll('[data-step]').forEach(c=>c.onchange=()=>{
+    const p2=proj($('stepsProj').value); if(!p2) return;
+    p2.pasos[+c.dataset.step].done=c.checked; persist();
+  });
 }
 
-function renderMilla(){
-  const id=document.getElementById('millaProj').value;
-  const p=state.projects.find(x=>x.id===id);
-  const selected=new Set((p&&p.millas)||[]);
-  document.getElementById('millaChecks').innerHTML = MILLA_CATALOG.map(m=>`
-    <label><input type="checkbox" value="${m.id}" ${selected.has(m.id)?'checked':''}> <span>${m.label}</span></label>`).join('');
-  document.getElementById('millaOtra').value=(p&&p.millaOtra)||'';
+function newProject(){
+  const name=(prompt('Nombre del proyecto:')||'').trim(); if(!name) return;
+  const slug=name.toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi,'-').replace(/^-|-$/g,'');
+  const p={id:uid(),name,slug,phase:'aclaracion',sem:'y',estimacion:'',bloqueo:'',
+    entradas:[],preguntas:[],riesgos:[],millas:[],pasos:[],adjuntos:[],createdAt:new Date().toISOString()};
+  state.projects.unshift(p); persist(); $('inProj').value=p.id; toast('Proyecto creado. Crea carpeta INBOX/'+slug+'/adjuntos en disco');
 }
 
-function persist(){ store.save(state); ensureSelects(); renderHoy(); renderProyectos(); renderPend(); }
-
-function newProject(name){
-  const n=(name||prompt('Nombre del proyecto:','Nuevo proyecto')||'').trim();
-  if(!n) return null;
-  const p={ id:uid(), name:n, sem:'y', objetivo:'', entrega:'', falta:'', notas:'', entradas:[], millas:[], millaOtra:'', createdAt:new Date().toISOString() };
-  state.projects.unshift(p); persist(); openProject(p.id); toast('Proyecto creado'); return p;
-}
-
-function buildPack(){
-  const id=document.getElementById('inProyecto').value || selectedId;
-  const p=state.projects.find(x=>x.id===id);
-  if(!p){ alert('Crea o selecciona un proyecto primero'); return ''; }
-  const origen=document.getElementById('inOrigen').value.trim();
-  const texto=document.getElementById('inTexto').value.trim();
-  const cont=document.getElementById('inControversia').value.trim();
-  if(texto){
-    p.entradas = p.entradas||[];
-    p.entradas.unshift({ at:new Date().toISOString(), origen, texto, cont });
+function buildPack(kind){
+  const p=proj($('inProj').value||$('boardProj').value); if(!p){alert('Crea un proyecto');return ''}
+  const origen=$('inOrigen').value.trim();
+  const texto=$('inTexto').value.trim();
+  const cont=$('inCont').value.trim();
+  const adj=$('inAdj').value.trim();
+  if(texto||cont||adj){
+    p.entradas.unshift({at:new Date().toISOString(),origen,texto,cont,adj});
+    if(adj) p.adjuntos=adj.split(/\n+/).map(x=>x.trim()).filter(Boolean);
   }
-  const millas = (p.millas||[]).map(id=>{
-    const m=MILLA_CATALOG.find(x=>x.id===id); return m?('- [x] '+m.label):'';
-  }).filter(Boolean);
-  if(p.millaOtra) millas.push('- [x] '+p.millaOtra);
+  const latest=p.entradas[0]||{};
+  const respuestas=(p.preguntas||[]).filter(q=>q.respuesta).map(q=>`- (${q.prioridad}) ${q.texto}\n  R: ${q.respuesta}`).join('\n');
+  const millasOk=(p.millas||[]).filter(m=>m.ok).map(m=>`- ${m.titulo}`).join('\n');
+  const pack=`# SOLICITUD DE PROCESAMIENTO
+Comando: **procesa** según PLAYBOOK.md + AGENTS.md + IDENTITY_CODE.md
 
-  const latest = (p.entradas&&p.entradas[0]) || {origen, texto, cont};
-  const pack = `<!-- PARA_CURSOR.md — generado por Command Center app -->
-# SOLICITUD DE PROCESAMIENTO
-
-Comando: **procesa este archivo según PLAYBOOK.md y AGENTS.md**
+## Modo
+${kind||'analisis_inicial'}
 
 ## Proyecto
 - Nombre: ${p.name}
-- Semáforo: ${semLabel(p.sem||'y')}
-- Objetivo: ${p.objetivo||'(por definir)'}
-- Próxima entrega: ${p.entrega||'(por definir)'}
-- Lo que falta: ${p.falta||'(por definir)'}
+- Slug carpeta: ${p.slug}
+- Fase: ${p.phase}
+- Semáforo: ${semL(p.sem)}
+- Estimación: ${p.estimacion||'(pedir en análisis)'}
+- Bloqueo: ${p.bloqueo||'(ninguno)'}
 
-## Lo que necesito que hagas YA
-1. Lo que entendiste
-2. Preguntas humanizadas P0/P1/P2
-3. Riesgos (seguridad, datos, no romper conexiones)
-4. Plan de entregas con estimación realista (S/M/L/XL)
-5. Texto listo para el JP (60s)
-6. Si ya hay suficientes respuestas: estructura de inicio de código + pasos numerados para copiar al PC empresa
-7. Proponer millas extra notables (además de las ya checkeadas) y pedir confirmación antes de codearlas
+## Instrucciones para la IA
+1. Entendido (sin inventar)
+2. Preguntas P0/P1/P2 humanizadas (si ya hay respuestas, no repetirlas)
+3. Riesgos + mitigación
+4. **Millas extra NUEVAS** (no catálogo genérico repetido): para ESTE proyecto, 3–6 ideas con beneficio/riesgo/mitigación
+5. Plan de entregas con estimación S/M/L/XL
+6. Pasos de ejecución checkeables (crear archivos, SQL, UI, pruebas…)
+7. Texto 60s para JP
+8. Al final, EXPORTA un bloque JSON (ver formato) para importar en la app
 
-## Millas extra aprobadas para el código
-${millas.length?millas.join('\n'):'(ninguna marcada aún)'}
+## Formato JSON obligatorio al final
+\`\`\`json
+{
+  "project": "${p.name}",
+  "estimacion": "...",
+  "phase": "aclaracion|desarrollo|pruebas|entrega|integracion",
+  "sem": "g|y|r",
+  "preguntas": [{"prioridad":"P0","texto":"...","respuesta":""}],
+  "riesgos": [{"titulo":"...","detalle":"...","mitigacion":"..."}],
+  "millas": [{"titulo":"...","beneficio":"...","riesgo":"...","mitigacion":"...","ok":false}],
+  "pasos": [{"title":"...","detail":"...","done":false}],
+  "pm_update": "texto corto para el JP"
+}
+\`\`\`
 
-## Identidad de código
+## Identidad
 ${state.identity}
 
-## Controversias / hilo siguiente
+## Millas ya aprobadas por Iván
+${millasOk||'(ninguna aún)'}
+
+## Respuestas ya dadas a preguntas
+${respuestas||'(ninguna)'}
+
+## Adjuntos (rutas)
+${(p.adjuntos||[]).join('\n')||latest.adj||'(ninguno anotado)'}
+
+## Controversias
 ${latest.cont||cont||'(ninguna)'}
 
 ## Origen
-${latest.origen||origen||'(no indicado)'}
+${latest.origen||origen||'(n/a)'}
 
 ## Transcript / notas
 ${latest.texto||texto||'(vacío)'}
-
-## Pendientes abiertos del usuario
-${state.pendientes.filter(x=>!x.done).map(x=>'- '+x.text).join('\n')||'(ninguno)'}
 `;
-  lastPackText=pack; state.lastPack=pack; persist();
-  document.getElementById('outPack').textContent=pack;
-  return pack;
+  packText=pack; state.lastPack=pack; persist(); $('outPack').textContent=pack; return pack;
 }
 
 function downloadPack(){
-  const pack=lastPackText||buildPack(); if(!pack) return;
-  const blob=new Blob([pack],{type:'text/markdown;charset=utf-8'});
+  const pack=packText||buildPack(); if(!pack) return;
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='PARA_CURSOR.md';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast('Descargado. Muévelo a C:\\dev\\command-center\\PARA_CURSOR.md');
+  a.href=URL.createObjectURL(new Blob([pack],{type:'text/markdown;charset=utf-8'}));
+  a.download='PARA_CURSOR.md'; a.click();
+  toast('Descarga listo → guárdalo en C:\\\\dev\\\\command-center\\\\PARA_CURSOR.md');
 }
 
-// tabs
+function importAnalysis(){
+  let raw=$('importJson').value.trim(); if(!raw){alert('Pega el JSON');return}
+  const m=raw.match(/\{[\s\S]*\}/); if(!m){alert('No veo un JSON válido');return}
+  let data; try{data=JSON.parse(m[0])}catch(e){alert('JSON inválido: '+e.message);return}
+  let p=proj($('inProj').value||$('boardProj').value);
+  if(!p && data.project){ p=state.projects.find(x=>x.name===data.project) }
+  if(!p){alert('Selecciona el proyecto destino');return}
+  if(data.estimacion) p.estimacion=data.estimacion;
+  if(data.phase) p.phase=data.phase;
+  if(data.sem) p.sem=data.sem;
+  if(Array.isArray(data.preguntas)) p.preguntas=data.preguntas;
+  if(Array.isArray(data.riesgos)) p.riesgos=data.riesgos;
+  if(Array.isArray(data.millas)) p.millas=data.millas;
+  if(Array.isArray(data.pasos)) p.pasos=data.pasos;
+  if(data.pm_update) p.pm_update=data.pm_update;
+  persist(); $('boardProj').value=p.id; $('stepsProj').value=p.id;
+  toast('Análisis importado al tablero');
+  document.querySelector('[data-tab="tablero"]').click();
+}
+
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');
+  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active')); b.classList.add('active');
   document.querySelectorAll('.tab').forEach(t=>t.classList.add('hidden'));
-  document.getElementById('tab-'+b.dataset.tab).classList.remove('hidden');
-  if(b.dataset.tab==='milla') renderMilla();
+  $('tab-'+b.dataset.tab).classList.remove('hidden');
+  if(b.dataset.tab==='tablero') renderBoard();
+  if(b.dataset.tab==='pasos') renderSteps();
 });
 
-document.getElementById('btnIrInbox').onclick=()=>document.querySelector('[data-tab="inbox"]').click();
-document.getElementById('btnNuevoProyecto').onclick=()=>newProject();
-document.getElementById('btnNuevoDesdeInbox').onclick=()=>{ const p=newProject(); if(p) document.getElementById('inProyecto').value=p.id; };
-document.getElementById('btnGuardarEntrada').onclick=()=>{
-  const id=document.getElementById('inProyecto').value; if(!id){ alert('Crea un proyecto primero'); return; }
-  const p=state.projects.find(x=>x.id===id);
-  p.entradas=p.entradas||[];
-  p.entradas.unshift({
-    at:new Date().toISOString(),
-    origen:document.getElementById('inOrigen').value.trim(),
-    texto:document.getElementById('inTexto').value.trim(),
-    cont:document.getElementById('inControversia').value.trim()
-  });
-  if(!p.objetivo && p.entradas[0].texto) p.objetivo = p.entradas[0].texto.slice(0,140);
-  persist(); toast('Entrada guardada en el proyecto');
+$('btnNew').onclick=newProject;
+$('btnSaveIn').onclick=()=>{buildPack('guardado');toast('Entrada guardada')};
+$('btnPrep').onclick=()=>{buildPack('analisis_inicial');toast('Paquete de análisis listo')};
+$('btnDl').onclick=downloadPack;
+$('btnCopy').onclick=async()=>{const p=packText||buildPack(); if(!p)return; await navigator.clipboard.writeText(p); toast('Copiado')};
+$('btnImport').onclick=importAnalysis;
+$('boardProj').onchange=renderBoard;
+$('stepsProj').onchange=renderSteps;
+$('btnSaveBoard').onclick=()=>{
+  const p=proj($('boardProj').value); if(!p)return;
+  p.phase=$('selPhase').value; p.sem=$('selSem').value;
+  p.estimacion=$('estTotal').value.trim(); p.bloqueo=$('bloqueo').value.trim();
+  // save question answers
+  document.querySelectorAll('[data-qr]').forEach(t=>{ const i=+t.dataset.qr; if(p.preguntas[i]) p.preguntas[i].respuesta=t.value.trim(); });
+  persist(); toast('Tablero guardado');
 };
-document.getElementById('btnPrepararCursor').onclick=()=>{ buildPack(); toast('Paquete listo'); };
-document.getElementById('btnDescargar').onclick=downloadPack;
-document.getElementById('btnCopiarPack').onclick=async()=>{
-  const pack=lastPackText||buildPack(); if(!pack) return;
-  await navigator.clipboard.writeText(pack); toast('Copiado');
+$('btnSaveMillas').onclick=()=>{
+  const p=proj($('boardProj').value); if(!p||!p.millas)return;
+  document.querySelectorAll('[data-milla]').forEach(c=>{ p.millas[+c.dataset.milla].ok=c.checked; });
+  persist(); toast('Millas actualizadas');
 };
-document.getElementById('btnGuardarDet').onclick=()=>{
-  const p=state.projects.find(x=>x.id===selectedId); if(!p) return;
-  p.sem=document.getElementById('detSem').value;
-  p.objetivo=document.getElementById('detObjetivo').value.trim();
-  p.entrega=document.getElementById('detEntrega').value.trim();
-  p.falta=document.getElementById('detFalta').value.trim();
-  p.notas=document.getElementById('detNotas').value.trim();
-  persist(); toast('Proyecto actualizado');
+$('btnSaveSteps').onclick=()=>{toast('Avance de pasos guardado');persist()};
+$('btnPrepCodigo').onclick=()=>{
+  const p=proj($('stepsProj').value); if(p) $('inProj').value=p.id;
+  buildPack('fase_codigo');
+  document.querySelector('[data-tab="entrada"]').click();
+  toast('Paquete fase código listo — descarga y di procesa');
 };
-document.getElementById('btnPackDesdeDet').onclick=()=>{
-  if(selectedId) document.getElementById('inProyecto').value=selectedId;
-  document.querySelector('[data-tab="inbox"]').click();
-  buildPack();
-};
-document.getElementById('btnBorrarProj').onclick=()=>{
-  if(!selectedId||!confirm('¿Eliminar proyecto de la torre de control?')) return;
-  state.projects=state.projects.filter(x=>x.id!==selectedId);
-  selectedId=null; document.getElementById('detalleProyecto').classList.add('hidden'); persist();
-};
-document.getElementById('btnAddPend').onclick=()=>{
-  const text=document.getElementById('pendTexto').value.trim(); if(!text) return;
-  state.pendientes.unshift({ text, projectId:document.getElementById('pendProj').value, done:false });
-  document.getElementById('pendTexto').value=''; persist();
-};
-document.getElementById('btnGuardarMilla').onclick=()=>{
-  const id=document.getElementById('millaProj').value; const p=state.projects.find(x=>x.id===id); if(!p) return;
-  p.millas=[...document.querySelectorAll('#millaChecks input:checked')].map(x=>x.value);
-  p.millaOtra=document.getElementById('millaOtra').value.trim();
-  persist(); toast('Millas guardadas');
-};
-document.getElementById('millaProj').onchange=renderMilla;
-document.getElementById('identidadTexto').value=state.identity||DEFAULT_IDENTITY;
-document.getElementById('btnSaveIdent').onclick=()=>{ state.identity=document.getElementById('identidadTexto').value; persist(); toast('Identidad guardada'); };
-
-if(lastPackText) document.getElementById('outPack').textContent=lastPackText;
+$('ident').value=state.identity||DEFAULT_IDENT;
+$('btnIdent').onclick=()=>{state.identity=$('ident').value;persist();toast('Identidad guardada')};
+if(packText) $('outPack').textContent=packText;
 persist();
 </script>
 </body>
