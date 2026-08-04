@@ -1,24 +1,30 @@
-COMMAND CENTER — CÓMO EMPEZAR (lee esto primero)
-================================================
+COMMAND CENTER — CÓMO EMPEZAR (actualizado)
+===========================================
 
-1) Abre esta carpeta en el Explorador de Windows:
+1) Abre en el Explorador:
    C:\dev\command-center
 
-2) Da doble clic al archivo:
+2) Doble clic en:
    INICIAR.html
-   (Se abre en Chrome o Edge. ESA es tu "app" de entrada.)
+   (o directo: app.html)
 
-3) Los archivos .md NO se ejecutan.
-   Son notas/plantillas. Si quieres verlos:
-   - clic derecho → Abrir con → Bloc de notas
-   - o ábrelos dentro de Cursor (aparecen a la izquierda)
+3) Flujo SIN doble trabajo mental:
+   a) Pestaña ENTRADA → pegas transcript / notas / controversias
+   b) Creas o eliges PROYECTO
+   c) Clic "Preparar PARA_CURSOR.md" → Descargar
+   d) Guarda/mueve el archivo descargado como:
+      C:\dev\command-center\PARA_CURSOR.md
+   e) En el chat de Cursor escribes solo:
+      procesa
 
-4) Grabaciones:
-   Crea la carpeta: C:\dev\command-center\INBOX\audio
-   Ahí guarda .m4a / .mp3
-   En INICIAR.html pegas la TRANSCRIPCIÓN o el resumen en texto.
+4) Yo leo PARA_CURSOR.md y te devuelvo:
+   entendido, preguntas, riesgos, plan, texto para el JP,
+   millas extra y pasos de código.
 
-5) Flujo real:
-   Reunión → texto en INICIAR.html → Copiar → pegar en chat de Cursor → yo te respondo.
+5) Audio:
+   C:\dev\command-center\INBOX\audio\
+   (la app trabaja con TEXTO; pegas la transcripción)
 
-No necesitas "correr" nada más para iniciar.
+Los .md del Command Center son memoria.
+La app (app.html) es tu tablero.
+Cursor es el cerebro.
