@@ -1,0 +1,7 @@
+First Name [Required],Last Name [Required],Email Address [Required],Status [READ ONLY],Org Unit Path [Required],Last Sign In [READ ONLY],2-Step Verification Enrollment Status,2-Step Verification Enforcement
+Ana,Pérez,aperez@unab.edu.co,Active,/Estudiantes/Ingenieria,2026-08-20,Enrolled,On
+Luis,Gómez,lgomez@unab.edu.co,Active,/Estudiantes/Economia,2026-01-10,Not enrolled,Off
+Marta,Ruiz,mruiz@unab.edu.co,Active,/Docentes,2026-08-28,Enrolled,On
+Pedro,Díaz,pdiaz@unab.edu.co,Active,/Estudiantes/Ingenieria,2025-11-02,Not enrolled,Off
+Carla,Soto,csoto@unab.edu.co,Suspended,/Egresados,2024-06-01,Not enrolled,Off
+Juan,TIC,jtic@unab.edu.co,Active,/Administrativos/TIC,2026-08-30,Not enrolled,Off

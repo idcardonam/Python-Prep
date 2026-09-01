@@ -1,0 +1,35 @@
+# Copia este archivo a config.yaml y ajusta nombres de columnas
+# si tus CSV no coinciden con la detección automática.
+
+dominio: unab.edu.co
+
+archivos:
+  google: entrada/google_admin.csv
+  academico: entrada/academico.csv
+  # Opcional: docentes/administrativos (nómina / GH). Mejora la clasificación.
+  personal: entrada/personal.csv
+  salida: salida
+
+# Estados académicos que NO deben tratarse como vigentes
+# (por si el extracto académico trae alguno de más).
+estados_excluir:
+  - GRADUADO
+  - GRADUADA
+  - EGRESADO
+  - EGRESADA
+  - TITULADO
+  - TITULADA
+
+# Palabras en la unidad organizacional de Google que sugieren personal
+ou_personal:
+  - docente
+  - profesores
+  - administrativo
+  - gestion
+  - talento
+  - tic
+  - staff
+  - planta
+
+# Días sin ingreso para marcar cuenta inactiva (prioridad 2FA)
+dias_inactiva: 90
