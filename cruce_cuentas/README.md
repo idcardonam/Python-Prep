@@ -31,15 +31,18 @@ Los **graduados no vienen** en el académico: si siguen en Google, caen en “si
 ## Qué pedir (mínimo)
 
 ### A) Google Admin
-Informe de usuarios (Users export) con al menos:
+Informe de usuarios (`User_Download_…csv` de Admin Console) con al menos:
 - Email Address  
 - Status  
-- Org Unit Path  
 - Last Sign In  
-- **2-Step Verification Enrollment Status**  
-- **2-Step Verification Enforcement**
+- **2sv Enrolled** (o *2-Step Verification Enrollment Status*) — esto es el 2FA **inscrito**  
+- Org Unit Path y Enforcement, si el informe los trae (el export corto de Users a veces **no** incluye OU)
 
-En Admin: *Directorio → Usuarios → descargar usuarios* (o informe de seguridad 2SV).
+Si el CSV de Google está **en la misma carpeta** que los inscritos, `--academico-dir` lo omite (nombre `User_Download*` o encabezados de Admin). Puedes apuntar `--google` a esa ruta sin copiar el archivo.
+
+```bash
+python3 cruzar.py --google "…/User_Download_01092026_140316.csv" --academico-dir "…/REPORTE_INSCRITOS 2026" --salida salida
+```
 
 ### B) Académico (varios CSV)
 Si tienes una carpeta tipo `REPORTE_INSCRITOS 2026` con muchos archivos:

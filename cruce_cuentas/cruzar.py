@@ -49,6 +49,8 @@ GOOGLE_ALIASES = {
         "ultimo inicio de sesion",
     ],
     "2fa_inscrito": [
+        "2sv enrolled [read only]",
+        "2sv enrolled",
         "2-step verification enrollment status",
         "2sv enrollment",
         "enrollment status",
@@ -65,26 +67,34 @@ GOOGLE_ALIASES = {
 
 ACADEMICO_ALIASES = {
     "email": [
-        "correo",
-        "email",
+        "correo_unab",
         "correo institucional",
         "correo_institucional",
-        "e-mail",
-        "mail",
         "email institucional",
         "correo unab",
+        "mail_institucional",
+        "correo",
+        "email",
+        "e-mail",
+        "mail",
         "usuario",
         "userprincipalname",
         "cuenta",
         "e_mail",
-        "mail_institucional",
     ],
-    "estado": ["estado", "estado academico", "estado académico", "situacion", "situación", "status"],
-    "facultad": ["facultad", "escuela", "unidad academica", "unidad académica"],
+    "estado": [
+        "est_acad",
+        "estado academico",
+        "estado académico",
+        "estado",
+        "situacion",
+        "situación",
+    ],
+    "facultad": ["escuela", "facultad", "unidad academica", "unidad académica"],
     "programa": ["programa", "carrera", "programa academico", "programa académico"],
-    "seccion": ["seccion", "sección", "grupo", "curso", "paralelo"],
+    "seccion": ["seccion", "sección", "paralelo"],
     "jornada": ["jornada", "modalidad jornada"],
-    "codigo": ["codigo", "código", "codigo_estudiante", "codigo estudiante", "id estudiante"],
+    "codigo": ["codigo", "código", "codigo_estudiante", "codigo estudiante", "id estudiante", "id"],
     "nivel": ["nivel", "tipo formacion", "tipo formación", "nivel formacion"],
     "nombres": ["nombres", "nombre", "primer nombre"],
     "apellidos": ["apellidos", "apellido"],
@@ -129,15 +139,12 @@ def norm_estado(s: str) -> str:
 
 
 def pick_col(headers: list[str], aliases: list[str]) -> str | None:
+    """Coincidencia exacta del encabezado normalizado. Evita CANT_CURSOS / INSCRIP_STATUS."""
     mapped = {norm_header(h): h for h in headers}
     for a in aliases:
-        if a in mapped:
-            return mapped[a]
-    for h in headers:
-        nh = norm_header(h)
-        for a in aliases:
-            if a in nh or nh in a:
-                return h
+        hit = mapped.get(norm_header(a))
+        if hit:
+            return hit
     return None
 
 
@@ -155,15 +162,26 @@ def read_csv(path: Path) -> tuple[list[str], list[dict[str, str]]]:
             continue
     else:
         text = raw.decode("utf-8", errors="replace")
-    sample = text[:4096]
-    try:
-        dialect = csv.Sniffer().sniff(sample, delimiters=",;\t|")
-    except csv.Error:
-        dialect = csv.excel
-    reader = csv.DictReader(text.splitlines(), dialect=dialect)
+    first = next((ln for ln in text.splitlines() if ln.strip()), "")
+    n_comma, n_semi = first.count(","), first.count(";")
+    if n_semi > n_comma:
+        delimiter = ";"
+    elif n_comma > n_semi:
+        delimiter = ","
+    else:
+        try:
+            delimiter = csv.Sniffer().sniff(text[:4096], delimiters=",;\t|").delimiter
+        except csv.Error:
+            delimiter = ","
+    reader = csv.DictReader(text.splitlines(), delimiter=delimiter)
     headers = reader.fieldnames or []
     rows = [{k: (v if v is not None else "").strip() for k, v in row.items() if k is not None} for row in reader]
-    return [h for h in headers if h is not None], rows
+    headers = [h for h in headers if h is not None]
+    if len(headers) <= 1 and n_semi > 1:
+        reader = csv.DictReader(text.splitlines(), delimiter=";")
+        headers = [h for h in (reader.fieldnames or []) if h is not None]
+        rows = [{k: (v if v is not None else "").strip() for k, v in row.items() if k is not None} for row in reader]
+    return headers, rows
 
 
 def periodo_desde_nombre(nombre: str) -> str:
@@ -174,15 +192,51 @@ def periodo_desde_nombre(nombre: str) -> str:
     return re.sub(r"\s+", " ", m.group(0)).upper() if m else Path(nombre).stem
 
 
+def parece_export_google(headers: list[str]) -> bool:
+    blob = " ".join(norm_header(h) for h in headers)
+    return "2sv" in blob or "2-step verification" in blob or "email address [required]" in blob
+
+
+def peek_headers(path: Path) -> list[str]:
+    raw = path.read_bytes()[:16384]
+    for enc in ("utf-8-sig", "utf-8", "latin-1", "cp1252"):
+        try:
+            text = raw.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    else:
+        text = raw.decode("utf-8", errors="replace")
+    first = next((ln for ln in text.splitlines() if ln.strip()), "")
+    delim = ";" if first.count(";") > first.count(",") else ","
+    return next(csv.reader([first], delimiter=delim), [])
+
+
 def listar_csv(carpeta: Path) -> list[Path]:
     return sorted(p for p in carpeta.glob("*.csv") if p.is_file())
 
 
+def listar_csv_academico(carpeta: Path) -> list[Path]:
+    out: list[Path] = []
+    for p in listar_csv(carpeta):
+        if p.name.lower().startswith("user_download"):
+            continue
+        if parece_export_google(peek_headers(p)):
+            continue
+        out.append(p)
+    return out
+
+
 def inspeccionar_academico(carpeta: Path) -> None:
     """Solo metadatos: no imprime correos ni celdas."""
-    files = listar_csv(carpeta)
+    omit = [p.name for p in listar_csv(carpeta) if p not in set(listar_csv_academico(carpeta))]
+    files = listar_csv_academico(carpeta)
+    if omit:
+        print(f"Omitidos (export Google u otro no académico): {len(omit)}")
+        for n in omit:
+            print(f"  - {n}")
     if not files:
-        raise SystemExit(f"No hay CSV en {carpeta}")
+        raise SystemExit(f"No hay CSV académicos en {carpeta}")
     print(f"Carpeta: {carpeta}")
     print(f"Archivos CSV: {len(files)}")
     print("-" * 72)
@@ -208,7 +262,7 @@ def inspeccionar_academico(carpeta: Path) -> None:
 
 
 def cargar_academico_carpeta(carpeta: Path) -> tuple[list[str], list[dict[str, str]]]:
-    files = listar_csv(carpeta)
+    files = listar_csv_academico(carpeta)
     if not files:
         raise SystemExit(f"No hay CSV en {carpeta}")
     union: list[str] = []
@@ -245,12 +299,14 @@ def merge_texto(prev: str, nuevo: str) -> str:
 
 def parse_date(value: str) -> datetime | None:
     v = (value or "").strip()
-    if not v or v in {"-", "Never", "Nunca", "—"}:
+    if not v or v in {"-", "Never", "Nunca", "—", "Never logged in"}:
         return None
     v = v.replace("T", " ")
     for fmt in (
         "%Y-%m-%d %H:%M:%S",
         "%Y-%m-%d",
+        "%Y/%m/%d %H:%M:%S",
+        "%Y/%m/%d %H:%M",
         "%d/%m/%Y %H:%M",
         "%d/%m/%Y",
         "%m/%d/%Y",
@@ -268,7 +324,7 @@ def is_2fa_on(inscrito: str, forzado: str) -> bool:
     i = (inscrito or "").strip().lower()
     if not i:
         return False
-    if i in {"not enrolled", "no", "off", "false", "never", "no inscrito", "not_enrolled"}:
+    if i in {"not enrolled", "no", "off", "false", "0", "never", "no inscrito", "not_enrolled"}:
         return False
     if "not enrolled" in i or i.startswith("not "):
         return False
@@ -690,7 +746,7 @@ def cruzar(
     (salida / "resumen.json").write_text(json.dumps(resumen, ensure_ascii=False, indent=2), encoding="utf-8")
     html_report(salida / "resumen.html", resumen, fac)
 
-    print("Listo →", salida.resolve())
+    print("Listo ->", salida.resolve())
     print(f"Google: {n_google} | Académico vigente: {n_acad} | Match estudiante: {n_match}")
     print(f"Sin 2FA: {n_sin} | Cobertura 2FA sobre Google: {cobertura}%")
     print(f"Graduados filtrados del CSV académico: {skipped_grad}")
