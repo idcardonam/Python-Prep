@@ -185,12 +185,16 @@ class CsvIoTest(unittest.TestCase):
             self.assertEqual(ana["c_periodo_vigente"], "202610")
             self.assertEqual(ana["c_plan"], "Plan MEN 2026")
             html = (out / "resumen.html").read_text(encoding="utf-8")
-            self.assertIn("Estudiantes sin 2FA", html)
-            self.assertIn("catalogo_facultades.html", html)
-            cat = (out / "catalogo_facultades.html").read_text(encoding="utf-8")
-            self.assertIn("Oferta vigente por facultad", cat)
-            self.assertIn("Sistemas", cat)
-            self.assertIn("202610", cat)
+            self.assertIn("Pendientes de 2FA", html)
+            self.assertIn("ana@unab.edu.co", html)
+            self.assertIn("Sistemas", html)
+            lista = (out / "listado_sin_2fa.html").read_text(encoding="utf-8")
+            self.assertIn("ana@unab.edu.co", lista)
+            with (out / "02_estudiantes_sin_2fa.csv").open(encoding="utf-8-sig", newline="") as fh:
+                camp = list(__import__("csv").DictReader(fh))
+            self.assertEqual(camp[0]["correo"], "ana@unab.edu.co")
+            self.assertEqual(camp[0]["facultad"], "Ingenieria")
+            self.assertEqual(camp[0]["programa"], "Sistemas")
 
     def test_xlsx_term_es_periodo_vigente(self) -> None:
         from openpyxl import Workbook

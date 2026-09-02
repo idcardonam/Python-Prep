@@ -75,10 +75,33 @@ py -3 cruzar.py --inspeccionar "D:\Users\...\REPORTE_INSCRITOS 2026"
 py -3 cruzar.py --carpeta "D:\Users\...\REPORTE_INSCRITOS 2026" --salida .\salida
 ```
 
-`--carpeta` busca solo: el Google más reciente (`User_Download*`), los Prematriculados, y la Vista de currículo. Cada corte académico: reemplazas esos archivos y vuelves a correr. El HTML **no se actualiza solo**; se regenera en `salida\resumen.html`.
+## Salidas para presentar (abra estas)
 
+| Archivo | Para quién |
+|---------|------------|
+| **`resumen.html`** | **Jefatura:** cifras, ranking por facultad, programas con pendientes y **los correos** agrupados. Imprimir a PDF si hace falta. |
+| **`listado_sin_2fa.html`** | Trabajo operativo: el mismo listado de correos, con buscador. |
+| **`02_estudiantes_sin_2fa.csv`** | Excel: facultad, programa, correo, nombre, último ingreso. Columnas limpias, no el universo. |
 
-## Cómo correr
+No uses `catalogo_facultades.html` ni `09_catalogo_*.csv` para la reunión: eso es oferta académica, no la campaña 2FA.
+
+El HTML **no se actualiza solo**; se regenera al volver a correr el script. Cada corte: reemplaza inscritos + User_Download + currículo y corre `--carpeta`.
+
+## Resto de archivos técnicos
+
+| Archivo | Para qué |
+|---------|----------|
+| `00_universo.csv` | Ficha completa de cada correo |
+| `01_sin_2fa.csv` | Todas las cuentas Google sin 2FA (incluye no estudiantes) |
+| `03_google_sin_match_academico.csv` | Personal + posibles egresados + huérfanas |
+| `04_academico_sin_cuenta_google.csv` | Deberían tener cuenta y no están en Admin |
+| `05_prioridad_alta_2fa.csv` | Personal o estudiantes activos sin 2FA |
+| `06_cobertura_2fa_facultad.csv` | % 2FA por facultad (plan vigente) |
+| `07_cobertura_2fa_programa_seccion.csv` | % 2FA por programa y sección |
+| `08_academico_filas.csv` | Una fila por inscripción (detalle) |
+| `09_catalogo_planes_vigentes.csv` | Un plan vigente por programa (último periodo) |
+| `10_cobertura_2fa_plan_vigente.csv` | % 2FA por programa con plan vigente |
+| `resumen.json` | Mismos totales en JSON |
 
 ```bash
 cd cruce_cuentas
@@ -96,23 +119,6 @@ python3 cruzar.py \
 ```
 
 Detecta columnas en español o inglés. Si un nombre no pega, copia `config.example.yaml` → `config.yaml` (el mapeo fino sigue por alias en el script).
-
-## Salidas
-
-| Archivo | Para qué |
-|---------|----------|
-| `00_universo.csv` | Ficha completa de cada correo |
-| `01_sin_2fa.csv` | Todas las cuentas Google sin 2FA |
-| `02_estudiantes_sin_2fa.csv` | Vigentes académicos sin 2FA (acción por facultad/sección) |
-| `03_google_sin_match_academico.csv` | Personal + posibles egresados + huérfanas |
-| `04_academico_sin_cuenta_google.csv` | Deberían tener cuenta y no están en Admin |
-| `05_prioridad_alta_2fa.csv` | Personal o estudiantes activos sin 2FA |
-| `06_cobertura_2fa_facultad.csv` | % 2FA por facultad |
-| `07_cobertura_2fa_programa_seccion.csv` | % 2FA por programa y sección |
-| `08_academico_filas.csv` | Una fila por inscripción (detalle) |
-| `09_catalogo_planes_vigentes.csv` | Un plan vigente por programa (último periodo) |
-| `10_cobertura_2fa_plan_vigente.csv` | % 2FA por programa con plan vigente |
-| `resumen.html` / `resumen.json` | Tablero: acción estudiantes vs radar dominio |
 
 ## Prioridades 2FA
 
