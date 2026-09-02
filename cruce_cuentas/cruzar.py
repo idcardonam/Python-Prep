@@ -1004,6 +1004,9 @@ nav.sticky { display:flex; flex-wrap:wrap; gap:.45rem; padding:.7rem 2rem; backg
 nav.sticky a { background:#fff; padding:.28rem .65rem; border-radius:999px; text-decoration:none; color:var(--azul); font-size:.82rem; }
 .barra { position:sticky; top:0; z-index:30; background:#dfe8f2; padding:.55rem 2rem; display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; box-shadow:0 2px 10px rgba(0,0,0,.08); }
 .barra button, .barra a.btn { margin:0; cursor:pointer; border:0; font:inherit; }
+.barra label { display:flex; flex-direction:column; font-size:.72rem; color:var(--azul); font-weight:700; letter-spacing:.02em; }
+select.sel { min-width:220px; max-width:380px; padding:.4rem .5rem; font:inherit; font-weight:400; border:1px solid #c9d6e5; border-radius:8px; background:#fff; }
+.aviso-elige { background:#fff7ed; border:1px solid #fdba74; border-radius:12px; padding:1rem 1.2rem; margin:1rem 0; }
 .fab { position:fixed; right:1.15rem; bottom:1.15rem; z-index:40; background:var(--azul); color:#fff; border:0; border-radius:999px; padding:.7rem 1.05rem; font:inherit; font-weight:600; cursor:pointer; box-shadow:0 6px 18px rgba(0,59,112,.35); }
 .prog { margin:1rem 0 1.2rem; }
 .fac, .prog, #anexo, #top { scroll-margin-top: 4.6rem; }
@@ -1018,14 +1021,21 @@ nav.sticky a { background:#fff; padding:.28rem .65rem; border-radius:999px; text
 """
 
 
-def html_bloques_correos(sin: list[dict[str, Any]], orden_fac: list[str] | None = None) -> tuple[str, str]:
+def html_bloques_correos(sin: list[dict[str, Any]], orden_fac: list[str] | None = None) -> tuple[str, str, str]:
     by: dict[str, dict[str, list]] = defaultdict(lambda: defaultdict(list))
     for r in sin:
         by[escuela_de(r)][programa_de(r)].append(r)
     if orden_fac is None:
         orden_fac = sorted(by.keys(), key=lambda e: (-sum(len(v) for v in by[e].values()), e))
     nav = "".join(
-        f'<a href="#f-{slug_id(esc)}">{html.escape(esc)} ({sum(len(v) for v in by[esc].values())})</a>'
+        f'<a href="#f-{slug_id(esc)}" onclick="elegirFacultad(\'f-{slug_id(esc)}\')">'
+        f"{html.escape(esc)} ({sum(len(v) for v in by[esc].values())})</a>"
+        for esc in orden_fac
+        if esc in by
+    )
+    opciones = "".join(
+        f'<option value="f-{slug_id(esc)}">{html.escape(esc)} '
+        f"({sum(len(v) for v in by[esc].values())} pendientes)</option>"
         for esc in orden_fac
         if esc in by
     )
@@ -1035,6 +1045,7 @@ def html_bloques_correos(sin: list[dict[str, Any]], orden_fac: list[str] | None 
         if not progs:
             continue
         n_esc = sum(len(v) for v in progs.values())
+        fid = f"f-{slug_id(esc)}"
         bloques_p = []
         for prog, filas in sorted(progs.items(), key=lambda kv: (-len(kv[1]), kv[0])):
             filas = sorted(filas, key=lambda r: (nombre_completo(r).lower(), r.get("correo") or ""))
@@ -1057,101 +1068,199 @@ def html_bloques_correos(sin: list[dict[str, Any]], orden_fac: list[str] | None 
                 f"<tbody>{tr}</tbody></table></div>"
             )
         partes.append(
-            f'<section class="fac" id="f-{slug_id(esc)}"><h2>{html.escape(esc)}</h2>'
-            f"<p class='note'><strong>{n_esc}</strong> estudiantes vigentes sin 2FA inscrito en esta facultad.</p>"
+            f'<section class="fac" id="{fid}" hidden '
+            f'data-facultad="{html.escape(esc, quote=True)}">'
+            f"<h2>{html.escape(esc)}</h2>"
+            f"<p class='note'><strong>{n_esc}</strong> estudiantes vigentes sin 2FA en esta facultad. "
+            f"<button type='button' class='btn' onclick=\"descargarSeccion(document.getElementById('{fid}'))\">"
+            f"Descargar CSV de esta facultad</button></p>"
             f"{''.join(bloques_p)}</section>"
         )
-    return nav, "".join(partes)
+    return nav, "".join(partes), opciones
 
 
 def js_navegacion() -> str:
     return r"""
 function irArriba(){ window.scrollTo({top:0, behavior:'smooth'}); }
-function limpiarFiltro(){
-  var inp = document.getElementById('q');
-  if(inp){ inp.value=''; }
-  filtrar('');
-  irArriba();
+function selFac(){ return document.getElementById('sel-fac'); }
+function selProg(){ return document.getElementById('sel-prog'); }
+function textoQ(){ return ((document.getElementById('q')||{}).value || '').toLowerCase().trim(); }
+function llenarProgramas(facId){
+  var sel = selProg();
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Todos los programas de esta facultad</option>';
+  sel.disabled = !facId;
+  if (!facId) return;
+  var sec = document.getElementById(facId);
+  if (!sec) return;
+  sec.querySelectorAll('.prog').forEach(function(box){
+    var o = document.createElement('option');
+    o.value = box.id;
+    o.textContent = (box.getAttribute('data-programa') || box.id) + ' (' + box.querySelectorAll('tbody tr').length + ')';
+    sel.appendChild(o);
+  });
 }
-function filtrar(q){
-  q = (q||'').toLowerCase().trim();
+function elegirFacultad(facId){
+  var s = selFac();
+  if (s) s.value = facId || '';
+  llenarProgramas(facId);
+  if (selProg()) selProg().value = '';
+  aplicarVista(true);
+}
+function elegirPrograma(){
+  aplicarVista(true);
+}
+function irAPrograma(facId, progId){
+  var s = selFac();
+  if (s) s.value = facId || '';
+  llenarProgramas(facId);
+  if (selProg()) selProg().value = progId || '';
+  aplicarVista(true);
+}
+function aplicarVista(scroll){
+  var facId = selFac() ? selFac().value : '';
+  var progId = selProg() ? selProg().value : '';
+  var q = textoQ();
   var total = 0;
   var primero = null;
   document.querySelectorAll('section.fac').forEach(function(sec){
+    if (!facId || sec.id !== facId){
+      sec.hidden = true;
+      return;
+    }
     var vis = 0;
-    var facOk = !q || (sec.querySelector('h2')||{}).innerText.toLowerCase().includes(q);
     sec.querySelectorAll('.prog').forEach(function(box){
+      if (progId && box.id !== progId){
+        box.style.display = 'none';
+        return;
+      }
       var h = box.querySelector('h3');
       var n = 0;
       box.querySelectorAll('tbody tr').forEach(function(tr){
-        var ok = !q || facOk || tr.innerText.toLowerCase().includes(q) || (h && h.innerText.toLowerCase().includes(q));
+        var ok = !q || tr.innerText.toLowerCase().includes(q) || (h && h.innerText.toLowerCase().includes(q));
         tr.style.display = ok ? '' : 'none';
         if (ok) n++;
       });
       box.style.display = n ? '' : 'none';
       vis += n;
     });
-    sec.style.display = vis ? '' : 'none';
+    sec.hidden = vis === 0 && !!q;
+    if (!q) sec.hidden = false;
     total += vis;
     if (vis && !primero) primero = sec;
   });
+  document.querySelectorAll('#tabla-prog tr[data-fac-id]').forEach(function(tr){
+    tr.style.display = (!facId || tr.getAttribute('data-fac-id') === facId) ? '' : 'none';
+  });
+  var aviso = document.getElementById('aviso-elige');
+  if (aviso) aviso.hidden = !!facId;
   var nEl = document.getElementById('nfiltro');
-  if (nEl) nEl.textContent = q ? (total + ' coincidencia' + (total===1?'':'s')) : '';
-  var btn = document.getElementById('btn-limpiar');
-  if (btn) btn.hidden = !q;
-  if (q && primero) primero.scrollIntoView({behavior:'smooth', block:'start'});
+  if (nEl){
+    if (!facId) nEl.textContent = 'Elija una facultad';
+    else nEl.textContent = total + ' correo' + (total===1?'':'s') + ' de esta facultad';
+  }
+  var btnL = document.getElementById('btn-limpiar');
+  if (btnL) btnL.hidden = !q && !progId;
+  var btnD = document.getElementById('btn-descarga');
+  if (btnD) btnD.disabled = !facId;
+  if (scroll && facId){
+    var dest = document.getElementById(progId || facId);
+    if (dest && !dest.hidden) dest.scrollIntoView({behavior:'smooth', block:'start'});
+  }
 }
+function limpiarFiltro(){
+  var inp = document.getElementById('q');
+  if (inp) inp.value = '';
+  if (selProg()) selProg().value = '';
+  aplicarVista(false);
+  irArriba();
+}
+function filtrar(){ aplicarVista(false); }
 function csvCampo(s){
   s = (s==null?'':String(s)).replace(/"/g,'""');
   if (/[",\n\r]/.test(s)) return '"'+s+'"';
   return s;
 }
-function filasVisiblesCsv(){
+function filasDeSeccion(sec){
   var rows = [];
-  document.querySelectorAll('section.fac').forEach(function(sec){
-    if (sec.style.display === 'none') return;
-    sec.querySelectorAll('.prog').forEach(function(box){
-      if (box.style.display === 'none') return;
-      var fac = box.getAttribute('data-facultad') || '';
-      var prog = box.getAttribute('data-programa') || '';
-      box.querySelectorAll('tbody tr').forEach(function(tr){
-        if (tr.style.display === 'none') return;
-        var tds = tr.querySelectorAll('td');
-        if (tds.length < 4) return;
-        rows.push([fac, prog, tds[0].innerText.trim(), tds[1].innerText.trim(), tds[2].innerText.trim(), tds[3].innerText.trim()]);
-      });
+  if (!sec || sec.hidden) return rows;
+  var progId = selProg() ? selProg().value : '';
+  sec.querySelectorAll('.prog').forEach(function(box){
+    if (box.style.display === 'none') return;
+    if (progId && box.id !== progId) return;
+    var fac = box.getAttribute('data-facultad') || '';
+    var prog = box.getAttribute('data-programa') || '';
+    box.querySelectorAll('tbody tr').forEach(function(tr){
+      if (tr.style.display === 'none') return;
+      var tds = tr.querySelectorAll('td');
+      if (tds.length < 4) return;
+      rows.push([fac, prog, tds[0].innerText.trim(), tds[1].innerText.trim(), tds[2].innerText.trim(), tds[3].innerText.trim()]);
     });
   });
   return rows;
 }
-function descargarFiltrado(){
-  var rows = filasVisiblesCsv();
-  if (!rows.length){ alert('No hay correos visibles. Quite el filtro o elija otra búsqueda.'); return; }
-  var q = ((document.getElementById('q')||{}).value || '').trim();
+function bajarCsv(rows, nombre){
+  if (!rows.length){ alert('No hay correos para descargar con esta selección.'); return; }
   var head = 'facultad,programa,correo,nombres,estado_academico,ultimo_ingreso_google';
   var body = rows.map(function(r){ return r.map(csvCampo).join(','); }).join('\r\n');
   var blob = new Blob(['\uFEFF'+head+'\r\n'+body], {type:'text/csv;charset=utf-8'});
   var a = document.createElement('a');
-  var slug = (q || 'todos').toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi,'-').replace(/^-|-$/g,'').slice(0,40) || 'todos';
   a.href = URL.createObjectURL(blob);
-  a.download = 'sin_2fa_'+slug+'.csv';
+  a.download = nombre;
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1500);
 }
+function slugArchivo(s){
+  return (s || 'facultad').toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi,'-').replace(/^-|-$/g,'').slice(0,50) || 'facultad';
+}
+function descargarFiltrado(){
+  var s = selFac();
+  if (!s || !s.value){
+    alert('Elija UNA facultad en la lista de arriba. No se descarga el archivo completo.');
+    return;
+  }
+  var sec = document.getElementById(s.value);
+  var rows = filasDeSeccion(sec);
+  var fac = sec ? (sec.getAttribute('data-facultad') || s.value) : s.value;
+  var p = selProg() && selProg().value ? (document.getElementById(selProg().value)||{}).getAttribute('data-programa') : '';
+  var nom = 'sin_2fa_' + slugArchivo(fac) + (p ? '_' + slugArchivo(p) : '') + '.csv';
+  bajarCsv(rows, nom);
+}
+function descargarSeccion(sec){
+  if (!sec) return;
+  elegirFacultad(sec.id);
+  bajarCsv(filasDeSeccion(sec), 'sin_2fa_' + slugArchivo(sec.getAttribute('data-facultad')) + '.csv');
+}
+document.addEventListener('DOMContentLoaded', function(){
+  aplicarVista(false);
+});
 """
 
 
-def barra_busqueda(placeholder: str = "Buscar correo, nombre o programa…") -> str:
+def barra_busqueda(opciones_fac: str, placeholder: str = "Filtrar correos de esa facultad…") -> str:
     ph = html.escape(placeholder)
     return f"""
 <div class="barra noprint" id="barra">
-  <input id="q" class="search" type="search" placeholder="{ph}" oninput="filtrar(this.value)"/>
-  <button type="button" class="btn" id="btn-limpiar" hidden onclick="limpiarFiltro()">Limpiar y subir</button>
-  <button type="button" class="btn sec" onclick="descargarFiltrado()">Descargar lo visible</button>
+  <label>Facultad
+    <select id="sel-fac" class="sel" onchange="elegirFacultad(this.value)">
+      <option value="">— Elija una facultad —</option>
+      {opciones_fac}
+    </select>
+  </label>
+  <label>Programa
+    <select id="sel-prog" class="sel" onchange="elegirPrograma()" disabled>
+      <option value="">Todos los programas de esta facultad</option>
+    </select>
+  </label>
+  <label>Buscar dentro
+    <input id="q" class="search" type="search" placeholder="{ph}" oninput="filtrar()"/>
+  </label>
+  <button type="button" class="btn" id="btn-descarga" disabled onclick="descargarFiltrado()">Descargar esta facultad</button>
+  <button type="button" class="btn sec" id="btn-limpiar" hidden onclick="limpiarFiltro()">Limpiar búsqueda</button>
   <button type="button" class="btn sec" onclick="irArriba()">↑ Inicio</button>
-  <span class="conteo" id="nfiltro"></span>
+  <span class="conteo" id="nfiltro">Elija una facultad</span>
 </div>
 <button type="button" class="fab noprint" onclick="irArriba()" title="Volver al inicio">↑ Arriba</button>
 """
@@ -1175,11 +1284,15 @@ def html_informe_jefa(
         tot = c["cuentas"]
         cob = round(100 * c["con"] / tot, 1) if tot else 0
         ancho = round(100 * c["sin"] / max_sin, 1) if c["sin"] else 0
-        href = f"#f-{slug_id(e)}" if c["sin"] else ""
+        href = f"f-{slug_id(e)}"
         nombre = html.escape(e)
-        celda = f'<a href="{href}">{nombre}</a>' if href else nombre
+        celda = (
+            f'<a href="#{href}" onclick="elegirFacultad(\'{href}\')">{nombre}</a>'
+            if c["sin"]
+            else nombre
+        )
         filas_fac.append(
-            "<tr>"
+            f"<tr data-fac-id='{href}'>"
             f"<td>{celda}</td>"
             f"<td>{tot}</td><td class='ok'>{c['con']}</td>"
             f"<td class='bad'>{c['sin']}</td><td>{cob}%</td>"
@@ -1190,9 +1303,11 @@ def html_informe_jefa(
     for (e, p), pc in sorted(prog.items(), key=lambda kv: (-kv[1]["sin"], kv[0][0], kv[0][1])):
         if not pc["sin"]:
             continue
+        fid = f"f-{slug_id(e)}"
+        pid = f"p-{slug_id(e + '|' + p)}"
         filas_prog.append(
-            f"<tr><td>{html.escape(e)}</td>"
-            f"<td><a href='#p-{slug_id(e + '|' + p)}'>{html.escape(p)}</a></td>"
+            f"<tr data-fac-id='{fid}'><td>{html.escape(e)}</td>"
+            f"<td><a href='#{pid}' onclick=\"irAPrograma('{fid}','{pid}')\">{html.escape(p)}</a></td>"
             f"<td>{pc['cuentas']}</td><td class='bad'>{pc['sin']}</td></tr>"
         )
     n_sin = resumen.get("n_estudiantes_sin_2fa", len(sin))
@@ -1201,7 +1316,7 @@ def html_informe_jefa(
     cob = resumen.get("cobertura_2fa_estudiantes", 0)
     n_sin_cta = sum(1 for r in planos if r.get("perfil") == "ACADEMICO_SIN_CUENTA_GOOGLE")
     orden_fac = [e for e, c in ranking if c["sin"]]
-    nav, anexo = html_bloques_correos(sin, orden_fac)
+    nav, anexo, opciones_fac = html_bloques_correos(sin, orden_fac)
     html_doc = f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -1213,15 +1328,17 @@ def html_informe_jefa(
 <h1>{te['h1']}</h1>
 <p>Corte {html.escape(str(resumen.get('generado', '')))}. {te['intro']}</p>
 </header>
-{barra_busqueda()}
+{barra_busqueda(opciones_fac)}
 <main>
 <section class="card">
 <h2>{te['resumen']}</h2>
 <p class="note">{te['texto_resumen']}</p>
+<p class="note noprint"><strong>Para ver o descargar correos:</strong> elija una facultad en la barra de arriba
+(o un programa). No se muestra el listado completo a propósito.</p>
 <p class="noprint">
-<a class="btn" href="#anexo">Ir a los correos</a>
+<a class="btn" href="#anexo">Ir a las facultades</a>
 <a class="btn sec" href="listado_sin_2fa.html">Listado operativo</a>
-<a class="btn sec" href="02_estudiantes_sin_2fa.csv">CSV completo (todos)</a>
+<a class="btn sec" href="02_estudiantes_sin_2fa.csv">CSV de TODOS (archivo grande)</a>
 </p>
 </section>
 <div class="kpi">
@@ -1241,7 +1358,7 @@ def html_informe_jefa(
 <section class="card">
 <h2>{te['programas']}</h2>
 <p class="note">Clic en el programa para ir a esa lista. Solo programas con pendientes.</p>
-<table>
+<table id="tabla-prog">
 <thead><tr><th>Facultad</th><th>Programa</th><th>Vigentes</th><th>Pendientes</th></tr></thead>
 <tbody>{''.join(filas_prog) or '<tr><td colspan="4">No hay pendientes.</td></tr>'}</tbody>
 </table>
@@ -1249,14 +1366,15 @@ def html_informe_jefa(
 <details class="card noprint">
 <summary><strong>Notas</strong></summary>
 <ul class="note">
-<li><strong>CSV completo:</strong> <code>02_estudiantes_sin_2fa.csv</code> son todos los pendientes (no respeta el buscador).</li>
-<li><strong>Descargar lo visible:</strong> filtre por facultad, programa o correo y use el botón de la barra para bajar solo esas filas.</li>
+<li><strong>Una facultad:</strong> elija la facultad en la lista de arriba y pulse <em>Descargar esta facultad</em>. Opcional: elija un programa para bajar solo ese.</li>
+<li><strong>CSV de todos:</strong> <code>02_estudiantes_sin_2fa.csv</code> es el archivo grande; no lo use si solo necesita una facultad.</li>
 <li>{n_sin_cta} registros académicos vigentes sin cuenta Google no aparecen como correo pendiente.</li>
 <li>{resumen.get('n_google_sin_match', 0)} cuentas Google sin ficha de estudiante vigente no se listan aquí.</li>
 </ul>
 </details>
 <h2 id="anexo">{te['correos']}</h2>
-<p class="note noprint">{n_sin} cuentas. El buscador de arriba se queda fijo. Use <strong>↑ Inicio</strong> o el botón azul para volver.</p>
+<p class="aviso-elige noprint" id="aviso-elige">Elija <strong>una facultad</strong> en la barra de arriba.
+Hasta entonces no se muestran los correos (el listado completo es demasiado grande).</p>
 <nav class="toc noprint">{nav}</nav>
 {anexo or '<p>No hay estudiantes vigentes sin 2FA.</p>'}
 </main>
@@ -1280,7 +1398,7 @@ def html_listado_sin_2fa(
     ]
     _, fac, _ = stats_campana(planos)
     orden = sorted(fac.keys(), key=lambda e: (-fac[e]["sin"], e))
-    nav, partes = html_bloques_correos(sin, orden)
+    nav, partes, opciones_fac = html_bloques_correos(sin, orden)
     doc = f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -1293,10 +1411,10 @@ def html_listado_sin_2fa(
 <p>{len(sin)} cuentas pendientes · {html.escape(generado)} ·
 <a href="resumen.html">{te['volver_informe']}</a></p>
 </header>
-{barra_busqueda()}
+{barra_busqueda(opciones_fac)}
 <nav class="sticky noprint">{nav}</nav>
 <main>
-<p class="note">Agrupado por facultad y programa del plan vigente. El buscador queda fijo arriba; <strong>Limpiar y subir</strong> o <strong>↑ Arriba</strong> vuelven al inicio.</p>
+<p class="aviso-elige noprint" id="aviso-elige">Elija <strong>una facultad</strong> arriba. Así ve y descarga solo esa, no las ~todas.</p>
 {partes or '<p>No hay filas.</p>'}
 </main>
 <script>{js_navegacion()}</script>
