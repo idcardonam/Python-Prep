@@ -202,6 +202,8 @@ class CsvIoTest(unittest.TestCase):
             self.assertIn("Sistemas", html)
             self.assertIn("irArriba", html)
             self.assertIn("Limpiar y subir", html)
+            self.assertIn("descargarFiltrado", html)
+            self.assertIn("data-programa", html)
             lista = (out / "listado_sin_2fa.html").read_text(encoding="utf-8")
             self.assertIn("ana@unab.edu.co", lista)
             with (out / "02_estudiantes_sin_2fa.csv").open(encoding="utf-8-sig", newline="") as fh:

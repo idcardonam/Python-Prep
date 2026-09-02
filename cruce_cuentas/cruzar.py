@@ -1048,7 +1048,9 @@ def html_bloques_correos(sin: list[dict[str, Any]], orden_fac: list[str] | None 
                 for r in filas
             )
             bloques_p.append(
-                f"<div class='prog' id='p-{slug_id(esc + '|' + prog)}'>"
+                f"<div class='prog' id='p-{slug_id(esc + '|' + prog)}' "
+                f"data-facultad=\"{html.escape(esc, quote=True)}\" "
+                f"data-programa=\"{html.escape(prog, quote=True)}\">"
                 f"<h3>{html.escape(prog)} <span class='muted'>— {len(filas)} correos</span></h3>"
                 "<table><thead><tr><th>Correo institucional</th><th>Estudiante</th>"
                 "<th>Estado académico</th><th>Último ingreso a Google</th></tr></thead>"
@@ -1099,6 +1101,45 @@ function filtrar(q){
   if (btn) btn.hidden = !q;
   if (q && primero) primero.scrollIntoView({behavior:'smooth', block:'start'});
 }
+function csvCampo(s){
+  s = (s==null?'':String(s)).replace(/"/g,'""');
+  if (/[",\n\r]/.test(s)) return '"'+s+'"';
+  return s;
+}
+function filasVisiblesCsv(){
+  var rows = [];
+  document.querySelectorAll('section.fac').forEach(function(sec){
+    if (sec.style.display === 'none') return;
+    sec.querySelectorAll('.prog').forEach(function(box){
+      if (box.style.display === 'none') return;
+      var fac = box.getAttribute('data-facultad') || '';
+      var prog = box.getAttribute('data-programa') || '';
+      box.querySelectorAll('tbody tr').forEach(function(tr){
+        if (tr.style.display === 'none') return;
+        var tds = tr.querySelectorAll('td');
+        if (tds.length < 4) return;
+        rows.push([fac, prog, tds[0].innerText.trim(), tds[1].innerText.trim(), tds[2].innerText.trim(), tds[3].innerText.trim()]);
+      });
+    });
+  });
+  return rows;
+}
+function descargarFiltrado(){
+  var rows = filasVisiblesCsv();
+  if (!rows.length){ alert('No hay correos visibles. Quite el filtro o elija otra búsqueda.'); return; }
+  var q = ((document.getElementById('q')||{}).value || '').trim();
+  var head = 'facultad,programa,correo,nombres,estado_academico,ultimo_ingreso_google';
+  var body = rows.map(function(r){ return r.map(csvCampo).join(','); }).join('\r\n');
+  var blob = new Blob(['\uFEFF'+head+'\r\n'+body], {type:'text/csv;charset=utf-8'});
+  var a = document.createElement('a');
+  var slug = (q || 'todos').toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi,'-').replace(/^-|-$/g,'').slice(0,40) || 'todos';
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sin_2fa_'+slug+'.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1500);
+}
 """
 
 
@@ -1108,6 +1149,7 @@ def barra_busqueda(placeholder: str = "Buscar correo, nombre o programa…") -> 
 <div class="barra noprint" id="barra">
   <input id="q" class="search" type="search" placeholder="{ph}" oninput="filtrar(this.value)"/>
   <button type="button" class="btn" id="btn-limpiar" hidden onclick="limpiarFiltro()">Limpiar y subir</button>
+  <button type="button" class="btn sec" onclick="descargarFiltrado()">Descargar lo visible</button>
   <button type="button" class="btn sec" onclick="irArriba()">↑ Inicio</button>
   <span class="conteo" id="nfiltro"></span>
 </div>
@@ -1179,7 +1221,7 @@ def html_informe_jefa(
 <p class="noprint">
 <a class="btn" href="#anexo">Ir a los correos</a>
 <a class="btn sec" href="listado_sin_2fa.html">Listado operativo</a>
-<a class="btn sec" href="02_estudiantes_sin_2fa.csv">CSV Excel</a>
+<a class="btn sec" href="02_estudiantes_sin_2fa.csv">CSV completo (todos)</a>
 </p>
 </section>
 <div class="kpi">
@@ -1207,7 +1249,8 @@ def html_informe_jefa(
 <details class="card noprint">
 <summary><strong>Notas</strong></summary>
 <ul class="note">
-<li>El CSV tiene las mismas columnas (facultad, programa, correo, nombre, último ingreso).</li>
+<li><strong>CSV completo:</strong> <code>02_estudiantes_sin_2fa.csv</code> son todos los pendientes (no respeta el buscador).</li>
+<li><strong>Descargar lo visible:</strong> filtre por facultad, programa o correo y use el botón de la barra para bajar solo esas filas.</li>
 <li>{n_sin_cta} registros académicos vigentes sin cuenta Google no aparecen como correo pendiente.</li>
 <li>{resumen.get('n_google_sin_match', 0)} cuentas Google sin ficha de estudiante vigente no se listan aquí.</li>
 </ul>

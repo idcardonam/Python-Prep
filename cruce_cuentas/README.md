@@ -81,7 +81,7 @@ py -3 cruzar.py --carpeta "D:\Users\...\REPORTE_INSCRITOS 2026" --salida .\salid
 |---------|------------|
 | **`resumen.html`** | **Jefatura:** cifras, ranking por facultad, programas con pendientes y **los correos** agrupados. Imprimir a PDF si hace falta. |
 | **`listado_sin_2fa.html`** | Trabajo operativo: el mismo listado de correos, con buscador. |
-| **`02_estudiantes_sin_2fa.csv`** | Excel: facultad, programa, correo, nombre, último ingreso. Columnas limpias, no el universo. |
+| **`02_estudiantes_sin_2fa.csv`** | Excel: **todos** los pendientes. El buscador del HTML no recorta este archivo. En el informe use **Descargar lo visible** para sacar solo el filtro. |
 
 No uses `catalogo_facultades.html` ni `09_catalogo_*.csv` para la reunión: eso es oferta académica, no la campaña 2FA.
 
