@@ -646,6 +646,33 @@ def prioridad_2fa(ficha: dict[str, Any], dias_inactiva: int, now: datetime) -> s
     return "ALTA_SIN_2FA"
 
 
+def salida_escribible(salida: Path) -> Path:
+    """Si Excel dejó un CSV abierto, Windows bloquea .\\salida; usa una carpeta nueva."""
+    salida.mkdir(parents=True, exist_ok=True)
+    probe = salida / "_probe_escritura.tmp"
+    try:
+        probe.write_text("ok", encoding="utf-8")
+        probe.unlink(missing_ok=True)
+        for n in (
+            "00_universo.csv",
+            "07_cobertura_2fa_programa_seccion.csv",
+            "resumen.html",
+            "catalogo_facultades.html",
+        ):
+            p = salida / n
+            if p.exists():
+                with p.open("a", encoding="utf-8"):
+                    pass
+        return salida
+    except OSError:
+        alt = Path(str(salida) + "_" + datetime.now().strftime("%Y%m%d_%H%M%S"))
+        alt.mkdir(parents=True, exist_ok=True)
+        print("AVISO: no pude escribir en", salida.resolve())
+        print("Cierra Excel/CSV/HTML de esa carpeta. Esta corrida queda en:")
+        print(" ", alt.resolve())
+        return alt
+
+
 def write_csv(path: Path, rows: list[dict[str, Any]], fieldnames: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8-sig", newline="") as f:
@@ -946,6 +973,7 @@ def cruzar(
     ou_personal = [str(x).lower() for x in cfg.get("ou_personal", [])]
     dias_inactiva = int(cfg.get("dias_inactiva", 90))
     now = datetime.now(timezone.utc).replace(tzinfo=None)
+    salida = salida_escribible(salida)
 
     g_headers, g_rows = read_csv(google_path)
     if academico_dir:
