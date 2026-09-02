@@ -64,7 +64,21 @@ GOOGLE_ALIASES = {
 }
 
 ACADEMICO_ALIASES = {
-    "email": ["correo", "email", "correo institucional", "correo_institucional", "e-mail", "mail"],
+    "email": [
+        "correo",
+        "email",
+        "correo institucional",
+        "correo_institucional",
+        "e-mail",
+        "mail",
+        "email institucional",
+        "correo unab",
+        "usuario",
+        "userprincipalname",
+        "cuenta",
+        "e_mail",
+        "mail_institucional",
+    ],
     "estado": ["estado", "estado academico", "estado académico", "situacion", "situación", "status"],
     "facultad": ["facultad", "escuela", "unidad academica", "unidad académica"],
     "programa": ["programa", "carrera", "programa academico", "programa académico"],
@@ -148,8 +162,85 @@ def read_csv(path: Path) -> tuple[list[str], list[dict[str, str]]]:
         dialect = csv.excel
     reader = csv.DictReader(text.splitlines(), dialect=dialect)
     headers = reader.fieldnames or []
-    rows = [{k: (v if v is not None else "").strip() for k, v in row.items()} for row in reader]
-    return headers, rows
+    rows = [{k: (v if v is not None else "").strip() for k, v in row.items() if k is not None} for row in reader]
+    return [h for h in headers if h is not None], rows
+
+
+def periodo_desde_nombre(nombre: str) -> str:
+    m = re.search(r"(20\d{4})", nombre)
+    if m:
+        return m.group(1)
+    m = re.search(r"IC\s*20\d{2}", nombre, re.I)
+    return re.sub(r"\s+", " ", m.group(0)).upper() if m else Path(nombre).stem
+
+
+def listar_csv(carpeta: Path) -> list[Path]:
+    return sorted(p for p in carpeta.glob("*.csv") if p.is_file())
+
+
+def inspeccionar_academico(carpeta: Path) -> None:
+    """Solo metadatos: no imprime correos ni celdas."""
+    files = listar_csv(carpeta)
+    if not files:
+        raise SystemExit(f"No hay CSV en {carpeta}")
+    print(f"Carpeta: {carpeta}")
+    print(f"Archivos CSV: {len(files)}")
+    print("-" * 72)
+    all_headers: dict[str, set[str]] = {}
+    total = 0
+    for p in files:
+        headers, rows = read_csv(p)
+        total += len(rows)
+        delim_note = "ok"
+        mapped = map_columns(headers, ACADEMICO_ALIASES)
+        print(f"{p.name}")
+        print(f"  filas={len(rows):>8}  cols={len(headers):>3}  periodo={periodo_desde_nombre(p.name)}  bytes={p.stat().st_size}")
+        print(f"  correo detectado: {mapped.get('email') or 'NO'}")
+        print(f"  estado detectado: {mapped.get('estado') or 'NO'}")
+        print(f"  facultad: {mapped.get('facultad') or 'NO'}  programa: {mapped.get('programa') or 'NO'}  seccion: {mapped.get('seccion') or 'NO'}")
+        print(f"  columnas: {headers}")
+        print()
+        all_headers.setdefault("union", set()).update(headers)
+        _ = delim_note
+    print("-" * 72)
+    print(f"Filas totales (suma bruta, puede haber duplicados entre archivos): {total}")
+    print(f"Columnas distintas en el conjunto: {len(all_headers['union'])}")
+
+
+def cargar_academico_carpeta(carpeta: Path) -> tuple[list[str], list[dict[str, str]]]:
+    files = listar_csv(carpeta)
+    if not files:
+        raise SystemExit(f"No hay CSV en {carpeta}")
+    union: list[str] = []
+    seen_h: set[str] = set()
+    rows_out: list[dict[str, str]] = []
+    for p in files:
+        headers, rows = read_csv(p)
+        for h in headers:
+            if h not in seen_h:
+                seen_h.add(h)
+                union.append(h)
+        periodo = periodo_desde_nombre(p.name)
+        for row in rows:
+            row["_fuente_archivo"] = p.name
+            row["_periodo"] = periodo
+            rows_out.append(row)
+    extra = ["_fuente_archivo", "_periodo"]
+    headers_final = union + [x for x in extra if x not in seen_h]
+    return headers_final, rows_out
+
+
+def merge_texto(prev: str, nuevo: str) -> str:
+    prev = (prev or "").strip()
+    nuevo = (nuevo or "").strip()
+    if not nuevo:
+        return prev
+    if not prev:
+        return nuevo
+    parts = [x.strip() for x in prev.split(" | ") if x.strip()]
+    if nuevo not in parts:
+        parts.append(nuevo)
+    return " | ".join(parts)
 
 
 def parse_date(value: str) -> datetime | None:
@@ -371,14 +462,31 @@ th,td{{border-bottom:1px solid #d5deea;padding:.5rem;text-align:left}}
     path.write_text(html, encoding="utf-8")
 
 
-def cruzar(google_path: Path, academico_path: Path, personal_path: Path | None, salida: Path, cfg: dict[str, Any]) -> None:
+def cruzar(
+    google_path: Path,
+    academico_path: Path | None,
+    personal_path: Path | None,
+    salida: Path,
+    cfg: dict[str, Any],
+    academico_dir: Path | None = None,
+) -> None:
     excluir = {norm_estado(x) for x in cfg.get("estados_excluir", EXCLUIR_DEFAULT)}
     ou_personal = [str(x).lower() for x in cfg.get("ou_personal", [])]
     dias_inactiva = int(cfg.get("dias_inactiva", 90))
     now = datetime.now(timezone.utc).replace(tzinfo=None)
 
     g_headers, g_rows = read_csv(google_path)
-    a_headers, a_rows = read_csv(academico_path)
+    if academico_dir:
+        a_headers, a_rows = cargar_academico_carpeta(academico_dir)
+    elif academico_path:
+        a_headers, a_rows = read_csv(academico_path)
+        for row in a_rows:
+            row.setdefault("_fuente_archivo", academico_path.name)
+            row.setdefault("_periodo", periodo_desde_nombre(academico_path.name))
+        if "_fuente_archivo" not in a_headers:
+            a_headers = list(a_headers) + ["_fuente_archivo", "_periodo"]
+    else:
+        raise SystemExit("Falta --academico o --academico-dir")
     g_map = map_columns(g_headers, GOOGLE_ALIASES)
     a_map = map_columns(a_headers, ACADEMICO_ALIASES)
     if not g_map["email"]:
@@ -411,6 +519,7 @@ def cruzar(google_path: Path, academico_path: Path, personal_path: Path | None, 
         f["google"]["_extra"] = {k: v for k, v in row.items() if k not in set(g_map.values()) and v}
 
     skipped_grad = 0
+    detalle_acad: list[dict[str, Any]] = []
     for row in a_rows:
         email = norm_email(get(row, a_map["email"]))
         if not email:
@@ -421,11 +530,20 @@ def cruzar(google_path: Path, academico_path: Path, personal_path: Path | None, 
             continue
         f = fichas.setdefault(email, proyecto_a_ficha(email))
         f["en_academico"] = True
-        academico = {campo: get(row, a_map[campo]) for campo in a_map}
-        academico.pop("email", None)
-        # Toda columna académica original
-        academico["_todas"] = dict(row)
-        f["academico"] = academico
+        pieza = {campo: get(row, a_map[campo]) for campo in a_map}
+        pieza.pop("email", None)
+        if not f.get("academico"):
+            f["academico"] = {**pieza, "_todas": dict(row)}
+        else:
+            acc = f["academico"]
+            for campo, val in pieza.items():
+                acc[campo] = merge_texto(acc.get(campo, ""), val)
+            todas = acc.setdefault("_todas", {})
+            for k, v in row.items():
+                todas[k] = merge_texto(todas.get(k, ""), v)
+        det = {"correo": email, "_periodo": row.get("_periodo", ""), "_fuente_archivo": row.get("_fuente_archivo", "")}
+        det.update(row)
+        detalle_acad.append(det)
 
     p_map = {}
     if personal_path and personal_path.exists():
@@ -539,6 +657,15 @@ def cruzar(google_path: Path, academico_path: Path, personal_path: Path | None, 
         prog_rows,
         ["facultad_programa_seccion", "cuentas", "sin_2fa", "cobertura_2fa"],
     )
+    det_fields: list[str] = []
+    det_seen: set[str] = set()
+    for r in detalle_acad:
+        for k in r:
+            if k not in det_seen:
+                det_seen.add(k)
+                det_fields.append(k)
+    if det_fields:
+        write_csv(salida / "08_academico_filas.csv", detalle_acad, det_fields)
 
     n_google = sum(1 for r in planos if r["en_google"] == "SI")
     n_acad = sum(1 for r in planos if r["en_academico"] == "SI")
@@ -576,13 +703,18 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Cruce Google Admin × académico (2FA y ficha institucional)")
     ap.add_argument("--google", type=Path)
     ap.add_argument("--academico", type=Path)
+    ap.add_argument("--academico-dir", type=Path, help="Carpeta con varios CSV de inscritos (se unen)")
     ap.add_argument("--personal", type=Path, help="CSV opcional de docentes/administrativos (GH/nómina)")
     ap.add_argument("--salida", type=Path)
     ap.add_argument("--config", type=Path, default=root / "config.yaml")
     ap.add_argument("--ejemplo", action="store_true", help="Corre con CSV de entrada/_ejemplos")
+    ap.add_argument("--inspeccionar", type=Path, help="Solo analiza encabezados de una carpeta de CSV (sin cruce)")
     args = ap.parse_args()
     cfg = load_config(args.config if args.config.exists() else root / "config.example.yaml")
 
+    if args.inspeccionar:
+        inspeccionar_academico(args.inspeccionar)
+        return
     if args.ejemplo:
         base = root / "entrada" / "_ejemplos"
         cruzar(
@@ -593,14 +725,15 @@ def main() -> None:
             cfg,
         )
         return
-    if not args.google or not args.academico:
-        ap.error("Indica --google y --academico, o usa --ejemplo")
+    if not args.google or not (args.academico or args.academico_dir):
+        ap.error("Indica --google y --academico o --academico-dir, o usa --ejemplo / --inspeccionar")
     cruzar(
         args.google,
         args.academico,
         args.personal,
         args.salida or root / "salida",
         cfg,
+        academico_dir=args.academico_dir,
     )
 
 

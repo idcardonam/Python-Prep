@@ -41,9 +41,20 @@ Informe de usuarios (Users export) con al menos:
 
 En Admin: *Directorio → Usuarios → descargar usuarios* (o informe de seguridad 2SV).
 
-### B) Académico
-Un CSV con **correo institucional** + **toda** la ficha que te den (estado, facultad, programa, sección, etc.).  
-Filtro: **no graduados**.
+### B) Académico (varios CSV)
+Si tienes una carpeta tipo `REPORTE_INSCRITOS 2026` con muchos archivos:
+
+```bash
+python3 cruzar.py --inspeccionar "D:\Users\...\REPORTE_INSCRITOS 2026"
+```
+
+Eso solo lista **encabezados y conteos** (no imprime correos). Luego el cruce:
+
+```bash
+python3 cruzar.py --google entrada/google_admin.csv --academico-dir "D:\Users\...\REPORTE_INSCRITOS 2026"
+```
+
+Une los CSV, guarda el periodo (ej. `202610`) y si un correo aparece en varios programas los concatena con ` | `. El detalle fila a fila queda en `08_academico_filas.csv`.
 
 ### C) Recomendado (innova de verdad)
 CSV de **GH / nómina**: correo, tipo (docente/admin), área, sección, cargo.  
