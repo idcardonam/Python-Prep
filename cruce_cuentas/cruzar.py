@@ -718,6 +718,117 @@ def flatten(ficha: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def familia_nivel(nivel: str) -> str:
+    n = clave_txt(nivel)
+    if any(x in n for x in ("NO FORMAL", "COMPLEMENTARIA")):
+        return "Educación continua / no formal"
+    if any(x in n for x in ("BACHILLER", "PRIMARIA", "PRE-ESCOLAR", "PRE ESCOLAR")):
+        return "Instituto Caldas / básica"
+    if any(x in n for x in ("TECNICO LABORAL", "PREGRADO TECNICO", "PREGRADO TECNOLOGIA", "TECNICO AVANZADO", "ESPECIALIZACION TECNOLOGICA")):
+        return "Técnico y tecnológico"
+    if any(x in n for x in ("MAESTR", "DOCTOR", "ESPECIALIZ", "POSGRADO", "COTERMINAL")):
+        return "Posgrado"
+    if "PREGRADO" in n or "PROFESIONAL" in n:
+        return "Pregrado profesional"
+    return "Otro"
+
+
+def slug_id(s: str) -> str:
+    s = clave_txt(s)
+    s = re.sub(r"[^A-Z0-9]+", "-", s).strip("-")
+    return s[:80] or "x"
+
+
+def html_catalogo_facultades(path: Path, planes: list[dict[str, Any]], generado: str) -> None:
+    """Página aparte: oferta vigente agrupada por tipo y facultad (lo que pidió el ing)."""
+    rows = []
+    for r in planes:
+        item = dict(r)
+        item["familia"] = familia_nivel(str(r.get("nivel") or ""))
+        rows.append(item)
+    orden_fam = [
+        "Pregrado profesional",
+        "Posgrado",
+        "Técnico y tecnológico",
+        "Instituto Caldas / básica",
+        "Educación continua / no formal",
+        "Otro",
+    ]
+    fam_count = Counter(r["familia"] for r in rows)
+    nav = "".join(
+        f'<a href="#fam-{slug_id(f)}">{html.escape(f)} ({fam_count[f]})</a>'
+        for f in orden_fam
+        if fam_count[f]
+    )
+    bloques: list[str] = []
+    for fam in orden_fam:
+        grupo = [r for r in rows if r["familia"] == fam]
+        if not grupo:
+            continue
+        by_esc: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for r in grupo:
+            by_esc[str(r.get("escuela") or "(sin escuela)")].append(r)
+        tarjetas = "".join(
+            f'<a class="cardlet" href="#esc-{slug_id(fam + esc)}"><strong>{html.escape(esc)}</strong>'
+            f"<span>{len(filas)} programas</span></a>"
+            for esc, filas in sorted(by_esc.items(), key=lambda x: x[0])
+        )
+        inner: list[str] = []
+        for esc, filas in sorted(by_esc.items(), key=lambda x: x[0]):
+            filas = sorted(filas, key=lambda r: (str(r.get("nivel") or ""), str(r.get("programa") or "")))
+            tr = "".join(
+                "<tr>"
+                f"<td>{html.escape(str(r.get('programa') or ''))}</td>"
+                f"<td>{html.escape(str(r.get('cod_prog') or ''))}</td>"
+                f"<td>{html.escape(str(r.get('major') or ''))}</td>"
+                f"<td>{html.escape(str(r.get('nivel') or ''))}</td>"
+                f"<td>{html.escape(str(r.get('periodo_vigente') or ''))}</td>"
+                f"<td>{html.escape(str(r.get('campus') or ''))}</td>"
+                "</tr>"
+                for r in filas
+            )
+            inner.append(
+                f'<section class="fac" id="esc-{slug_id(fam + esc)}"><h3>{html.escape(esc)}</h3>'
+                f"<p class=\"note\">{len(filas)} planes vigentes (último TERM)</p>"
+                "<table><thead><tr><th>Programa</th><th>Cód.</th><th>Major</th><th>Nivel</th>"
+                f"<th>Último TERM</th><th>Campus</th></tr></thead><tbody>{tr}</tbody></table></section>"
+            )
+        bloques.append(
+            f'<section class="familia" id="fam-{slug_id(fam)}"><h2>{html.escape(fam)}</h2>'
+            f'<div class="grid">{tarjetas}</div>{"".join(inner)}</section>'
+        )
+    doc = f"""<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"/>
+<title>Oferta por facultades — UNAB</title>
+<style>
+body{{font-family:Segoe UI,Arial,sans-serif;margin:0;background:#f4f7fb;color:#1f2937}}
+header{{background:#003B70;color:#fff;padding:1.4rem 2rem}}
+header a{{color:#fff}}
+nav{{display:flex;flex-wrap:wrap;gap:.6rem;padding:1rem 2rem;background:#e8eef5;position:sticky;top:0}}
+nav a{{background:#fff;padding:.35rem .7rem;border-radius:999px;text-decoration:none;color:#003B70;font-size:.9rem}}
+main{{padding:1rem 2rem 3rem}}
+.grid{{display:flex;flex-wrap:wrap;gap:.6rem;margin:1rem 0}}
+.cardlet{{background:#fff;border-radius:10px;padding:.7rem 1rem;min-width:180px;text-decoration:none;color:#1f2937;box-shadow:0 2px 8px rgba(0,0,0,.06)}}
+.cardlet span{{display:block;color:#6b7280;font-size:.85rem}}
+.fac{{background:#fff;border-radius:12px;padding:1rem;margin:1rem 0;box-shadow:0 2px 8px rgba(0,0,0,.05)}}
+table{{border-collapse:collapse;width:100%;font-size:.92rem}}
+th,td{{border-bottom:1px solid #d5deea;padding:.4rem;text-align:left}}
+h1,h2,h3{{color:#003B70}} h1{{color:#fff;margin:0}}
+.note{{color:#4b5563}}
+</style></head><body>
+<header>
+<h1>Oferta vigente por facultad</h1>
+<p>Vista de currículo · un programa = último TERM · {len(rows)} planes · {generado}</p>
+<p><a href="resumen.html">Volver al cruce 2FA</a></p>
+</header>
+<nav>{nav or "Sin catálogo"}</nav>
+<main>
+<p class="note">Esto no es el listado de estudiantes. Es el catálogo de carreras/planes para organizar facultades. Educación continua queda en su bloque, no mezclada con pregrado.</p>
+{"".join(bloques) or "<p>No se cargó VISTA DE CURRICULO. Pon el xlsx en la carpeta y vuelve a correr cruzar.py.</p>"}
+</main></body></html>"""
+    path.write_text(doc, encoding="utf-8")
+
+
 def html_report(
     path: Path,
     resumen: dict[str, Any],
@@ -785,7 +896,8 @@ th,td{{border-bottom:1px solid #d5deea;padding:.5rem;text-align:left}}
 <div class="card">
 <h1>Cruce Google × académico × currículo</h1>
 <p>Generado: {html.escape(str(resumen['generado']))}</p>
-<p class="note">Reutilizable por periodo: mismos CSV de entrada, nueva carpeta de salida. Egresados no cuentan como vigentes; sí quedan en el radar de Google sin match.</p>
+<p class="note">Reutilizable por periodo: mismos archivos de entrada, nueva carpeta de salida.</p>
+<p><a href="catalogo_facultades.html" style="display:inline-block;background:#003B70;color:#fff;padding:.6rem 1rem;border-radius:8px;text-decoration:none;font-weight:700">Abrir oferta por facultades (catálogo del ing)</a></p>
 <h2>Acción 2FA (estudiantes vigentes)</h2>
 <div class="kpi">
   <div>Match estudiantes<br><strong>{resumen['n_match_estudiante']}</strong></div>
@@ -1089,6 +1201,8 @@ def cruzar(
                     plan_fields.append(k)
         write_csv(salida / "09_catalogo_planes_vigentes.csv", planes_vigentes, plan_fields)
 
+    html_catalogo_facultades(salida / "catalogo_facultades.html", planes_vigentes, datetime.now().isoformat(timespec="seconds"))
+
     plan_stats = defaultdict(Counter)
     for r in planos:
         if r["en_academico"] != "SI" or r["en_google"] != "SI":
@@ -1163,6 +1277,8 @@ def cruzar(
     print(f"Sin 2FA dominio: {n_sin} | Cobertura 2FA dominio: {cobertura}%")
     print(f"Radar Google sin ficha vigente: {n_google_sin_match} | Egresados filtrados del académico: {skipped_grad}")
     print(f"Currículo: {n_filas_curriculo} filas históricas -> {len(planes_vigentes)} planes vigentes | match plan: {n_match_curr}")
+    print("Abre:", (salida / "catalogo_facultades.html").resolve())
+    print("Y el cruce 2FA:", (salida / "resumen.html").resolve())
     print("Columnas Google detectadas:", {k: v for k, v in g_map.items() if v})
     print("Columnas académico detectadas:", {k: v for k, v in a_map.items() if v})
     if c_map:

@@ -186,7 +186,10 @@ class CsvIoTest(unittest.TestCase):
             self.assertEqual(ana["c_plan"], "Plan MEN 2026")
             html = (out / "resumen.html").read_text(encoding="utf-8")
             self.assertIn("Estudiantes sin 2FA", html)
-            self.assertIn("plan vigente", html.lower())
+            self.assertIn("catalogo_facultades.html", html)
+            cat = (out / "catalogo_facultades.html").read_text(encoding="utf-8")
+            self.assertIn("Oferta vigente por facultad", cat)
+            self.assertIn("Plan MEN 2026", cat)
 
     def test_xlsx_term_es_periodo_vigente(self) -> None:
         from openpyxl import Workbook
