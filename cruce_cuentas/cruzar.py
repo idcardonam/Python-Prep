@@ -326,8 +326,27 @@ def listar_csv_curriculo(carpeta: Path) -> list[Path]:
     return [p for p in listar_tablas(carpeta) if es_archivo_curriculo(p)]
 
 
+def exigir_carpeta(carpeta: Path) -> Path:
+    """La carpeta de --carpeta es la de TUS CSV, no la del repo Python-Prep."""
+    p = Path(carpeta)
+    if p.is_dir():
+        return p
+    raise SystemExit(
+        "No existe esa carpeta:\n"
+        f"  {p}\n\n"
+        "Eso no es un error de la rama. --carpeta debe ser la ruta REAL donde están:\n"
+        "  - User_Download*.csv  (Google Admin)\n"
+        "  - Prematriculados / inscritos *.csv\n"
+        "  - VISTA DE CURRICULO.xlsx (si lo tienes)\n\n"
+        "En el Explorador de Windows abre esa carpeta, clic en la barra de dirección,\n"
+        "copia la ruta y pégala entre comillas en --carpeta.\n"
+        "Si ya estás en cruce_cuentas, no vuelvas a hacer: cd cruce_cuentas"
+    )
+
+
 def descubrir_fuentes(carpeta: Path) -> dict[str, list[Path]]:
     """Una carpeta con Google + inscritos + currículo. Elige el Google más reciente."""
+    carpeta = exigir_carpeta(carpeta)
     google: list[Path] = []
     curric: list[Path] = []
     for p in listar_tablas(carpeta):
@@ -343,6 +362,7 @@ def descubrir_fuentes(carpeta: Path) -> dict[str, list[Path]]:
 
 def inspeccionar_academico(carpeta: Path) -> None:
     """Solo metadatos: no imprime correos ni celdas."""
+    carpeta = exigir_carpeta(carpeta)
     todos = listar_tablas(carpeta)
     google = [p for p in todos if p.name.lower().startswith("user_download") or parece_export_google(peek_headers(p))]
     curric = listar_csv_curriculo(carpeta)

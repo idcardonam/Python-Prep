@@ -149,6 +149,11 @@ class CsvIoTest(unittest.TestCase):
             doc = next(r for r in rows if r["correo"] == "doc@unab.edu.co")
             self.assertEqual(doc["perfil"], "GOOGLE_SIN_MATCH_ACADEMICO")
 
+    def test_carpeta_inexistente_mensaje_claro(self) -> None:
+        with self.assertRaises(SystemExit) as ctx:
+            cruzar.descubrir_fuentes(Path("/no/existe/esta/carpeta"))
+        self.assertIn("No existe esa carpeta", str(ctx.exception))
+
     def test_curriculo_ultimo_periodo_y_skip(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             d = Path(tmp)
