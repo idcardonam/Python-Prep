@@ -149,6 +149,45 @@ class CsvIoTest(unittest.TestCase):
             doc = next(r for r in rows if r["correo"] == "doc@unab.edu.co")
             self.assertEqual(doc["perfil"], "GOOGLE_SIN_MATCH_ACADEMICO")
 
+    def test_curriculo_ultimo_periodo_y_skip(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            (d / "Prematriculados 202610.csv").write_text(
+                "CORREO_UNAB,EST_ACAD,ESCUELA,PROGRAMA,COD_PROG,COD_MAJR,NOMBRE,APELLIDOS\n"
+                "ana@unab.edu.co,ACTIVO,Ingenieria,Sistemas,SIS,SIS,Ana,Perez\n",
+                encoding="utf-8",
+            )
+            (d / "VISTA DE CURRICULO.csv").write_text(
+                "PERIODO,COD_ESC,ESCUELA,COD_MAJR,COD_PROG,PROGRAMA,PLAN,NIVEL,TIPO\n"
+                "202010,ING,Ingenieria,SIS,SIS,Sistemas,Plan viejo,Pregrado,Formal\n"
+                "202610,ING,Ingenieria,SIS,SIS,Sistemas,Plan MEN 2026,Pregrado,Formal\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(len(cruzar.listar_csv_academico(d)), 1)
+            self.assertEqual(len(cruzar.listar_csv_curriculo(d)), 1)
+            g = d / "g.csv"
+            g.write_text(
+                "First Name [Required],Last Name [Required],Email Address [Required],"
+                "Status [READ ONLY],Last Sign In [READ ONLY],2sv Enrolled [READ ONLY]\n"
+                "Ana,Perez,ana@unab.edu.co,Active,2026/08/20 10:00:00,False\n",
+                encoding="utf-8",
+            )
+            out = d / "out"
+            cruzar.cruzar(g, None, None, out, cruzar.load_config(None), academico_dir=d)
+            resumen = json.loads((out / "resumen.json").read_text(encoding="utf-8"))
+            self.assertEqual(resumen["n_filas_curriculo"], 2)
+            self.assertEqual(resumen["n_planes_vigentes"], 1)
+            self.assertEqual(resumen["n_estudiantes_sin_2fa"], 1)
+            with (out / "00_universo.csv").open(encoding="utf-8-sig", newline="") as fh:
+                rows = list(__import__("csv").DictReader(fh))
+            ana = rows[0]
+            self.assertEqual(ana["c_match"], "SI")
+            self.assertEqual(ana["c_periodo_vigente"], "202610")
+            self.assertEqual(ana["c_plan"], "Plan MEN 2026")
+            html = (out / "resumen.html").read_text(encoding="utf-8")
+            self.assertIn("Estudiantes sin 2FA", html)
+            self.assertIn("plan vigente", html.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

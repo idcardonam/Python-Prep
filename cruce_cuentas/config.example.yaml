@@ -7,6 +7,7 @@ archivos:
   google: entrada/google_admin.csv
   academico: entrada/academico.csv
   # Opcional: docentes/administrativos (nómina / GH). Mejora la clasificación.
+  curriculo: entrada/curriculo.csv
   personal: entrada/personal.csv
   salida: salida
 

@@ -59,9 +59,19 @@ python3 cruzar.py --google entrada/google_admin.csv --academico-dir "D:\Users\..
 
 Une los CSV, guarda el periodo (ej. `202610`) y si un correo aparece en varios programas los concatena con ` | `. El detalle fila a fila queda en `08_academico_filas.csv`.
 
-### C) Recomendado (innova de verdad)
+### C) Recomendado (personal GH)
 CSV de **GH / nómina**: correo, tipo (docente/admin), área, sección, cargo.  
 Sin esto, docentes y administrativos quedan mezclados con egresados y cuentas huérfanas.
+
+### D) Vista de currículo (catálogo de planes)
+Archivo tipo `VISTA DE CURRICULO.csv` (puede vivir en la misma carpeta de inscritos). No son estudiantes: son **planes de estudio** a lo largo del tiempo (registro MEN).
+
+Regla: si un programa/major tiene varias filas, **el último PERIODO es el plan vigente**. El cruce pega ese plan a cada ficha por `COD_PROG` / `COD_MAJR` / programa+escuela.
+
+```bash
+python3 cruzar.py --inspeccionar "D:\Users\...\REPORTE_INSCRITOS 2026"
+python3 cruzar.py --google "…/User_Download_….csv" --academico-dir "…/REPORTE_INSCRITOS 2026" --salida salida
+```
 
 ## Cómo correr
 
@@ -94,7 +104,10 @@ Detecta columnas en español o inglés. Si un nombre no pega, copia `config.exam
 | `05_prioridad_alta_2fa.csv` | Personal o estudiantes activos sin 2FA |
 | `06_cobertura_2fa_facultad.csv` | % 2FA por facultad |
 | `07_cobertura_2fa_programa_seccion.csv` | % 2FA por programa y sección |
-| `resumen.html` / `resumen.json` | Tablero rápido |
+| `08_academico_filas.csv` | Una fila por inscripción (detalle) |
+| `09_catalogo_planes_vigentes.csv` | Un plan vigente por programa (último periodo) |
+| `10_cobertura_2fa_plan_vigente.csv` | % 2FA por programa con plan vigente |
+| `resumen.html` / `resumen.json` | Tablero: acción estudiantes vs radar dominio |
 
 ## Prioridades 2FA
 
