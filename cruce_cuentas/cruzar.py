@@ -116,16 +116,19 @@ PERSONAL_ALIASES = {
 }
 
 CURRICULO_ALIASES = {
-    "periodo": ["periodo", "term", "periodo_plan", "effective term"],
-    "escuela": ["escuela", "facultad", "college"],
-    "cod_esc": ["cod_esc", "codigo_escuela"],
-    "programa": ["programa", "carrera", "program"],
+    "periodo": ["term", "periodo", "periodo_plan", "effective term"],
+    "periodo_efectivo": ["term_eff", "effective term"],
+    "escuela": ["desc_escuela", "escuela", "facultad", "college"],
+    "cod_esc": ["cod_escuela", "cod_esc", "codigo_escuela"],
+    "programa": ["desc_prog", "programa", "carrera", "program"],
     "cod_prog": ["cod_prog", "codigo_programa"],
     "major": ["cod_majr", "major", "cod_major"],
-    "nivel": ["nivel"],
-    "plan": ["plan", "plan_estudios", "plan estudios", "curriculo", "currículum", "cod_plan", "codigo_plan"],
+    "nivel": ["nivel_desc", "nivel"],
+    "plan": ["rule_curr", "plan", "plan_estudios", "plan estudios", "curriculo", "cod_plan"],
     "tipo": ["tipo", "formal", "tipo_formacion", "tipo formación", "modalidad"],
-    "campus": ["campus"],
+    "campus": ["desc_camp", "campus"],
+    "distrito": ["desc_distrito", "distrito"],
+    "web": ["web_ind"],
 }
 
 EXCLUIR_DEFAULT = {
@@ -202,6 +205,46 @@ def read_csv(path: Path) -> tuple[list[str], list[dict[str, str]]]:
     return headers, rows
 
 
+def _celda(v: Any) -> str:
+    if v is None:
+        return ""
+    if isinstance(v, float) and v.is_integer():
+        return str(int(v))
+    return str(v).strip()
+
+
+def read_xlsx(path: Path) -> tuple[list[str], list[dict[str, str]]]:
+    try:
+        from openpyxl import load_workbook
+    except ImportError as e:
+        raise SystemExit("Para leer .xlsx instala openpyxl:  py -3 -m pip install openpyxl") from e
+    wb = load_workbook(path, read_only=True, data_only=True)
+    ws = None
+    for name in wb.sheetnames:
+        if name.strip().lower() == "sql":
+            continue
+        ws = wb[name]
+        break
+    if ws is None:
+        ws = wb[wb.sheetnames[0]]
+    it = ws.iter_rows(values_only=True)
+    raw_h = next(it, None) or []
+    headers = [str(h).strip() if h is not None and str(h).strip() else f"col_{i}" for i, h in enumerate(raw_h)]
+    rows: list[dict[str, str]] = []
+    for row in it:
+        d = {headers[i]: _celda(row[i] if i < len(row) else None) for i in range(len(headers))}
+        if any(d.values()):
+            rows.append(d)
+    wb.close()
+    return headers, rows
+
+
+def read_tabla(path: Path) -> tuple[list[str], list[dict[str, str]]]:
+    if path.suffix.lower() in {".xlsx", ".xlsm"}:
+        return read_xlsx(path)
+    return read_csv(path)
+
+
 def periodo_desde_nombre(nombre: str) -> str:
     m = re.search(r"(20\d{4})", nombre)
     if m:
@@ -229,10 +272,15 @@ def es_archivo_curriculo(path: Path, headers: list[str] | None = None) -> bool:
         return False
     if parece_export_google(h):
         return False
-    return "periodo" in nh and bool(nh & {"programa", "escuela", "cod_prog", "cod_majr"})
+    return bool(nh & {"term_eff", "term", "periodo"}) and bool(
+        nh & {"desc_escuela", "cod_escuela", "cod_prog", "desc_prog", "programa", "escuela"}
+    )
 
 
 def peek_headers(path: Path) -> list[str]:
+    if path.suffix.lower() in {".xlsx", ".xlsm"}:
+        headers, _ = read_xlsx(path)
+        return headers
     raw = path.read_bytes()[:16384]
     for enc in ("utf-8-sig", "utf-8", "latin-1", "cp1252"):
         try:
@@ -251,6 +299,14 @@ def listar_csv(carpeta: Path) -> list[Path]:
     return sorted(p for p in carpeta.glob("*.csv") if p.is_file())
 
 
+def listar_tablas(carpeta: Path) -> list[Path]:
+    return sorted(
+        p
+        for p in carpeta.iterdir()
+        if p.is_file() and p.suffix.lower() in {".csv", ".xlsx", ".xlsm"}
+    )
+
+
 def listar_csv_academico(carpeta: Path) -> list[Path]:
     out: list[Path] = []
     for p in listar_csv(carpeta):
@@ -267,12 +323,27 @@ def listar_csv_academico(carpeta: Path) -> list[Path]:
 
 
 def listar_csv_curriculo(carpeta: Path) -> list[Path]:
-    return [p for p in listar_csv(carpeta) if es_archivo_curriculo(p)]
+    return [p for p in listar_tablas(carpeta) if es_archivo_curriculo(p)]
+
+
+def descubrir_fuentes(carpeta: Path) -> dict[str, list[Path]]:
+    """Una carpeta con Google + inscritos + currículo. Elige el Google más reciente."""
+    google: list[Path] = []
+    curric: list[Path] = []
+    for p in listar_tablas(carpeta):
+        h = peek_headers(p)
+        if p.name.lower().startswith("user_download") or parece_export_google(h):
+            google.append(p)
+        elif es_archivo_curriculo(p, h):
+            curric.append(p)
+    google.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+    curric.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+    return {"google": google, "curriculo": curric, "academico": listar_csv_academico(carpeta)}
 
 
 def inspeccionar_academico(carpeta: Path) -> None:
     """Solo metadatos: no imprime correos ni celdas."""
-    todos = listar_csv(carpeta)
+    todos = listar_tablas(carpeta)
     google = [p for p in todos if p.name.lower().startswith("user_download") or parece_export_google(peek_headers(p))]
     curric = listar_csv_curriculo(carpeta)
     files = listar_csv_academico(carpeta)
@@ -284,13 +355,16 @@ def inspeccionar_academico(carpeta: Path) -> None:
     if curric:
         print(f"Vista de currículo (catálogo de planes, no estudiantes): {len(curric)}")
         for p in curric:
-            headers, rows = read_csv(p)
+            headers, rows = read_tabla(p)
             mapped = map_columns(headers, CURRICULO_ALIASES)
             print(f"  {p.name}  filas={len(rows)}  cols={len(headers)}")
             print(f"    periodo: {mapped.get('periodo') or 'NO'}  escuela: {mapped.get('escuela') or 'NO'}  programa: {mapped.get('programa') or 'NO'}")
             print(f"    cod_prog: {mapped.get('cod_prog') or 'NO'}  major: {mapped.get('major') or 'NO'}  plan: {mapped.get('plan') or 'NO'}")
             print(f"    columnas: {headers}")
     if not files:
+        if curric:
+            print("No hay CSV de inscritos; sí hay currículo (catálogo).")
+            return
         raise SystemExit(f"No hay CSV académicos de inscritos en {carpeta}")
     print(f"Archivos CSV de inscritos: {len(files)}")
     print("-" * 72)
@@ -392,7 +466,7 @@ def cargar_catalogo_curriculo(paths: list[Path]) -> tuple[dict[tuple, dict[str, 
     c_map: dict[str, str | None] = {}
     n_hist = 0
     for path in paths:
-        headers, rows = read_csv(path)
+        headers, rows = read_tabla(path)
         c_map = map_columns(headers, CURRICULO_ALIASES)
         for row in rows:
             n_hist += 1
@@ -440,7 +514,7 @@ def adjuntar_curriculo(ficha: dict[str, Any], plan: dict[str, str]) -> None:
     if not plan:
         return
     dest = ficha.setdefault("curriculo", {})
-    for campo in ("periodo", "escuela", "cod_esc", "programa", "cod_prog", "major", "nivel", "plan", "tipo", "campus"):
+    for campo in ("periodo", "periodo_efectivo", "escuela", "cod_esc", "programa", "cod_prog", "major", "nivel", "plan", "tipo", "campus", "distrito", "web"):
         dest[campo] = merge_texto(dest.get(campo, ""), plan.get(campo, ""))
     dest["match"] = "SI"
 
@@ -620,6 +694,9 @@ def flatten(ficha: dict[str, Any]) -> dict[str, Any]:
         "c_nivel": c.get("nivel", ""),
         "c_tipo": c.get("tipo", ""),
         "c_campus": c.get("campus", ""),
+        "c_distrito": c.get("distrito", ""),
+        "c_web": c.get("web", ""),
+        "c_periodo_efectivo": c.get("periodo_efectivo", ""),
         "p_tipo": p.get("tipo", ""),
         "p_area": p.get("area", ""),
         "p_seccion": p.get("seccion", ""),
@@ -646,6 +723,7 @@ def html_report(
     resumen: dict[str, Any],
     por_facultad: list[dict[str, Any]],
     por_plan: list[dict[str, Any]] | None = None,
+    catalogo: list[dict[str, Any]] | None = None,
 ) -> None:
     def tabla(filas: list[dict[str, Any]], cols: list[tuple[str, str]]) -> str:
         body = "".join(
@@ -670,6 +748,27 @@ def html_report(
             ("cobertura_2fa", "Cobertura %"),
         ],
     )
+    by_esc: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for r in catalogo or []:
+        by_esc[str(r.get("escuela") or "(sin escuela)")].append(r)
+    cat_parts: list[str] = []
+    for esc in sorted(by_esc, key=lambda x: (-len(by_esc[x]), x)):
+        filas = sorted(by_esc[esc], key=lambda r: str(r.get("programa") or ""))
+        cat_parts.append(f"<h3>{html.escape(esc)} <span class=\"note\">({len(filas)} vigentes)</span></h3>")
+        cat_parts.append(
+            tabla(
+                filas,
+                [
+                    ("programa", "Programa"),
+                    ("cod_prog", "Cód. prog"),
+                    ("major", "Major"),
+                    ("nivel", "Nivel"),
+                    ("periodo_vigente", "Último TERM"),
+                    ("campus", "Campus"),
+                ],
+            )
+        )
+    cat_html = "".join(cat_parts) or "<p>Sin catálogo de currículo en esta corrida.</p>"
     html_doc = f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
 <title>Cruce cuentas institucionales</title>
@@ -710,7 +809,11 @@ th,td{{border-bottom:1px solid #d5deea;padding:.5rem;text-align:left}}
 <div class="card"><h2>2FA por escuela (match académico)</h2>
 {fac_html}
 </div>
-<div class="card"><h2>2FA por programa con plan vigente (último periodo del currículo)</h2>
+<div class="card"><h2>Oferta vigente por facultad (Vista de currículo, último TERM)</h2>
+<p class="note">Cada programa puede tener varios periodos históricos. Aquí solo el más reciente. Educación continua y no formal quedan agrupadas en su escuela.</p>
+{cat_html}
+</div>
+<div class="card"><h2>2FA por programa con plan vigente</h2>
 {plan_html}
 <p class="note">Si un programa cambió de plan ante el MEN, se usa el periodo más reciente. Histórico del catálogo: {resumen.get('n_filas_curriculo', 0)} filas.</p>
 </div>
@@ -965,6 +1068,9 @@ def cruzar(
             "nivel": pieza.get("nivel", ""),
             "tipo": pieza.get("tipo", ""),
             "campus": pieza.get("campus", ""),
+            "distrito": pieza.get("distrito", ""),
+            "web": pieza.get("web", ""),
+            "periodo_efectivo": pieza.get("periodo_efectivo", ""),
             "_fuente": pieza.get("_fuente", ""),
         }
         extra = pieza.get("_todas") or {}
@@ -1049,7 +1155,7 @@ def cruzar(
         "mapeo_curriculo": c_map,
     }
     (salida / "resumen.json").write_text(json.dumps(resumen, ensure_ascii=False, indent=2), encoding="utf-8")
-    html_report(salida / "resumen.html", resumen, fac, plan_rows)
+    html_report(salida / "resumen.html", resumen, fac, plan_rows, planes_vigentes)
 
     print("Listo ->", salida.resolve())
     print(f"Google: {n_google} | Académico vigente: {n_acad} | Match estudiante: {n_match}")
@@ -1070,11 +1176,12 @@ def main() -> None:
     ap.add_argument("--academico", type=Path)
     ap.add_argument("--academico-dir", type=Path, help="Carpeta con varios CSV de inscritos (se unen)")
     ap.add_argument("--personal", type=Path, help="CSV opcional de docentes/administrativos (GH/nómina)")
-    ap.add_argument("--curriculo", type=Path, help="CSV Vista de currículo (si está en --academico-dir se detecta solo)")
+    ap.add_argument("--curriculo", type=Path, help="CSV/XLSX Vista de currículo (si está en la carpeta se detecta solo)")
+    ap.add_argument("--carpeta", type=Path, help="Una carpeta con Google + inscritos + VISTA DE CURRICULO (xlsx/csv)")
     ap.add_argument("--salida", type=Path)
     ap.add_argument("--config", type=Path, default=root / "config.yaml")
     ap.add_argument("--ejemplo", action="store_true", help="Corre con CSV de entrada/_ejemplos")
-    ap.add_argument("--inspeccionar", type=Path, help="Solo analiza encabezados de una carpeta de CSV (sin cruce)")
+    ap.add_argument("--inspeccionar", type=Path, help="Solo analiza encabezados de una carpeta (sin cruce)")
     args = ap.parse_args()
     cfg = load_config(args.config if args.config.exists() else root / "config.example.yaml")
 
@@ -1092,8 +1199,24 @@ def main() -> None:
             curriculo_path=base / "curriculo.csv" if (base / "curriculo.csv").exists() else None,
         )
         return
+    if args.carpeta:
+        fuentes = descubrir_fuentes(args.carpeta)
+        if not fuentes["google"]:
+            raise SystemExit(f"No hallé export Google (User_Download*.csv) en {args.carpeta}")
+        if not fuentes["academico"]:
+            raise SystemExit(f"No hallé CSV de inscritos en {args.carpeta}")
+        cruzar(
+            fuentes["google"][0],
+            None,
+            args.personal,
+            args.salida or root / "salida",
+            cfg,
+            academico_dir=args.carpeta,
+            curriculo_path=fuentes["curriculo"][0] if fuentes["curriculo"] else None,
+        )
+        return
     if not args.google or not (args.academico or args.academico_dir):
-        ap.error("Indica --google y --academico o --academico-dir, o usa --ejemplo / --inspeccionar")
+        ap.error("Indica --carpeta, o --google y --academico/--academico-dir, o --ejemplo / --inspeccionar")
     cruzar(
         args.google,
         args.academico,

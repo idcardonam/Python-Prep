@@ -64,14 +64,19 @@ CSV de **GH / nómina**: correo, tipo (docente/admin), área, sección, cargo.
 Sin esto, docentes y administrativos quedan mezclados con egresados y cuentas huérfanas.
 
 ### D) Vista de currículo (catálogo de planes)
-Archivo tipo `VISTA DE CURRICULO.csv` (puede vivir en la misma carpeta de inscritos). No son estudiantes: son **planes de estudio** a lo largo del tiempo (registro MEN).
+`VISTA DE CURRICULO.xlsx` (o csv) en la misma carpeta. No son estudiantes: oferta de programas en el tiempo.
 
-Regla: si un programa/major tiene varias filas, **el último PERIODO es el plan vigente**. El cruce pega ese plan a cada ficha por `COD_PROG` / `COD_MAJR` / programa+escuela.
+En el Excel UNAB: `TERM_EFF` suele ser el mismo para todas las filas; el periodo que cambia es **`TERM`**. El cruce toma el **último TERM** por escuela+programa+major.
 
 ```bash
-python3 cruzar.py --inspeccionar "D:\Users\...\REPORTE_INSCRITOS 2026"
-python3 cruzar.py --google "…/User_Download_….csv" --academico-dir "…/REPORTE_INSCRITOS 2026" --salida salida
+py -3 -m pip install openpyxl
+cd cruce_cuentas
+py -3 cruzar.py --inspeccionar "D:\Users\...\REPORTE_INSCRITOS 2026"
+py -3 cruzar.py --carpeta "D:\Users\...\REPORTE_INSCRITOS 2026" --salida .\salida
 ```
+
+`--carpeta` busca solo: el Google más reciente (`User_Download*`), los Prematriculados, y la Vista de currículo. Cada corte académico: reemplazas esos archivos y vuelves a correr. El HTML **no se actualiza solo**; se regenera en `salida\resumen.html`.
+
 
 ## Cómo correr
 

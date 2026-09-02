@@ -188,6 +188,42 @@ class CsvIoTest(unittest.TestCase):
             self.assertIn("Estudiantes sin 2FA", html)
             self.assertIn("plan vigente", html.lower())
 
+    def test_xlsx_term_es_periodo_vigente(self) -> None:
+        from openpyxl import Workbook
+
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Exportar Hoja de Trabajo"
+            ws.append(
+                [
+                    "TERM_EFF",
+                    "COD_ESCUELA",
+                    "DESC_ESCUELA",
+                    "COD_PROG",
+                    "DESC_PROG",
+                    "COD_MAJR",
+                    "NIVEL_DESC",
+                    "TERM",
+                    "DESC_CAMP",
+                ]
+            )
+            ws.append(["200800", "FI", "FAC DE INGENIERIA", "SIS", "Ingenieria de Sistemas", "SIS", "PREGRADO PROFESIONAL", "201010", "CC"])
+            ws.append(["200800", "FI", "FAC DE INGENIERIA", "SIS", "Ingenieria de Sistemas", "SIS", "PREGRADO PROFESIONAL", "202610", "CC"])
+            xlsx = d / "VISTA DE CURRICULO.xlsx"
+            wb.save(xlsx)
+            headers, rows = cruzar.read_xlsx(xlsx)
+            m = cruzar.map_columns(headers, cruzar.CURRICULO_ALIASES)
+            self.assertEqual(m["periodo"], "TERM")
+            self.assertEqual(m["periodo_efectivo"], "TERM_EFF")
+            self.assertEqual(m["escuela"], "DESC_ESCUELA")
+            self.assertEqual(m["programa"], "DESC_PROG")
+            cat, _, n = cruzar.cargar_catalogo_curriculo([xlsx])
+            self.assertEqual(n, 2)
+            plan = cruzar.buscar_plan(cat, "SIS", "SIS", "Ingenieria de Sistemas", "FAC DE INGENIERIA")
+            self.assertEqual(plan.get("periodo"), "202610")
+
 
 if __name__ == "__main__":
     unittest.main()
