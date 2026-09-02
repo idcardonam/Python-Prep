@@ -34,3 +34,19 @@ ou_personal:
 
 # Días sin ingreso para marcar cuenta inactiva (prioridad 2FA)
 dias_inactiva: 90
+
+# Títulos del HTML (resumen.html). Cambia el texto y vuelve a correr cruzar.py.
+informe:
+  marca: "UNAB · Dirección de TIC"
+  h1: "Estudiantes vigentes sin 2FA"
+  resumen: Resumen
+  facultades: Facultades
+  programas: Programas
+  correos: Correos
+  kpi_universo: "Vigentes con Google"
+  kpi_con: "Con 2FA"
+  kpi_sin: Pendientes
+  kpi_cob: Cobertura
+  listado_h1: "Correos sin 2FA"
+  volver_informe: "Volver al informe"
+

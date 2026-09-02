@@ -59,6 +59,11 @@ class MapeoTest(unittest.TestCase):
         self.assertFalse(cruzar.is_2fa_on("False", "On"))
         self.assertFalse(cruzar.is_2fa_on("0", ""))
 
+    def test_titulos_informe_config(self) -> None:
+        t = cruzar.titulos_informe({"informe": {"resumen": "Solo resumen"}})
+        self.assertEqual(t["resumen"], "Solo resumen")
+        self.assertEqual(t["h1"], cruzar.TITULOS_INFORME["h1"])
+
     def test_google_datetime(self) -> None:
         dt = cruzar.parse_date("2026/08/27 15:15:08")
         self.assertIsNotNone(dt)
@@ -190,9 +195,13 @@ class CsvIoTest(unittest.TestCase):
             self.assertEqual(ana["c_periodo_vigente"], "202610")
             self.assertEqual(ana["c_plan"], "Plan MEN 2026")
             html = (out / "resumen.html").read_text(encoding="utf-8")
-            self.assertIn("Pendientes de 2FA", html)
+            self.assertIn(">Resumen<", html)
+            self.assertNotIn("Resumen para jefatura", html)
+            self.assertIn("Pendientes", html)
             self.assertIn("ana@unab.edu.co", html)
             self.assertIn("Sistemas", html)
+            self.assertIn("irArriba", html)
+            self.assertIn("Limpiar y subir", html)
             lista = (out / "listado_sin_2fa.html").read_text(encoding="utf-8")
             self.assertIn("ana@unab.edu.co", lista)
             with (out / "02_estudiantes_sin_2fa.csv").open(encoding="utf-8-sig", newline="") as fh:

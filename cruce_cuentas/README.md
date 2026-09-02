@@ -87,6 +87,8 @@ No uses `catalogo_facultades.html` ni `09_catalogo_*.csv` para la reunión: eso 
 
 El HTML **no se actualiza solo**; se regenera al volver a correr el script. Cada corte: reemplaza inscritos + User_Download + currículo y corre `--carpeta`.
 
+**Títulos:** en `config.example.yaml` (cópialo a `config.yaml`) sección `informe`, o en `cruzar.py` el diccionario `TITULOS_INFORME`. El buscador queda fijo arriba; hay **Limpiar y subir** y un botón **↑ Arriba**.
+
 ## Resto de archivos técnicos
 
 | Archivo | Para qué |

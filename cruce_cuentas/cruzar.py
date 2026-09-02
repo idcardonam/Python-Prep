@@ -577,17 +577,50 @@ def is_2fa_on(inscrito: str, forzado: str) -> bool:
     return False
 
 
+# Textos del HTML. Cámbialos aquí o en config.yaml → informe:
+TITULOS_INFORME = {
+    "marca": "UNAB · Dirección de TIC",
+    "h1": "Estudiantes vigentes sin 2FA",
+    "intro": "Google Admin (2FA inscrito) × inscritos Banner × plan vigente de currículo.",
+    "resumen": "Resumen",
+    "texto_resumen": "Solo estudiantes con matrícula vigente y cuenta @unab.edu.co. Egresados y personal no entran aquí.",
+    "kpi_universo": "Vigentes con Google",
+    "kpi_con": "Con 2FA",
+    "kpi_sin": "Pendientes",
+    "kpi_cob": "Cobertura",
+    "facultades": "Facultades",
+    "programas": "Programas",
+    "correos": "Correos",
+    "listado_h1": "Correos sin 2FA",
+    "volver_informe": "Volver al informe",
+}
+
+
 def load_config(path: Path | None) -> dict[str, Any]:
     cfg: dict[str, Any] = {
         "dominio": "unab.edu.co",
         "estados_excluir": sorted(EXCLUIR_DEFAULT),
         "ou_personal": ["docente", "profesor", "administrativo", "gestion", "tic", "staff", "planta"],
         "dias_inactiva": 90,
+        "informe": dict(TITULOS_INFORME),
     }
     if path and path.exists() and yaml:
         data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        cfg.update({k: v for k, v in data.items() if v is not None})
+        inf = data.get("informe")
+        cfg.update({k: v for k, v in data.items() if v is not None and k != "informe"})
+        if isinstance(inf, dict):
+            merged = dict(TITULOS_INFORME)
+            merged.update({str(k): str(v) for k, v in inf.items() if v is not None})
+            cfg["informe"] = merged
     return cfg
+
+
+def titulos_informe(cfg: dict[str, Any] | None) -> dict[str, str]:
+    t = dict(TITULOS_INFORME)
+    extra = (cfg or {}).get("informe") or {}
+    if isinstance(extra, dict):
+        t.update({str(k): str(v) for k, v in extra.items() if v is not None})
+    return t
 
 
 def proyecto_a_ficha(email: str) -> dict[str, Any]:
@@ -960,17 +993,23 @@ h2, h3 { color:var(--azul); margin:0 0 .6rem; }
 .note { color:#4b5563; line-height:1.5; }
 .toc { display:flex; flex-wrap:wrap; gap:.45rem; margin:.8rem 0 0; }
 .toc a { background:#fff; border:1px solid #c9d6e5; color:var(--azul); text-decoration:none; padding:.28rem .65rem; border-radius:999px; font-size:.82rem; }
-a.btn { display:inline-block; background:var(--azul); color:#fff; padding:.5rem .95rem; border-radius:8px; text-decoration:none; margin:.25rem .4rem .25rem 0; font-size:.92rem; }
-a.btn.sec { background:#fff; color:var(--azul); border:1px solid var(--azul); }
+a.btn, button.btn { display:inline-block; background:var(--azul); color:#fff; padding:.5rem .95rem; border-radius:8px; text-decoration:none; margin:.25rem .4rem .25rem 0; font-size:.92rem; border:0; }
+a.btn.sec, button.btn.sec { background:#fff; color:var(--azul); border:1px solid var(--azul); }
 .bar { height:8px; background:#e5edf5; border-radius:99px; min-width:70px; }
 .bar > i { display:block; height:8px; background:#c4320a; border-radius:99px; }
 .fac { background:#fff; padding:1rem 1.15rem; border-radius:12px; margin:1rem 0; box-shadow:0 2px 10px rgba(0,0,0,.05); page-break-inside:avoid; }
-.search { width:100%; max-width:420px; padding:.5rem .7rem; border:1px solid #c9d6e5; border-radius:8px; font-size:1rem; }
+.search { flex:1; min-width:180px; max-width:520px; padding:.5rem .7rem; border:1px solid #c9d6e5; border-radius:8px; font-size:1rem; }
 .muted { color:#6b7280; font-weight:400; font-size:.92rem; }
-nav.sticky { display:flex; flex-wrap:wrap; gap:.45rem; padding:.7rem 2rem; background:#e8eef5; position:sticky; top:0; z-index:2; }
+nav.sticky { display:flex; flex-wrap:wrap; gap:.45rem; padding:.7rem 2rem; background:#e8eef5; }
 nav.sticky a { background:#fff; padding:.28rem .65rem; border-radius:999px; text-decoration:none; color:var(--azul); font-size:.82rem; }
+.barra { position:sticky; top:0; z-index:30; background:#dfe8f2; padding:.55rem 2rem; display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; box-shadow:0 2px 10px rgba(0,0,0,.08); }
+.barra button, .barra a.btn { margin:0; cursor:pointer; border:0; font:inherit; }
+.fab { position:fixed; right:1.15rem; bottom:1.15rem; z-index:40; background:var(--azul); color:#fff; border:0; border-radius:999px; padding:.7rem 1.05rem; font:inherit; font-weight:600; cursor:pointer; box-shadow:0 6px 18px rgba(0,59,112,.35); }
+.prog { margin:1rem 0 1.2rem; }
+.fac, .prog, #anexo, #top { scroll-margin-top: 4.6rem; }
+.conteo { color:var(--azul); font-weight:600; font-size:.9rem; }
 @media print {
-  nav.sticky, .noprint, .search { display:none !important; }
+  nav.sticky, .noprint, .search, .barra, .fab { display:none !important; }
   body { background:#fff; }
   header { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   .card, .fac { box-shadow:none; border:1px solid #d5deea; }
@@ -1009,10 +1048,11 @@ def html_bloques_correos(sin: list[dict[str, Any]], orden_fac: list[str] | None 
                 for r in filas
             )
             bloques_p.append(
+                f"<div class='prog' id='p-{slug_id(esc + '|' + prog)}'>"
                 f"<h3>{html.escape(prog)} <span class='muted'>— {len(filas)} correos</span></h3>"
                 "<table><thead><tr><th>Correo institucional</th><th>Estudiante</th>"
                 "<th>Estado académico</th><th>Último ingreso a Google</th></tr></thead>"
-                f"<tbody>{tr}</tbody></table>"
+                f"<tbody>{tr}</tbody></table></div>"
             )
         partes.append(
             f'<section class="fac" id="f-{slug_id(esc)}"><h2>{html.escape(esc)}</h2>'
@@ -1022,8 +1062,68 @@ def html_bloques_correos(sin: list[dict[str, Any]], orden_fac: list[str] | None 
     return nav, "".join(partes)
 
 
-def html_informe_jefa(path: Path, resumen: dict[str, Any], planos: list[dict[str, Any]]) -> None:
-    """Un solo documento para jefatura: cifras, ranking y correos pendientes agrupados."""
+def js_navegacion() -> str:
+    return r"""
+function irArriba(){ window.scrollTo({top:0, behavior:'smooth'}); }
+function limpiarFiltro(){
+  var inp = document.getElementById('q');
+  if(inp){ inp.value=''; }
+  filtrar('');
+  irArriba();
+}
+function filtrar(q){
+  q = (q||'').toLowerCase().trim();
+  var total = 0;
+  var primero = null;
+  document.querySelectorAll('section.fac').forEach(function(sec){
+    var vis = 0;
+    var facOk = !q || (sec.querySelector('h2')||{}).innerText.toLowerCase().includes(q);
+    sec.querySelectorAll('.prog').forEach(function(box){
+      var h = box.querySelector('h3');
+      var n = 0;
+      box.querySelectorAll('tbody tr').forEach(function(tr){
+        var ok = !q || facOk || tr.innerText.toLowerCase().includes(q) || (h && h.innerText.toLowerCase().includes(q));
+        tr.style.display = ok ? '' : 'none';
+        if (ok) n++;
+      });
+      box.style.display = n ? '' : 'none';
+      vis += n;
+    });
+    sec.style.display = vis ? '' : 'none';
+    total += vis;
+    if (vis && !primero) primero = sec;
+  });
+  var nEl = document.getElementById('nfiltro');
+  if (nEl) nEl.textContent = q ? (total + ' coincidencia' + (total===1?'':'s')) : '';
+  var btn = document.getElementById('btn-limpiar');
+  if (btn) btn.hidden = !q;
+  if (q && primero) primero.scrollIntoView({behavior:'smooth', block:'start'});
+}
+"""
+
+
+def barra_busqueda(placeholder: str = "Buscar correo, nombre o programa…") -> str:
+    ph = html.escape(placeholder)
+    return f"""
+<div class="barra noprint" id="barra">
+  <input id="q" class="search" type="search" placeholder="{ph}" oninput="filtrar(this.value)"/>
+  <button type="button" class="btn" id="btn-limpiar" hidden onclick="limpiarFiltro()">Limpiar y subir</button>
+  <button type="button" class="btn sec" onclick="irArriba()">↑ Inicio</button>
+  <span class="conteo" id="nfiltro"></span>
+</div>
+<button type="button" class="fab noprint" onclick="irArriba()" title="Volver al inicio">↑ Arriba</button>
+"""
+
+
+def html_informe_jefa(
+    path: Path,
+    resumen: dict[str, Any],
+    planos: list[dict[str, Any]],
+    cfg: dict[str, Any] | None = None,
+) -> None:
+    """Un solo documento: cifras, ranking y correos pendientes agrupados."""
+    t = titulos_informe(cfg)
+    te = {k: html.escape(v) for k, v in t.items()}
     vigentes, fac, prog = stats_campana(planos)
     sin = [r for r in vigentes if r.get("tiene_2fa") == "NO"]
     ranking = sorted(fac.items(), key=lambda kv: (-kv[1]["sin"], kv[0]))
@@ -1033,9 +1133,12 @@ def html_informe_jefa(path: Path, resumen: dict[str, Any], planos: list[dict[str
         tot = c["cuentas"]
         cob = round(100 * c["con"] / tot, 1) if tot else 0
         ancho = round(100 * c["sin"] / max_sin, 1) if c["sin"] else 0
+        href = f"#f-{slug_id(e)}" if c["sin"] else ""
+        nombre = html.escape(e)
+        celda = f'<a href="{href}">{nombre}</a>' if href else nombre
         filas_fac.append(
             "<tr>"
-            f"<td>{html.escape(e)}</td>"
+            f"<td>{celda}</td>"
             f"<td>{tot}</td><td class='ok'>{c['con']}</td>"
             f"<td class='bad'>{c['sin']}</td><td>{cob}%</td>"
             f"<td><div class='bar'><i style='width:{ancho}%'></i></div></td>"
@@ -1046,7 +1149,8 @@ def html_informe_jefa(path: Path, resumen: dict[str, Any], planos: list[dict[str
         if not pc["sin"]:
             continue
         filas_prog.append(
-            f"<tr><td>{html.escape(e)}</td><td>{html.escape(p)}</td>"
+            f"<tr><td>{html.escape(e)}</td>"
+            f"<td><a href='#p-{slug_id(e + '|' + p)}'>{html.escape(p)}</a></td>"
             f"<td>{pc['cuentas']}</td><td class='bad'>{pc['sin']}</td></tr>"
         )
     n_sin = resumen.get("n_estudiantes_sin_2fa", len(sin))
@@ -1059,94 +1163,73 @@ def html_informe_jefa(path: Path, resumen: dict[str, Any], planos: list[dict[str
     html_doc = f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Campaña 2FA estudiantes — UNAB TIC</title>
+<title>{te['h1']}</title>
 <style>{css_presentacion()}</style>
 </head><body>
-<header>
-<p class="marca">UNAB · Dirección de TIC · Seguridad de cuentas</p>
-<h1>Estudiantes vigentes sin verificación en 2 pasos</h1>
-<p>Corte {html.escape(str(resumen.get('generado', '')))}. Cruce de Google Admin
-(<strong>2sv Enrolled</strong> = 2FA inscrito) con inscritos/prematriculados Banner
-y el <strong>plan vigente</strong> de Vista de currículo (último TERM). No es el catálogo de carreras:
-solo correos que hay que gestionar.</p>
+<header id="top">
+<p class="marca">{te['marca']}</p>
+<h1>{te['h1']}</h1>
+<p>Corte {html.escape(str(resumen.get('generado', '')))}. {te['intro']}</p>
 </header>
+{barra_busqueda()}
 <main>
 <section class="card">
-<h2>Resumen para jefatura</h2>
-<p class="note">Hay que lograr que estos estudiantes <strong>inscriban 2FA en su cuenta @unab.edu.co</strong>.
-Las cifras de abajo son solo <strong>estudiantes con matrícula vigente y cuenta Google</strong>.
-Egresados, personal y cuentas sin ficha académica no entran en este informe.</p>
+<h2>{te['resumen']}</h2>
+<p class="note">{te['texto_resumen']}</p>
 <p class="noprint">
 <a class="btn" href="#anexo">Ir a los correos</a>
-<a class="btn sec" href="listado_sin_2fa.html">Listado operativo (mismo contenido)</a>
-<a class="btn sec" href="02_estudiantes_sin_2fa.csv">CSV para filtrar en Excel</a>
+<a class="btn sec" href="listado_sin_2fa.html">Listado operativo</a>
+<a class="btn sec" href="02_estudiantes_sin_2fa.csv">CSV Excel</a>
 </p>
 </section>
 <div class="kpi">
-  <div>Universo de la campaña<br><span class="note">estudiantes vigentes con Google</span><strong>{n_match}</strong></div>
-  <div>Ya tienen 2FA<br><span class="note">inscrito en Admin</span><strong class="ok">{n_con}</strong></div>
-  <div>Pendientes de 2FA<br><span class="note">acción de esta campaña</span><strong class="bad">{n_sin}</strong></div>
-  <div>Cobertura actual<br><span class="note">pendientes / vigentes</span><strong>{cob}%</strong></div>
+  <div>{te['kpi_universo']}<strong>{n_match}</strong></div>
+  <div>{te['kpi_con']}<strong class="ok">{n_con}</strong></div>
+  <div>{te['kpi_sin']}<strong class="bad">{n_sin}</strong></div>
+  <div>{te['kpi_cob']}<strong>{cob}%</strong></div>
 </div>
 <section class="card">
-<h2>1. Dónde hay más pendientes (facultad)</h2>
-<p class="note">Orden: más correos sin 2FA primero. Facultad tomada del plan vigente;
-si el correo no cruzó currículo, se usa la escuela del extracto de inscritos.</p>
+<h2>{te['facultades']}</h2>
+<p class="note">Clic en la facultad para bajar a sus correos. Orden: más pendientes primero.</p>
 <table>
-<thead><tr><th>Facultad / escuela</th><th>Vigentes</th><th>Con 2FA</th><th>Pendientes</th><th>Cobertura</th><th></th></tr></thead>
+<thead><tr><th>Facultad</th><th>Vigentes</th><th>Con 2FA</th><th>Pendientes</th><th>Cobertura</th><th></th></tr></thead>
 <tbody>{''.join(filas_fac) or '<tr><td colspan="6">Sin estudiantes vigentes en el cruce.</td></tr>'}</tbody>
 </table>
 </section>
 <section class="card">
-<h2>2. Programas con gente pendiente</h2>
-<p class="note">Solo programas donde aún hay estudiantes sin 2FA. El nombre del programa es el del plan vigente.</p>
+<h2>{te['programas']}</h2>
+<p class="note">Clic en el programa para ir a esa lista. Solo programas con pendientes.</p>
 <table>
 <thead><tr><th>Facultad</th><th>Programa</th><th>Vigentes</th><th>Pendientes</th></tr></thead>
 <tbody>{''.join(filas_prog) or '<tr><td colspan="4">No hay pendientes.</td></tr>'}</tbody>
 </table>
 </section>
-<section class="card noprint">
-<h2>Cómo usar el anexo</h2>
+<details class="card noprint">
+<summary><strong>Notas</strong></summary>
 <ul class="note">
-<li>Abajo está <strong>cada correo pendiente</strong>, agrupado igual: facultad → programa.</li>
-<li>Puede imprimir este HTML a PDF (Ctrl+P) para la reunión.</li>
-<li>El CSV tiene las mismas columnas limpias (facultad, programa, correo, nombre, último ingreso).</li>
-<li>Hay {n_sin_cta} registros académicos vigentes <em>sin</em> cuenta Google (no aparecen como correo pendiente).</li>
-<li>Las {resumen.get('n_google_sin_match', 0)} cuentas Google sin ficha de estudiante vigente (personal, egresados u huérfanas) no se listan aquí.</li>
+<li>El CSV tiene las mismas columnas (facultad, programa, correo, nombre, último ingreso).</li>
+<li>{n_sin_cta} registros académicos vigentes sin cuenta Google no aparecen como correo pendiente.</li>
+<li>{resumen.get('n_google_sin_match', 0)} cuentas Google sin ficha de estudiante vigente no se listan aquí.</li>
 </ul>
-</section>
-<h2 id="anexo">3. Correos pendientes, por facultad y programa</h2>
-<p class="note noprint">{n_sin} cuentas. Use el buscador o las pastillas para saltar a una facultad.</p>
-<p class="noprint"><input class="search" type="search" placeholder="Buscar correo, nombre o programa…" oninput="filtrar(this.value)"/></p>
+</details>
+<h2 id="anexo">{te['correos']}</h2>
+<p class="note noprint">{n_sin} cuentas. El buscador de arriba se queda fijo. Use <strong>↑ Inicio</strong> o el botón azul para volver.</p>
 <nav class="toc noprint">{nav}</nav>
 {anexo or '<p>No hay estudiantes vigentes sin 2FA.</p>'}
 </main>
-<script>
-function filtrar(q){{
-  q = (q||'').toLowerCase();
-  document.querySelectorAll('section.fac').forEach(function(sec){{
-    let vis = 0;
-    sec.querySelectorAll('h3').forEach(function(h){{
-      const tbl = h.nextElementSibling;
-      let n = 0;
-      tbl.querySelectorAll('tbody tr').forEach(function(tr){{
-        const ok = !q || tr.innerText.toLowerCase().includes(q) || h.innerText.toLowerCase().includes(q) || sec.querySelector('h2').innerText.toLowerCase().includes(q);
-        tr.style.display = ok ? '' : 'none';
-        if (ok) n++;
-      }});
-      h.style.display = n ? '' : 'none';
-      tbl.style.display = n ? '' : 'none';
-      vis += n;
-    }});
-    sec.style.display = vis ? '' : 'none';
-  }});
-}}
-</script>
+<script>{js_navegacion()}</script>
 </body></html>"""
     path.write_text(html_doc, encoding="utf-8")
 
 
-def html_listado_sin_2fa(path: Path, planos: list[dict[str, Any]], generado: str) -> None:
+def html_listado_sin_2fa(
+    path: Path,
+    planos: list[dict[str, Any]],
+    generado: str,
+    cfg: dict[str, Any] | None = None,
+) -> None:
+    t = titulos_informe(cfg)
+    te = {k: html.escape(v) for k, v in t.items()}
     sin = [
         r
         for r in planos
@@ -1158,43 +1241,22 @@ def html_listado_sin_2fa(path: Path, planos: list[dict[str, Any]], generado: str
     doc = f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Correos sin 2FA por facultad</title>
+<title>{te['listado_h1']}</title>
 <style>{css_presentacion()}</style>
 </head><body>
-<header>
-<p class="marca">UNAB · Dirección de TIC</p>
-<h1>Correos sin 2FA — estudiantes vigentes</h1>
+<header id="top">
+<p class="marca">{te['marca']}</p>
+<h1>{te['listado_h1']}</h1>
 <p>{len(sin)} cuentas pendientes · {html.escape(generado)} ·
-<a href="resumen.html">Volver al informe para jefatura</a></p>
+<a href="resumen.html">{te['volver_informe']}</a></p>
 </header>
-<nav class="sticky">{nav}</nav>
+{barra_busqueda()}
+<nav class="sticky noprint">{nav}</nav>
 <main>
-<p class="note">Mismo listado del informe, para trabajo operativo. Agrupado por facultad y programa del plan vigente.
-No reenviar por canales abiertos (contiene datos personales).</p>
-<p><input class="search" type="search" placeholder="Buscar correo, nombre o programa…" oninput="filtrar(this.value)"/></p>
+<p class="note">Agrupado por facultad y programa del plan vigente. El buscador queda fijo arriba; <strong>Limpiar y subir</strong> o <strong>↑ Arriba</strong> vuelven al inicio.</p>
 {partes or '<p>No hay filas.</p>'}
 </main>
-<script>
-function filtrar(q){{
-  q = (q||'').toLowerCase();
-  document.querySelectorAll('section.fac').forEach(function(sec){{
-    let vis = 0;
-    sec.querySelectorAll('h3').forEach(function(h){{
-      const tbl = h.nextElementSibling;
-      let n = 0;
-      tbl.querySelectorAll('tbody tr').forEach(function(tr){{
-        const ok = !q || tr.innerText.toLowerCase().includes(q) || h.innerText.toLowerCase().includes(q) || sec.querySelector('h2').innerText.toLowerCase().includes(q);
-        tr.style.display = ok ? '' : 'none';
-        if (ok) n++;
-      }});
-      h.style.display = n ? '' : 'none';
-      tbl.style.display = n ? '' : 'none';
-      vis += n;
-    }});
-    sec.style.display = vis ? '' : 'none';
-  }});
-}}
-</script>
+<script>{js_navegacion()}</script>
 </body></html>"""
     path.write_text(doc, encoding="utf-8")
 
@@ -1554,8 +1616,8 @@ def cruzar(
         "mapeo_curriculo": c_map,
     }
     (salida / "resumen.json").write_text(json.dumps(resumen, ensure_ascii=False, indent=2), encoding="utf-8")
-    html_informe_jefa(salida / "resumen.html", resumen, planos)
-    html_listado_sin_2fa(salida / "listado_sin_2fa.html", planos, str(resumen.get("generado", "")))
+    html_informe_jefa(salida / "resumen.html", resumen, planos, cfg)
+    html_listado_sin_2fa(salida / "listado_sin_2fa.html", planos, str(resumen.get("generado", "")), cfg)
 
     print("Listo ->", salida.resolve())
     print(f"Google: {n_google} | Académico vigente: {n_acad} | Match estudiante: {n_match}")
