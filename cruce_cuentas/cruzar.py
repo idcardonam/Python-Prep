@@ -1204,22 +1204,48 @@ function bajarCsv(rows, nombre){
   var head = 'facultad,programa,correo,nombres,estado_academico,ultimo_ingreso_google';
   var body = rows.map(function(r){ return r.map(csvCampo).join(','); }).join('\r\n');
   var csv = '\uFEFF'+head+'\r\n'+body;
-  var a = document.createElement('a');
-  var uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  if (navigator.msSaveBlob) {
+    navigator.msSaveBlob(new Blob([csv], {type:'text/csv;charset=utf-8'}), nombre);
+    return;
+  }
+  var ok = false;
   try {
     var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
     var burl = URL.createObjectURL(blob);
+    var a = document.createElement('a');
     a.href = burl;
-  } catch(e) {
-    a.href = uri;
+    a.download = nombre;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(burl); }, 1500);
+    ok = true;
+  } catch(e) { ok = false; }
+  if (!ok) {
+    var w = window.open('', '_blank');
+    if (w) {
+      w.document.open('text/html','replace');
+      w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"/>'
+        + '<title>' + nombre + '</title></head><body>'
+        + '<h3>Archivo: ' + nombre + '</h3>'
+        + '<p>Seleccione todo el texto del recuadro y pegue en Excel, '
+        + 'o presione el bot\u00f3n Copiar.</p>'
+        + '<button onclick="var t=document.getElementById(\'ct\');'
+        + 'var r=document.createRange();r.selectNodeContents(t);'
+        + 'var s=window.getSelection();s.removeAllRanges();s.addRange(r);'
+        + 'document.execCommand(\'copy\');alert(\'Copiado. Pegue en Excel.\');"'
+        + '>Copiar al portapapeles</button>'
+        + '<pre id="ct" style="white-space:pre-wrap;font-size:12px;'
+        + 'border:1px solid #ccc;padding:12px;margin-top:8px;">'
+        + csv.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        + '</pre></body></html>');
+      w.document.close();
+    } else {
+      alert('El navegador bloque\u00f3 la ventana emergente. '
+        + 'Permita pop-ups para este sitio e intente de nuevo.');
+    }
   }
-  if (!a.href || a.href === 'about:blank') a.href = uri;
-  a.download = nombre;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  try { a.click(); } catch(e2) { window.open(uri, '_blank'); }
-  a.remove();
-  if (typeof burl !== 'undefined') setTimeout(function(){ URL.revokeObjectURL(burl); }, 1500);
 }
 function slugArchivo(s){
   return (s || 'facultad').toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi,'-').replace(/^-|-$/g,'').slice(0,50) || 'facultad';
