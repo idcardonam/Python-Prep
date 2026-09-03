@@ -1,0 +1,6 @@
+PERIODO,COD_ESC,ESCUELA,COD_MAJR,COD_PROG,PROGRAMA,NIVEL,TIPO,PLAN
+202010,ING,Ingeniería,SIS,SIS,Ingeniería de Sistemas,Pregrado,Formal,Plan 2010
+202610,ING,Ingeniería,SIS,SIS,Ingeniería de Sistemas,Pregrado,Formal,Plan 2026 MEN
+202610,ECO,Ciencias Económicas,ADM,ADM,Administración de Empresas,Pregrado,Formal,Plan vigente
+202510,SAL,Ciencias de la Salud,ENF,ENF,Enfermería,Pregrado,Formal,Plan vigente
+202610,EDU,Educación continua,INF,INF,Programa no formal,Educación continua,No formal,Plan vigente

@@ -1,0 +1,52 @@
+# Copia este archivo a config.yaml y ajusta nombres de columnas
+# si tus CSV no coinciden con la detección automática.
+
+dominio: unab.edu.co
+
+archivos:
+  google: entrada/google_admin.csv
+  academico: entrada/academico.csv
+  # Opcional: docentes/administrativos (nómina / GH). Mejora la clasificación.
+  curriculo: entrada/curriculo.csv
+  personal: entrada/personal.csv
+  salida: salida
+
+# Estados académicos que NO deben tratarse como vigentes
+# (por si el extracto académico trae alguno de más).
+estados_excluir:
+  - GRADUADO
+  - GRADUADA
+  - EGRESADO
+  - EGRESADA
+  - TITULADO
+  - TITULADA
+
+# Palabras en la unidad organizacional de Google que sugieren personal
+ou_personal:
+  - docente
+  - profesores
+  - administrativo
+  - gestion
+  - talento
+  - tic
+  - staff
+  - planta
+
+# Días sin ingreso para marcar cuenta inactiva (prioridad 2FA)
+dias_inactiva: 90
+
+# Títulos del HTML (resumen.html). Cambia el texto y vuelve a correr cruzar.py.
+informe:
+  marca: "UNAB · Dirección de TIC"
+  h1: "Estudiantes vigentes sin 2FA"
+  resumen: Resumen
+  facultades: Facultades
+  programas: Programas
+  correos: Correos
+  kpi_universo: "Vigentes con Google"
+  kpi_con: "Con 2FA"
+  kpi_sin: Pendientes
+  kpi_cob: Cobertura
+  listado_h1: "Correos sin 2FA"
+  volver_informe: "Volver al informe"
+

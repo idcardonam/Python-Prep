@@ -1,0 +1,10 @@
+entrada/*.csv
+entrada/*.xlsx
+entrada/*.xls
+!entrada/_ejemplos/**
+salida/
+data/*.csv
+!entrada/_ejemplos/**
+__pycache__/
+*.pyc
+.DS_Store

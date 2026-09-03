@@ -1,0 +1,5 @@
+correo,nombres,apellidos,estado,facultad,programa,seccion,jornada,codigo_estudiante,nivel
+aperez@unab.edu.co,Ana,Pérez,MATRICULADO,Ingeniería,Ingeniería de Sistemas,A,Diurna,20211001,Pregrado
+lgomez@unab.edu.co,Luis,Gómez,MATRICULADO,Ciencias Económicas,Administración de Empresas,B,Nocturna,20192044,Pregrado
+pdiaz@unab.edu.co,Pedro,Díaz,RETIRO TEMPORAL,Ingeniería,Ingeniería de Sistemas,A,Diurna,20181022,Pregrado
+nuevo@unab.edu.co,Nora,Vega,MATRICULADO,Ciencias de la Salud,Enfermería,C,Diurna,20241088,Pregrado
