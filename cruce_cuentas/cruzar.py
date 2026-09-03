@@ -1203,14 +1203,23 @@ function bajarCsv(rows, nombre){
   if (!rows.length){ alert('No hay correos para descargar con esta selección.'); return; }
   var head = 'facultad,programa,correo,nombres,estado_academico,ultimo_ingreso_google';
   var body = rows.map(function(r){ return r.map(csvCampo).join(','); }).join('\r\n');
-  var blob = new Blob(['\uFEFF'+head+'\r\n'+body], {type:'text/csv;charset=utf-8'});
+  var csv = '\uFEFF'+head+'\r\n'+body;
   var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
+  var uri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  try {
+    var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+    var burl = URL.createObjectURL(blob);
+    a.href = burl;
+  } catch(e) {
+    a.href = uri;
+  }
+  if (!a.href || a.href === 'about:blank') a.href = uri;
   a.download = nombre;
+  a.style.display = 'none';
   document.body.appendChild(a);
-  a.click();
+  try { a.click(); } catch(e2) { window.open(uri, '_blank'); }
   a.remove();
-  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1500);
+  if (typeof burl !== 'undefined') setTimeout(function(){ URL.revokeObjectURL(burl); }, 1500);
 }
 function slugArchivo(s){
   return (s || 'facultad').toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi,'-').replace(/^-|-$/g,'').slice(0,50) || 'facultad';
