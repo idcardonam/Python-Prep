@@ -39,7 +39,8 @@ class EmpaquetarTest(unittest.TestCase):
             copiados = empaquetar_entrega.empaquetar(origen, dest)
             self.assertIn("cuentas_powerbi.csv", copiados)
             self.assertIn("resumen.html", copiados)
-            self.assertIn("sin_2fa_ingenieria.csv", copiados)
+            self.assertNotIn("sin_2fa_ingenieria.csv", copiados)
+            self.assertFalse((dest / "sin_2fa_ingenieria.csv").exists())
             self.assertFalse((dest / "00_universo.csv").exists())
             self.assertTrue((dest / "LEAME_SUBIR_A_SHAREPOINT.txt").is_file())
 

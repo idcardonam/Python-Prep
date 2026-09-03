@@ -112,13 +112,11 @@ echo ═════════════════════════
 echo.
 echo  [LISTO]
 echo.
-echo  En el ESCRITORIO hay una carpeta:
+echo  En el ESCRITORIO hay una carpeta con 6 archivos:
 echo     Archivos_SharePoint_AAAA-MM-DD
 echo.
-echo  1. Abra esa carpeta
-echo  2. Seleccione TODOS los archivos (Ctrl+A)
-echo  3. Arrastrelos a SharePoint: Documentos ^> etl ^> output
-echo  4. Reemplazar si pregunta
+echo  Suba esos 6 a SharePoint: Documentos ^> etl ^> output
+echo  (Reemplazar si pregunta). No suba los CSV por facultad.
 echo.
 echo  Power BI se actualiza SOLO cada hora (programado).
 echo  Si necesita verlo YA: app.powerbi.com ^> Actualizar ahora.

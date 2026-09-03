@@ -32,14 +32,17 @@ Las listas **no son archivos**. Son tablas que viven en SharePoint (como un Exce
 
 ## Actualización mensual (un solo doble clic)
 
-### Qué poner en una carpeta de su PC
+### Carpeta INICIAL (insumos) — NO son los 35 de salida
 
-```
-D:\...\corte_septiembre\
-├── User_Download_....csv      ← Google Admin (TODAS las cuentas) — se usa para Power BI Y para 2FA
-├── Prematriculados_....csv    ← inscritos (varios archivos está bien)
-└── VISTA DE CURRICULO.xlsx    ← opcional
-```
+En **una sola carpeta** de su PC ponga solo lo que sale de los sistemas:
+
+| Archivo | Obligatorio | Para qué |
+|---------|-------------|----------|
+| `User_Download_….csv` (Google Admin, todas las cuentas) | **Sí** | Power BI **y** 2FA |
+| CSV de inscritos / prematriculados (pueden ser varios) | **Sí** (solo 2FA) | Cruce por facultad |
+| `VISTA DE CURRICULO.xlsx` | No | Catálogo de planes |
+
+No mezcle ahí los archivos `*_powerbi.csv` ni el `resumen.html`. Eso es **salida**, no entrada.
 
 ### Paso 1 — Doble clic en `actualizar.bat`
 
@@ -57,15 +60,21 @@ Carpeta del proyecto:
 Escritorio\Archivos_SharePoint_2026-09-03\
 ```
 
-Ahí van **solo** los archivos que debe subir (no se le pierden; cada día es una carpeta nueva).
+Ahí van **6 archivos** (no 35). Cada día es una carpeta nueva para que no se mezclen cortes.
 
 ### Paso 2 — Subir a SharePoint
 
 1. Abra `Documentos → etl → output`
-2. Dentro de `Archivos_SharePoint_AAAA-MM-DD`, **Ctrl+A** y arrastre los **archivos** (no la carpeta)
+2. Suba **solo estos 6**:
+   - `cuentas_powerbi.csv`
+   - `dependencias_powerbi.csv`
+   - `capacidad_powerbi.csv`
+   - `resumen.html`
+   - `listado_sin_2fa.html`
+   - `02_estudiantes_sin_2fa.csv`
 3. **Reemplazar** si pregunta
 
-Dentro de esa carpeta hay un `LEAME_SUBIR_A_SHAREPOINT.txt` con los mismos pasos.
+No suba los `sin_2fa_facultad.csv` ni el `LEAME`. Los CSV por facultad se generan en el PC por si TIC los necesita; el portal usa **un** CSV de pendientes y se filtra en Excel.
 
 ### Paso 3 — Power BI (horario)
 
@@ -82,23 +91,14 @@ Si acaba de subir archivos y no quiere esperar la hora: **Actualizar ahora**.
 
 ---
 
-## Qué archivos genera el `.bat` (los que van a `etl/output`)
+## Qué archivos genera el `.bat`
 
-**Power BI**
+**Los 6 que van a SharePoint** (`etl/output`):
 
-- `cuentas_powerbi.csv`
-- `dependencias_powerbi.csv`
-- `capacidad_powerbi.csv` (fecha, licencias, inventario, disponibles)
+- `cuentas_powerbi.csv`, `dependencias_powerbi.csv`, `capacidad_powerbi.csv`
+- `resumen.html`, `listado_sin_2fa.html`, `02_estudiantes_sin_2fa.csv`
 
-**Portal 2FA**
-
-- `resumen.html`
-- `listado_sin_2fa.html`
-- `sin_2fa_<facultad>.csv` (uno por facultad — el botón de descarga)
-- `02_estudiantes_sin_2fa.csv`
-- `06_cobertura_2fa_facultad.csv`
-
-Los archivos técnicos (`00_universo.csv`, etc.) se quedan en `cruce_cuentas\salida\` en el PC. **No los suba** al portal.
+**El resto queda en el PC** (`cruce_cuentas\salida\`): universo, CSV por facultad, etc. No los suba.
 
 ---
 
@@ -134,7 +134,7 @@ Listas MetaProyecto / Acciones  ──edición en el portal──► Power BI (m
 | "No hallé CSV de inscritos" | Faltan los archivos de prematriculados/inscritos en esa carpeta |
 | Power BI no cambia | Confirme que reemplazó los 3 `*_powerbi.csv` en `etl/output`. Pulse **Actualizar ahora**. Espere hasta 1 hora si está programado. |
 | La meta del tablero no cambia | Edite la **lista MetaProyecto**, no un CSV. Luego refresh de Power BI. |
-| 404 al descargar facultad | Suba también los `sin_2fa_*.csv` que están junto al HTML |
+| 404 al descargar pendientes | Suba también `02_estudiantes_sin_2fa.csv` junto al HTML |
 | No aparece la carpeta en Escritorio | Mire `Escritorio` o `Desktop`. El `.bat` abre la carpeta al terminar |
 
 ---

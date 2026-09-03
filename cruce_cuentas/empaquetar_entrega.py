@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 
-# Solo estos nombres van a SharePoint (etl/output). El resto queda en salida/ local.
+# Mínimo para actualizar el portal. El resto queda en salida/ del PC.
 EXACTOS = [
     "cuentas_powerbi.csv",
     "dependencias_powerbi.csv",
@@ -17,30 +17,34 @@ EXACTOS = [
     "resumen.html",
     "listado_sin_2fa.html",
     "02_estudiantes_sin_2fa.csv",
-    "06_cobertura_2fa_facultad.csv",
 ]
 
 INSTRUCCIONES = """ARCHIVOS PARA SHAREPOINT — {fecha}
 
-Qué hacer (5 minutos):
+Suba SOLO estos 6 archivos a Documentos → etl → output:
 
-1. Abra el sitio:
-   Documentos → etl → output
+  Power BI (tablero):
+    1. cuentas_powerbi.csv
+    2. dependencias_powerbi.csv
+    3. capacidad_powerbi.csv
 
-2. Seleccione TODOS los archivos de ESTA carpeta
-   (no suba la carpeta entera: abra esta carpeta y arrastre los archivos)
+  Informe 2FA (botón Resumen 2FA):
+    4. resumen.html
+    5. listado_sin_2fa.html
+    6. 02_estudiantes_sin_2fa.csv
+       (pendientes; en Excel filtre la columna facultad)
 
-3. Arrástrelos a etl/output
-   Si pregunta "¿Reemplazar?": Reemplazar
+NO suba:
+  - este archivo LEAME
+  - los CSV por facultad (sin_2fa_*.csv)
+  - 00_universo.csv ni el resto de "salida" del PC
 
-4. En Power BI (app.powerbi.com): el tablero se actualiza solo
-   cada hora. Si necesita ver el corte YA: Actualizar ahora.
+Pasos:
+1. Seleccione los 6 archivos (no el LEAME)
+2. Arrastre a etl/output → Reemplazar
+3. Power BI se refresca cada hora (o Actualizar ahora)
 
-NO suba a SharePoint los archivos de la carpeta "salida" del proyecto
-(00_universo.csv y similares: son técnicos y tienen más datos).
-
-Listas (MetaProyecto, Acciones): NO se tocan con este proceso.
-Se editan en el portal SharePoint cuando cambie la meta o registre una acción.
+Listas MetaProyecto y Acciones: se editan en el portal, no con estos archivos.
 """
 
 
@@ -63,9 +67,6 @@ def empaquetar(origen: Path, dest: Path) -> list[str]:
         if src.is_file():
             shutil.copy2(src, dest / nombre)
             copiados.append(nombre)
-    for src in sorted(origen.glob("sin_2fa_*.csv")):
-        shutil.copy2(src, dest / src.name)
-        copiados.append(src.name)
     (dest / "LEAME_SUBIR_A_SHAREPOINT.txt").write_text(
         INSTRUCCIONES.format(fecha=date.today().isoformat()), encoding="utf-8"
     )

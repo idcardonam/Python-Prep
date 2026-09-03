@@ -1067,19 +1067,14 @@ def html_bloques_correos(sin: list[dict[str, Any]], orden_fac: list[str] | None 
                 "<th>Estado académico</th><th>Último ingreso a Google</th></tr></thead>"
                 f"<tbody>{tr}</tbody></table></div>"
             )
-        csv_link = ""
-        if csv_por_fac and esc in csv_por_fac:
-            csv_href = html.escape(csv_por_fac[esc], quote=True)
-            csv_link = (
-                f" <a class='btn' href='{csv_href}' download target='_blank'>"
-                f"Descargar CSV de esta facultad</a>"
-            )
         partes.append(
             f'<section class="fac" id="{fid}" hidden '
             f'data-facultad="{html.escape(esc, quote=True)}">'
             f"<h2>{html.escape(esc)}</h2>"
-            f"<p class='note'><strong>{n_esc}</strong> estudiantes vigentes sin 2FA en esta facultad."
-            f"{csv_link}</p>"
+            f"<p class='note'><strong>{n_esc}</strong> estudiantes vigentes sin 2FA en esta facultad. "
+            f"<a class='btn' href='02_estudiantes_sin_2fa.csv' download target='_blank'>"
+            f"Descargar CSV de pendientes</a> "
+            f"<span class='muted'>Abra en Excel y filtre la columna facultad.</span></p>"
             f"{''.join(bloques_p)}</section>"
         )
     return nav, "".join(partes), opciones
@@ -1169,16 +1164,9 @@ function aplicarVista(scroll){
   if (btnL) btnL.hidden = !q && !progId;
   var btnD = document.getElementById('btn-descarga');
   if (btnD) {
-    var csvUrl = (typeof CSV_FAC !== 'undefined' && facId) ? CSV_FAC[facId] : '';
-    if (csvUrl) {
-      btnD.href = csvUrl;
-      btnD.style.pointerEvents = '';
-      btnD.style.opacity = '';
-    } else {
-      btnD.href = '#';
-      btnD.style.pointerEvents = 'none';
-      btnD.style.opacity = '0.5';
-    }
+    btnD.href = '02_estudiantes_sin_2fa.csv';
+    btnD.style.pointerEvents = '';
+    btnD.style.opacity = facId ? '' : '0.7';
   }
   if (scroll && facId){
     var dest = document.getElementById(progId || facId);
@@ -1318,7 +1306,7 @@ def barra_busqueda(opciones_fac: str, placeholder: str = "Filtrar correos de esa
   <label>Buscar dentro
     <input id="q" class="search" type="search" placeholder="{ph}" oninput="filtrar()"/>
   </label>
-  <a class="btn" id="btn-descarga" style="pointer-events:none;opacity:0.5" href="#" target="_blank">Descargar esta facultad</a>
+  <a class="btn" id="btn-descarga" href="02_estudiantes_sin_2fa.csv" download target="_blank">Descargar CSV pendientes</a>
   <button type="button" class="btn sec" id="btn-limpiar" hidden onclick="limpiarFiltro()">Limpiar búsqueda</button>
   <button type="button" class="btn sec" onclick="irArriba()">↑ Inicio</button>
   <span class="conteo" id="nfiltro">Elija una facultad</span>
@@ -1430,7 +1418,7 @@ def html_informe_jefa(
 <summary><strong>Notas</strong></summary>
 <ul class="note">
 <li><strong>Una facultad:</strong> elija la facultad en la lista de arriba y pulse <em>Descargar esta facultad</em>. Opcional: elija un programa para bajar solo ese.</li>
-<li><strong>CSV de todos:</strong> <code>02_estudiantes_sin_2fa.csv</code> es el archivo grande; no lo use si solo necesita una facultad.</li>
+<li><strong>CSV de pendientes:</strong> un solo archivo <code>02_estudiantes_sin_2fa.csv</code>. Ábralo en Excel y filtre la columna facultad.</li>
 <li>{n_sin_cta} registros académicos vigentes sin cuenta Google no aparecen como correo pendiente.</li>
 <li>{resumen.get('n_google_sin_match', 0)} cuentas Google sin ficha de estudiante vigente no se listan aquí.</li>
 </ul>
