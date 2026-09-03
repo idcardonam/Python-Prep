@@ -59,6 +59,7 @@ La carpeta de desarrollo de Reservitas ya fue solicitada. Sin ella no se cierra 
 | [docs/08-entregable-lunes.md](docs/08-entregable-lunes.md) | Entregable del lunes (actualizado con PHP real) |
 | [docs/09-hallazgo-dos-modulos.md](docs/09-hallazgo-dos-modulos.md) | Aulas vs equipos: parámetros y evidencias |
 | [docs/10-siguiente-bloque.md](docs/10-siguiente-bloque.md) | Qué hacer justo ahora |
+| [docs/11-analisis-day-php-backup.md](docs/11-analisis-day-php-backup.md) | Análisis del backup de day.php (Manuel) |
 | [codigo/disponibilidad.php](codigo/disponibilidad.php) | Copia del PHP actual del portal |
 | [evidencia/](evidencia/) | Capturas Reservitas + menú MiPortalU |
 | [mockup/disponibilidad-espacios.html](mockup/disponibilidad-espacios.html) | Mockup interactivo de la experiencia |

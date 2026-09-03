@@ -26,7 +26,7 @@ Pregunta única de cierre:
 
 ### Con Manuel García (sesión 2, datos)
 
-> Confírmame en TEST que los objetos de `id_tipo` 1–3 son programación de aulas y que `id_tipo=12` es préstamo. No quiero una vista que mezcle los dos.
+> Este backup carga `config{id_tipo}.inc.php` y parte Oracle (aulas) vs MySQL (equipos) en `id_tipo <= 3`. ¿En producción sigue igual? Pásame `config1`, `config2`, `config3` sin claves. En TEST, confirma que `V_RESERVAS_SALON` es aulas y que `id_tipo=12` no la usa.
 
 ### Cuando tengas `day.php`
 

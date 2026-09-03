@@ -33,19 +33,23 @@ Actualizado con el PHP real de `disponibilidad.php` y capturas del 3 sep 2026.
 | Ítem | Valor |
 | --- | --- |
 | Sistema que ejecuta la consulta hoy | Reservitas `day.php` |
-| ¿Banner directo? | PENDIENTE — abrir `day.php` en la carpeta |
-| Owner.objeto | PENDIENTE — sesión Carlos Duarte |
-| Archivo PHP de Reservitas | `day.php` (confirmado en URL) |
-| Escritura en Banner | No para este módulo (consulta informativa) |
-| Qué se ve en celdas de aulas | Nombres de materias / eventos = programación académica |
+| ¿Banner directo? | **Sí (aulas)** — backup Manuel: Oracle `BANINST1.V_RESERVAS_SALON` (+ `V_UNAB_CSARA2`) |
+| Catálogo rooms/areas | MySQL MRBS (`$tbl_room`, `$tbl_area`, `mrbs_tipo`, `mrbs_sede`) |
+| Equipos (`id_tipo>3`) | MySQL `$tbl_entry` — **fuera de alcance** |
+| Config por tipo | `config{id_tipo}.inc.php` |
+| Archivo PHP | `day.php` (backup Manuel = referencia, no prod final) |
+| Escritura en Banner | No para consulta informativa en MiPortalU |
+| Qué se ve en celdas de aulas | `TITULO` / evento; tooltip con docente (omitir en portal) |
+
+Detalle: [11-analisis-day-php-backup.md](11-analisis-day-php-backup.md).
 
 ## 3. Alternativa recomendada
 
-- [x] **B orientado a construir de cero en MiPortalU la UI**, reutilizando la **fuente de datos** de aulas cuando Carlos la confirme (vista/tablas). No copiar el frontend de Reservitas. No migrar equipos.
-- [ ] A puro (embeber/reusar PHP de Reservitas) — descartado: es el sancocho y el servidor viejo.
-- [ ] Aún no se cierra el objeto SQL porque falta el código de `day.php`.
+- [x] **B orientado a construir de cero en MiPortalU la UI**, reutilizando la **vista Banner** `BANINST1.V_RESERVAS_SALON` (confirmada en backup de `day.php`). No copiar el PHP de Reservitas. No migrar equipos.
+- [ ] Embeber/reusar `day.php` — descartado.
+- [ ] Cerrar con Carlos: ¿salones (`id_tipo=1`) usan la misma vista? ¿Es la versión productiva de la vista?
 
-**Por qué:** el portal hoy no consulta nada. Reservitas mezcla aulas (`id_tipo` 1–3) y equipos (`12`) en el mismo `day.php`. Manuel: mapa + construir solo disponibilidad de aulas. Jonathan: consulta informativa, sin reserva.
+**Por qué:** el backup carga `config{N}.inc.php`, parte `id_tipo<=3` → Oracle Banner y `id_tipo>3` → MySQL préstamos. Tu módulo solo necesita la rama Banner.
 
 ## 4. Mapeo
 
