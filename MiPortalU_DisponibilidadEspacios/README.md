@@ -62,6 +62,7 @@ La carpeta de desarrollo de Reservitas ya fue solicitada. Sin ella no se cierra 
 | [docs/11-analisis-day-php-backup.md](docs/11-analisis-day-php-backup.md) | Análisis del backup de day.php (Manuel) |
 | [docs/12-vamos-bien-guia-punto4.md](docs/12-vamos-bien-guia-punto4.md) | Cruce guía punto 4 + correo del jefe |
 | [docs/13-configs-y-test-solo-lectura.md](docs/13-configs-y-test-solo-lectura.md) | Configs 1/2/3, alerta seguridad, TEST solo lectura |
+| [docs/14-arquitectura-4-capas-y-react.md](docs/14-arquitectura-4-capas-y-react.md) | De cero en portal: 4 capas vs React SPA |
 | [codigo/disponibilidad.php](codigo/disponibilidad.php) | Copia del PHP actual del portal |
 | [evidencia/](evidencia/) | Capturas Reservitas + menú MiPortalU |
 | [mockup/disponibilidad-espacios.html](mockup/disponibilidad-espacios.html) | Mockup interactivo de la experiencia |
