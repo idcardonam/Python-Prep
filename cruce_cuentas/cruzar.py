@@ -1021,7 +1021,7 @@ select.sel { min-width:220px; max-width:380px; padding:.4rem .5rem; font:inherit
 """
 
 
-def html_bloques_correos(sin: list[dict[str, Any]], orden_fac: list[str] | None = None) -> tuple[str, str, str]:
+def html_bloques_correos(sin: list[dict[str, Any]], orden_fac: list[str] | None = None, csv_por_fac: dict[str, str] | None = None) -> tuple[str, str, str]:
     by: dict[str, dict[str, list]] = defaultdict(lambda: defaultdict(list))
     for r in sin:
         by[escuela_de(r)][programa_de(r)].append(r)
@@ -1067,13 +1067,19 @@ def html_bloques_correos(sin: list[dict[str, Any]], orden_fac: list[str] | None 
                 "<th>Estado académico</th><th>Último ingreso a Google</th></tr></thead>"
                 f"<tbody>{tr}</tbody></table></div>"
             )
+        csv_link = ""
+        if csv_por_fac and esc in csv_por_fac:
+            csv_href = html.escape(csv_por_fac[esc], quote=True)
+            csv_link = (
+                f" <a class='btn' href='{csv_href}' download target='_blank'>"
+                f"Descargar CSV de esta facultad</a>"
+            )
         partes.append(
             f'<section class="fac" id="{fid}" hidden '
             f'data-facultad="{html.escape(esc, quote=True)}">'
             f"<h2>{html.escape(esc)}</h2>"
-            f"<p class='note'><strong>{n_esc}</strong> estudiantes vigentes sin 2FA en esta facultad. "
-            f"<button type='button' class='btn' onclick=\"descargarSeccion(document.getElementById('{fid}'))\">"
-            f"Descargar CSV de esta facultad</button></p>"
+            f"<p class='note'><strong>{n_esc}</strong> estudiantes vigentes sin 2FA en esta facultad."
+            f"{csv_link}</p>"
             f"{''.join(bloques_p)}</section>"
         )
     return nav, "".join(partes), opciones
@@ -1162,7 +1168,18 @@ function aplicarVista(scroll){
   var btnL = document.getElementById('btn-limpiar');
   if (btnL) btnL.hidden = !q && !progId;
   var btnD = document.getElementById('btn-descarga');
-  if (btnD) btnD.disabled = !facId;
+  if (btnD) {
+    var csvUrl = (typeof CSV_FAC !== 'undefined' && facId) ? CSV_FAC[facId] : '';
+    if (csvUrl) {
+      btnD.href = csvUrl;
+      btnD.style.pointerEvents = '';
+      btnD.style.opacity = '';
+    } else {
+      btnD.href = '#';
+      btnD.style.pointerEvents = 'none';
+      btnD.style.opacity = '0.5';
+    }
+  }
   if (scroll && facId){
     var dest = document.getElementById(progId || facId);
     if (dest && !dest.hidden) dest.scrollIntoView({behavior:'smooth', block:'start'});
@@ -1277,8 +1294,14 @@ document.addEventListener('DOMContentLoaded', function(){
 """
 
 
-def barra_busqueda(opciones_fac: str, placeholder: str = "Filtrar correos de esa facultad…") -> str:
+def barra_busqueda(opciones_fac: str, placeholder: str = "Filtrar correos de esa facultad…", csv_por_fac: dict[str, str] | None = None) -> str:
     ph = html.escape(placeholder)
+    fac_map: dict[str, str] = {}
+    if csv_por_fac:
+        for fac_name, csv_path in csv_por_fac.items():
+            fid = f"f-{slug_id(fac_name)}"
+            fac_map[fid] = csv_path
+    csv_map_js = json.dumps(fac_map, ensure_ascii=False)
     return f"""
 <div class="barra noprint" id="barra">
   <label>Facultad
@@ -1295,12 +1318,13 @@ def barra_busqueda(opciones_fac: str, placeholder: str = "Filtrar correos de esa
   <label>Buscar dentro
     <input id="q" class="search" type="search" placeholder="{ph}" oninput="filtrar()"/>
   </label>
-  <button type="button" class="btn" id="btn-descarga" disabled onclick="descargarFiltrado()">Descargar esta facultad</button>
+  <a class="btn" id="btn-descarga" style="pointer-events:none;opacity:0.5" href="#" target="_blank">Descargar esta facultad</a>
   <button type="button" class="btn sec" id="btn-limpiar" hidden onclick="limpiarFiltro()">Limpiar búsqueda</button>
   <button type="button" class="btn sec" onclick="irArriba()">↑ Inicio</button>
   <span class="conteo" id="nfiltro">Elija una facultad</span>
 </div>
 <button type="button" class="fab noprint" onclick="irArriba()" title="Volver al inicio">↑ Arriba</button>
+<script>var CSV_FAC={csv_map_js};</script>
 """
 
 
@@ -1309,6 +1333,7 @@ def html_informe_jefa(
     resumen: dict[str, Any],
     planos: list[dict[str, Any]],
     cfg: dict[str, Any] | None = None,
+    csv_por_fac: dict[str, str] | None = None,
 ) -> None:
     """Un solo documento: cifras, ranking y correos pendientes agrupados."""
     t = titulos_informe(cfg)
@@ -1354,7 +1379,7 @@ def html_informe_jefa(
     cob = resumen.get("cobertura_2fa_estudiantes", 0)
     n_sin_cta = sum(1 for r in planos if r.get("perfil") == "ACADEMICO_SIN_CUENTA_GOOGLE")
     orden_fac = [e for e, c in ranking if c["sin"]]
-    nav, anexo, opciones_fac = html_bloques_correos(sin, orden_fac)
+    nav, anexo, opciones_fac = html_bloques_correos(sin, orden_fac, csv_por_fac)
     html_doc = f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -1366,7 +1391,7 @@ def html_informe_jefa(
 <h1>{te['h1']}</h1>
 <p>Corte {html.escape(str(resumen.get('generado', '')))}. {te['intro']}</p>
 </header>
-{barra_busqueda(opciones_fac)}
+{barra_busqueda(opciones_fac, csv_por_fac=csv_por_fac)}
 <main>
 <section class="card">
 <h2>{te['resumen']}</h2>
@@ -1426,6 +1451,7 @@ def html_listado_sin_2fa(
     planos: list[dict[str, Any]],
     generado: str,
     cfg: dict[str, Any] | None = None,
+    csv_por_fac: dict[str, str] | None = None,
 ) -> None:
     t = titulos_informe(cfg)
     te = {k: html.escape(v) for k, v in t.items()}
@@ -1436,7 +1462,7 @@ def html_listado_sin_2fa(
     ]
     _, fac, _ = stats_campana(planos)
     orden = sorted(fac.keys(), key=lambda e: (-fac[e]["sin"], e))
-    nav, partes, opciones_fac = html_bloques_correos(sin, orden)
+    nav, partes, opciones_fac = html_bloques_correos(sin, orden, csv_por_fac)
     doc = f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -1449,7 +1475,7 @@ def html_listado_sin_2fa(
 <p>{len(sin)} cuentas pendientes · {html.escape(generado)} ·
 <a href="resumen.html">{te['volver_informe']}</a></p>
 </header>
-{barra_busqueda(opciones_fac)}
+{barra_busqueda(opciones_fac, csv_por_fac=csv_por_fac)}
 <nav class="sticky noprint">{nav}</nav>
 <main>
 <p class="aviso-elige noprint" id="aviso-elige">Elija <strong>una facultad</strong> arriba. Así ve y descarga solo esa, no las ~todas.</p>
@@ -1467,6 +1493,38 @@ def html_report(
     **_ignored: Any,
 ) -> None:
     html_informe_jefa(path, resumen, planos)
+
+
+def slug_archivo(s: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", clave_txt(s).lower()).strip("-")[:50] or "facultad"
+
+
+def escribir_csv_por_facultad(salida: Path, planos: list[dict[str, Any]]) -> dict[str, str]:
+    """Write one CSV per faculty and return {faculty_name: filename}."""
+    by_fac: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for r in planos:
+        if r.get("perfil") != "ESTUDIANTE_VIGENTE" or r.get("tiene_2fa") != "NO":
+            continue
+        by_fac[escuela_de(r)].append(r)
+    carpeta = salida / "por_facultad"
+    carpeta.mkdir(parents=True, exist_ok=True)
+    result: dict[str, str] = {}
+    fields = ["facultad", "programa", "correo", "nombres", "estado_academico", "ultimo_ingreso_google"]
+    for fac, filas in sorted(by_fac.items()):
+        nombre = f"sin_2fa_{slug_archivo(fac)}.csv"
+        rows = []
+        for r in sorted(filas, key=lambda x: (programa_de(x), nombre_completo(x).lower())):
+            rows.append({
+                "facultad": escuela_de(r),
+                "programa": programa_de(r),
+                "correo": r.get("correo", ""),
+                "nombres": nombre_completo(r),
+                "estado_academico": r.get("a_estado", ""),
+                "ultimo_ingreso_google": etiqueta_ingreso(str(r.get("g_ultimo_ingreso") or "")),
+            })
+        write_csv(carpeta / nombre, rows, fields)
+        result[fac] = f"por_facultad/{nombre}"
+    return result
 
 
 def cruzar(
@@ -1815,8 +1873,9 @@ def cruzar(
         "mapeo_curriculo": c_map,
     }
     (salida / "resumen.json").write_text(json.dumps(resumen, ensure_ascii=False, indent=2), encoding="utf-8")
-    html_informe_jefa(salida / "resumen.html", resumen, planos, cfg)
-    html_listado_sin_2fa(salida / "listado_sin_2fa.html", planos, str(resumen.get("generado", "")), cfg)
+    csv_por_fac = escribir_csv_por_facultad(salida, planos)
+    html_informe_jefa(salida / "resumen.html", resumen, planos, cfg, csv_por_fac)
+    html_listado_sin_2fa(salida / "listado_sin_2fa.html", planos, str(resumen.get("generado", "")), cfg, csv_por_fac)
 
     print("Listo ->", salida.resolve())
     print(f"Google: {n_google} | Académico vigente: {n_acad} | Match estudiante: {n_match}")
