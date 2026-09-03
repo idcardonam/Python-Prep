@@ -14,7 +14,7 @@ No es un solo sistema. Hay **varias configuraciones**. Prestaba (al menos) tres 
 | # | Qué es | Qué hace | Dónde se “reserva” de verdad | ¿Es tu proyecto ahora? |
 | --- | --- | --- | --- | --- |
 | 1 | Aulas / salones / auditorios | **Solo muestra** si el espacio está ocupado por programación académica | En **Banner**, no en Reservitas | **SÍ** |
-| 2 | Préstamo de implementos (cámaras, equipos de facultades) | Presta elementos; cada tipo tiene su configuración | En Reservitas / proceso de facultades | **NO** (otro proyecto) |
+| 2 | Préstamo de implementos (cámaras, equipos de facultades) | Presta elementos; cada tipo tiene su configuración | En Reservitas hoy; jefatura + Krystel evalúan **KOHA** u otra app productiva | **NO** |
 | 3 | Otros préstamos (Bienestar: elementos deportivos, y lo que esté hablando Alexis) | Reservas de elementos, no de aulas | Otro frente | **NO** |
 
 Tu módulo en MiPortalU es **solo la fila 1**. Informativo. El estudiante mira disponibilidad. No reserva.

@@ -24,7 +24,7 @@ Actualizado con el PHP real de `disponibilidad.php` y capturas del 3 sep 2026.
 | Salones `id_tipo=1` | La Casona `id_sede=5` | `day.php?id_sede=5&id_tipo=1` |
 | Auditorios `id_tipo=3` | Central `id_sede=1` | `day.php?id_sede=1&id_tipo=3` |
 
-**Fuera de este módulo:** Reserva de Equipos en el menú → Reservitas con `id_tipo=12` (ejemplo captura `area=413`).
+**Fuera de este módulo:** Reserva de Equipos (`id_tipo=12`). Decisión de jefatura: Krystel evalúa alternativas productivas (KOHA). No se implementa aquí.
 
 **¿Hay query en el PHP del portal?** No.
 

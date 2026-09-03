@@ -13,6 +13,8 @@ En MiPortalU hay **dos menús distintos**. En Reservitas es el **mismo** `day.ph
 
 Manuel lo dijo bien: son dos módulos. No los mezcles.
 
+**Decisión de jefatura (con Krystel):** el préstamo de equipos se evalúa en alternativas ya productivas (p. ej. **KOHA**). Este trabajo **solo** cubre disponibilidad de aulas (archivos / `id_tipo` 1, 2, 3). Equipos no se construye aquí.
+
 ## Qué hace hoy `disponibilidad.php`
 
 Confirmado con el código: **solo tabs + enlaces**. No hay SQL. No hay clase. No consulta Banner.

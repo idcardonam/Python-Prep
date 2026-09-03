@@ -30,7 +30,7 @@ La carpeta de desarrollo de Reservitas ya fue solicitada. Sin ella no se cierra 
 
 - Crear, editar o cancelar reservas de aula (eso es Banner).
 - Actualizar Reservitas a PHP nuevo o reescribir el sancocho completo.
-- Préstamo de implementos (cámaras, facultades).
+- **Reserva / préstamo de equipos** (cámaras, kits, Zoom salas, `id_tipo=12`). El jefe indicó revisar alternativas ya productivas (p. ej. **KOHA**) con Krystel; **no** se implementa en este módulo.
 - Reservas de Bienestar / elementos deportivos (Marlon / Alexis).
 - Catálogo paralelo de espacios en MiPortalU.
 
@@ -56,7 +56,11 @@ La carpeta de desarrollo de Reservitas ya fue solicitada. Sin ella no se cierra 
 | [docs/05-alternativa-tecnica.md](docs/05-alternativa-tecnica.md) | Opción A (reutilizar) vs. B (reconstruir) |
 | [docs/06-preguntas-equipo.md](docs/06-preguntas-equipo.md) | Preguntas para Carlos, Manuel y Julián |
 | [docs/07-checklist-exploracion.md](docs/07-checklist-exploracion.md) | Orden de trabajo día a día |
-| [docs/08-entregable-lunes.md](docs/08-entregable-lunes.md) | Plantilla para la revisión del lunes |
+| [docs/08-entregable-lunes.md](docs/08-entregable-lunes.md) | Entregable del lunes (actualizado con PHP real) |
+| [docs/09-hallazgo-dos-modulos.md](docs/09-hallazgo-dos-modulos.md) | Aulas vs equipos: parámetros y evidencias |
+| [docs/10-siguiente-bloque.md](docs/10-siguiente-bloque.md) | Qué hacer justo ahora |
+| [codigo/disponibilidad.php](codigo/disponibilidad.php) | Copia del PHP actual del portal |
+| [evidencia/](evidencia/) | Capturas Reservitas + menú MiPortalU |
 | [mockup/disponibilidad-espacios.html](mockup/disponibilidad-espacios.html) | Mockup interactivo de la experiencia |
 
 Abrir el mockup en el navegador: no requiere servidor.

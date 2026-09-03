@@ -5,7 +5,8 @@
 1. En MiPortalU hay **dos módulos**: Disponibilidad de Aulas vs Reserva de Equipos.
 2. `disponibilidad.php` **solo enlaza**; no consulta BD.
 3. Reservitas usa el mismo `day.php` para ambos; se separan por `id_tipo` (`1/2/3` aulas · `12` equipos).
-4. Tu alcance = aulas. Equipos no.
+4. Tu alcance = **solo aulas** (lo de los archivos / enlaces de `disponibilidad.php`).
+5. **Equipos:** el jefe + Krystel revisan alternativas productivas (KOHA). No entra en este desarrollo.
 
 ## Qué sigue — en este orden
 
