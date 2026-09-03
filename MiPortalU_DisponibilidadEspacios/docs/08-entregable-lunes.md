@@ -1,98 +1,88 @@
 # Entregable para la revisión del lunes
 
-Completar con hallazgos reales. Lo que está escrito abajo es el estado **antes** de abrir el código (reunión + guía + mockup). Reemplazar las marcas `PENDIENTE` al explorar.
+Actualizado con el PHP real de `disponibilidad.php` y capturas del 3 sep 2026.
 
 ## 1. Flujo actual
 
 **Qué hace MiPortalU**
 
-La página `modulos/disponibilidadAulas/disponibilidad.php` presenta accesos por tipo de espacio y redirige a Reservitas. No muestra agenda.
+`modulos/disponibilidadAulas/disponibilidad.php` es **solo tabs + enlaces** a Reservitas. Includes: header, lateral, footer. **No hay SQL.**
 
 **Qué hace Reservitas**
 
-Consulta disponibilidad (fecha, campus/edificio, hora, espacio) y la pinta. Fuente: Banner u objeto intermedio **PENDIENTE**.
+`https://aulas.unab.edu.co/reservitas/day.php` pinta la grilla del día (06:00–22:00, bloques 30 min). Misma pantalla sirve para aulas y para equipos; se separa por `id_tipo` / `area` / `id_sede`.
 
-**Parámetros observados en HTML (por validar en código)**
+**Enlaces reales del portal**
 
-| Tipo | Sedes vistas | Parámetro |
+| Tipo | Sede | URL |
 | --- | --- | --- |
-| Aulas de informática | UNAB / Instituto Caldas | `id_tipo=2` |
-| Salones | Campus Central / CSU / Campus El Bosque / La Casona | `id_tipo=1` |
-| Auditorios | Campus Central | `id_tipo=3` |
+| Informática `id_tipo=2` | Unab `id_sede=1` `area=201` | `day.php?area=201&id_sede=1&id_tipo=2` |
+| Informática `id_tipo=2` | Caldas `id_sede=4` `area=204` | `day.php?area=204&id_sede=4&id_tipo=2` |
+| Salones `id_tipo=1` | Central `id_sede=1` | `day.php?id_sede=1&id_tipo=1` |
+| Salones `id_tipo=1` | CSU `id_sede=2` | `day.php?id_sede=2&id_tipo=1` |
+| Salones `id_tipo=1` | Bosque `id_sede=3` | `day.php?id_sede=3&id_tipo=1` |
+| Salones `id_tipo=1` | La Casona `id_sede=5` | `day.php?id_sede=5&id_tipo=1` |
+| Auditorios `id_tipo=3` | Central `id_sede=1` | `day.php?id_sede=1&id_tipo=3` |
 
-**URL de destino Reservitas:** PENDIENTE  
-**Archivos JS/CSS del módulo:** PENDIENTE  
-**¿Hay query en el PHP del portal?** Hipótesis: no. Confirmar: PENDIENTE
+**Fuera de este módulo:** Reserva de Equipos en el menú → Reservitas con `id_tipo=12` (ejemplo captura `area=413`).
+
+**¿Hay query en el PHP del portal?** No.
 
 ## 2. Fuente
 
 | Ítem | Valor |
 | --- | --- |
-| Sistema que ejecuta la consulta hoy | Reservitas |
-| ¿Banner directo? | PENDIENTE |
-| Owner.objeto (vista/paquete/tabla) | PENDIENTE — hipótesis: vista de Carlos Duarte usada en reservas |
-| Archivo PHP de Reservitas | PENDIENTE (se mencionó un `day.php`; no confirmado) |
-| Escritura en Banner | No requerida (a confirmar con Manuel García) |
+| Sistema que ejecuta la consulta hoy | Reservitas `day.php` |
+| ¿Banner directo? | PENDIENTE — abrir `day.php` en la carpeta |
+| Owner.objeto | PENDIENTE — sesión Carlos Duarte |
+| Archivo PHP de Reservitas | `day.php` (confirmado en URL) |
+| Escritura en Banner | No para este módulo (consulta informativa) |
+| Qué se ve en celdas de aulas | Nombres de materias / eventos = programación académica |
 
 ## 3. Alternativa recomendada
 
-Marcar una:
+- [x] **B orientado a construir de cero en MiPortalU la UI**, reutilizando la **fuente de datos** de aulas cuando Carlos la confirme (vista/tablas). No copiar el frontend de Reservitas. No migrar equipos.
+- [ ] A puro (embeber/reusar PHP de Reservitas) — descartado: es el sancocho y el servidor viejo.
+- [ ] Aún no se cierra el objeto SQL porque falta el código de `day.php`.
 
-- [ ] **A.** Reutilizar consulta/reglas actuales; UI nueva en MiPortalU.
-- [ ] **B.** Reconstruir capa de consulta en MiPortalU con equivalencia funcional.
-- [ ] **Aún no se puede recomendar** porque falta: ________________
-
-**Por qué (3–6 líneas):**
-
-PENDIENTE. Marco de decisión en [05-alternativa-tecnica.md](05-alternativa-tecnica.md).
+**Por qué:** el portal hoy no consulta nada. Reservitas mezcla aulas (`id_tipo` 1–3) y equipos (`12`) en el mismo `day.php`. Manuel: mapa + construir solo disponibilidad de aulas. Jonathan: consulta informativa, sin reserva.
 
 ## 4. Mapeo
 
-Ver tabla viva en [04-mapeo-datos.md](04-mapeo-datos.md). Resumen:
-
-| UI | ¿Existe en la fuente? | Campo | Hueco |
+| UI | ¿Existe? | Campo / evidencia | Hueco |
 | --- | --- | --- | --- |
-| Tipo | PENDIENTE | | |
-| Campus | PENDIENTE | | |
-| Edificio | PENDIENTE | | |
-| Código espacio | PENDIENTE | | |
-| Fecha | PENDIENTE | | |
-| Franja | PENDIENTE | | |
-| Ocupación | PENDIENTE | | |
-| Agenda del día | PENDIENTE | | |
-| Responsable | No mostrar al estudiante | | Omitir si viene |
+| Tipo | Sí | `id_tipo` 1, 2, 3 | Validar en BD/Carlos |
+| Campus | Sí | `id_sede` 1–5 | Etiquetas exactas Banner |
+| Área / edificio | Parcial | `area` 201, 204 (solo informática en el portal) | Cómo se arma para salones/auditorios |
+| Código espacio | Sí | `ED-…-AINF` en grilla | Origen Banner |
+| Fecha | Sí | day/month/year en Reservitas | Default hoy |
+| Franja | Sí | bloques 30 min 06:00–22:00 | Confirmar si Banner usa el mismo corte |
+| Ocupación | Sí | celda con nombre de materia | Query exacta |
+| Agenda del día | Sí | grilla completa | Cómo devolverla al portal |
+| Crear reserva (`+`) | Existe en Reservitas | No llevar a MiPortalU | — |
+| Equipos | Existe | `id_tipo=12` | Fuera de alcance |
 
 ## 5. Prueba de equivalencia
 
 | Escenario | Resultado Reservitas | Resultado propuesto | ¿Igual? |
 | --- | --- | --- | --- |
-| Informática | PENDIENTE | PENDIENTE | |
-| Salones | PENDIENTE | PENDIENTE | |
-| Auditorios | PENDIENTE | PENDIENTE | |
+| Informática Jardín `area=201` | Captura 3 sep 2026 (materias en AINF) | PENDIENTE | |
+| Salones `id_sede=1&id_tipo=1` | PENDIENTE | PENDIENTE | |
+| Auditorios `id_tipo=3` | PENDIENTE | PENDIENTE | |
 
 ## 6. Bloqueos
 
 | Bloqueo | Impacto | Dueño | Estado |
 | --- | --- | --- | --- |
-| Carpeta de desarrollo de Reservitas | No se ve la query real | Jonathan / equipo Reservitas | Solicitada |
-| SQL Developer TEST solo lectura | No se valida objeto Banner | Manuel García | Por agendar |
-| Validación vista vs. PHP | No se cierra A/B | Carlos Duarte | Por agendar |
-| Usuarios Delta / SARA | Pruebas con perfil estudiante en PPRD | Jonathan | 3–4 días típicos |
-| Código MiPortalU no está en este repositorio | Exploración del PHP en el equipo local UNAB | Iván | Ambiente interno |
+| Carpeta / `day.php` de Reservitas | No se ve el SQL | Jonathan | Solicitada |
+| Objeto Banner aulas | No se cierra la clase del portal | Carlos Duarte | Por agendar |
+| Separar objetos aulas vs equipos en TEST | Evitar vista mezclada | Manuel García | Sesión 2 |
+| Código solo en equipo local UNAB | Este repo documenta, no despliega al portal | Iván | OK |
 
-## 7. Siguiente paso (propuesta)
+## 7. Siguiente paso
 
-Cuando la fuente esté clara:
-
-1. Implementar clase de consulta en MiPortalU (PHP 5.6 + Oracle) según A o B.
-2. Sustituir los enlaces de `disponibilidad.php` por la UI del mockup (ajustada a datos reales).
-3. Tres pruebas de equivalencia en PPRD.
-4. Coordinar push con Julián.
-
-**Tamaño preliminar (sin código aún):** mediano. El riesgo no es la pantalla; es ubicar y reutilizar (o equivalente) la consulta de ocupación sin copiar el legado ni escribir en Banner.
-
-**Actividad concreta inmediata (esta semana, antes del lunes):**
-
-1. Documentar `disponibilidad.php` (enlaces y `id_tipo`).
-2. Agendar 30 min con Carlos y 30 min con Manuel.
-3. En cuanto llegue Reservitas, extraer owner.objeto y pegarlo en la sección 2.
+1. Conseguir `day.php` (+ includes de conexión) y marcar la query de **aulas**.
+2. 30 min Carlos: `owner.objeto` de programación de aulas.
+3. 30 min Manuel: en TEST, aulas ≠ equipos.
+4. Empezar clase + UI en MiPortalU **solo** para `id_tipo` 1, 2, 3.
+5. Equipos (`12`) queda en el mapa como “otro módulo / otro proyecto”.

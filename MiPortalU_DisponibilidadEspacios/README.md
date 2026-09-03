@@ -28,11 +28,11 @@ La carpeta de desarrollo de Reservitas ya fue solicitada. Sin ella no se cierra 
 
 ## Fuera de alcance
 
-- Crear, editar o cancelar reservas.
-- Replicar la lógica de programación de Banner.
+- Crear, editar o cancelar reservas de aula (eso es Banner).
+- Actualizar Reservitas a PHP nuevo o reescribir el sancocho completo.
+- Préstamo de implementos (cámaras, facultades).
+- Reservas de Bienestar / elementos deportivos (Marlon / Alexis).
 - Catálogo paralelo de espacios en MiPortalU.
-- Reserva de equipos (otro frente; se evalúa Percoa).
-- Proyecto de Bienestar (asignado a Marlon).
 
 ## Equipo
 
