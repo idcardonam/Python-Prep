@@ -61,6 +61,7 @@ La carpeta de desarrollo de Reservitas ya fue solicitada. Sin ella no se cierra 
 | [docs/10-siguiente-bloque.md](docs/10-siguiente-bloque.md) | Qué hacer justo ahora |
 | [docs/11-analisis-day-php-backup.md](docs/11-analisis-day-php-backup.md) | Análisis del backup de day.php (Manuel) |
 | [docs/12-vamos-bien-guia-punto4.md](docs/12-vamos-bien-guia-punto4.md) | Cruce guía punto 4 + correo del jefe |
+| [docs/13-configs-y-test-solo-lectura.md](docs/13-configs-y-test-solo-lectura.md) | Configs 1/2/3, alerta seguridad, TEST solo lectura |
 | [codigo/disponibilidad.php](codigo/disponibilidad.php) | Copia del PHP actual del portal |
 | [evidencia/](evidencia/) | Capturas Reservitas + menú MiPortalU |
 | [mockup/disponibilidad-espacios.html](mockup/disponibilidad-espacios.html) | Mockup interactivo de la experiencia |

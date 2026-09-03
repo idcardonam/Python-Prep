@@ -33,7 +33,7 @@ Actualizado con el PHP real de `disponibilidad.php` y capturas del 3 sep 2026.
 | Ítem | Valor |
 | --- | --- |
 | Sistema que ejecuta la consulta hoy | Reservitas `day.php` |
-| ¿Banner directo? | **Sí (aulas)** — backup Manuel: Oracle `BANINST1.V_RESERVAS_SALON` (+ `V_UNAB_CSARA2`) |
+| ¿Banner directo? | **Sí** — `BANINST1.V_RESERVAS_SALON` (+ `V_UNAB_CSARA2`). Carlos: también **salones** (`id_tipo=1`) |
 | Catálogo rooms/areas | MySQL MRBS (`$tbl_room`, `$tbl_area`, `mrbs_tipo`, `mrbs_sede`) |
 | Equipos (`id_tipo>3`) | MySQL `$tbl_entry` — **fuera de alcance** |
 | Config por tipo | `config{id_tipo}.inc.php` |
@@ -47,7 +47,8 @@ Detalle: [11-analisis-day-php-backup.md](11-analisis-day-php-backup.md).
 
 - [x] **B orientado a construir de cero en MiPortalU la UI**, reutilizando la **vista Banner** `BANINST1.V_RESERVAS_SALON` (confirmada en backup de `day.php`). No copiar el PHP de Reservitas. No migrar equipos.
 - [ ] Embeber/reusar `day.php` — descartado.
-- [ ] Cerrar con Carlos: ¿salones (`id_tipo=1`) usan la misma vista? ¿Es la versión productiva de la vista?
+- [ ] Cerrar con Carlos: ¿salones (`id_tipo=1`) usan la misma vista? → **Sí (respuesta Iván/Carlos).** Queda validar en TEST solo lectura.
+- [ ] **Riesgo:** backup `config1`/`config2` con PHP ofuscado al inicio (posible webshell). Reportar a Manuel; no usar esos archivos.
 
 **Por qué:** el backup carga `config{N}.inc.php`, parte `id_tipo<=3` → Oracle Banner y `id_tipo>3` → MySQL préstamos. Tu módulo solo necesita la rama Banner.
 
