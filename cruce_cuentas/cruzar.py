@@ -1506,8 +1506,6 @@ def escribir_csv_por_facultad(salida: Path, planos: list[dict[str, Any]]) -> dic
         if r.get("perfil") != "ESTUDIANTE_VIGENTE" or r.get("tiene_2fa") != "NO":
             continue
         by_fac[escuela_de(r)].append(r)
-    carpeta = salida / "por_facultad"
-    carpeta.mkdir(parents=True, exist_ok=True)
     result: dict[str, str] = {}
     fields = ["facultad", "programa", "correo", "nombres", "estado_academico", "ultimo_ingreso_google"]
     for fac, filas in sorted(by_fac.items()):
@@ -1522,8 +1520,8 @@ def escribir_csv_por_facultad(salida: Path, planos: list[dict[str, Any]]) -> dic
                 "estado_academico": r.get("a_estado", ""),
                 "ultimo_ingreso_google": etiqueta_ingreso(str(r.get("g_ultimo_ingreso") or "")),
             })
-        write_csv(carpeta / nombre, rows, fields)
-        result[fac] = f"por_facultad/{nombre}"
+        write_csv(salida / nombre, rows, fields)
+        result[fac] = nombre
     return result
 
 
