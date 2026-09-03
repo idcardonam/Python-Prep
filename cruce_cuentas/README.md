@@ -1,5 +1,7 @@
 # Cruce de cuentas institucionales (Google × académico)
 
+**Operación del portal (Power BI + 2FA):** doble clic en `actualizar.bat` y siga `MANUAL_OPERACION.md`. Un solo corte de Google Admin alimenta el tablero y el informe 2FA.
+
 Herramienta local para TIC: cruza el CSV de **Admin Console** con el extracto **académico** (todos los estados **excepto graduados**) y arma una **ficha por correo** `@unab.edu.co`.
 
 Sirve para **2FA** y también para operación: facultad, programa, sección, cuentas huérfanas, posibles egresados con correo activo, académico sin cuenta Google.

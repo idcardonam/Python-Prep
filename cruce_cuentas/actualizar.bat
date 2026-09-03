@@ -1,54 +1,53 @@
 @echo off
 chcp 65001 >nul 2>&1
-title Actualizador Cruce 2FA — UNAB TIC
+title Actualizador Portal Gmail — UNAB TIC
 color 1F
 cls
 
 echo ╔══════════════════════════════════════════════════════════════╗
-echo ║          ACTUALIZADOR CRUCE 2FA — UNAB TIC                 ║
+echo ║     ACTUALIZADOR PORTAL — Depuracion Gmail + 2FA           ║
 echo ║                                                            ║
-echo ║  Este script genera los informes HTML y CSV actualizados.  ║
-echo ║  Al terminar, suba la carpeta "salida" a SharePoint.       ║
+echo ║  Genera los CSV de Power BI y el informe 2FA.              ║
+echo ║  Al terminar, deja una carpeta en el ESCRITORIO            ║
+echo ║  lista para arrastrar a SharePoint (etl / output).         ║
 echo ╚══════════════════════════════════════════════════════════════╝
 echo.
 
-REM ── Detectar Python ──
 where py >nul 2>&1 && (set "PY=py -3") || (
   where python3 >nul 2>&1 && (set "PY=python3") || (
     where python >nul 2>&1 && (set "PY=python") || (
       echo [ERROR] No se encontro Python instalado.
       echo Instale Python desde https://www.python.org/downloads/
-      echo Marque la casilla "Add Python to PATH" durante la instalacion.
+      echo Marque la casilla "Add Python to PATH".
       pause
       exit /b 1
     )
   )
 )
 
-REM ── Ubicar este script (cruce_cuentas/) ──
 cd /d "%~dp0"
 echo [OK] Carpeta del script: %CD%
 echo.
 
-REM ── Verificar dependencias ──
-%PY% -c "import yaml" >nul 2>&1 || (
-  echo Instalando dependencias...
-  %PY% -m pip install -r requirements.txt --quiet
+echo Instalando dependencias si faltan...
+%PY% -m pip install -r requirements.txt --quiet
+if %ERRORLEVEL% neq 0 (
+    echo [ERROR] No se pudieron instalar dependencias.
+    pause
+    exit /b 1
 )
 
-REM ── Preguntar ruta de datos ──
+echo.
 echo ══════════════════════════════════════════════════════════════
 echo.
 echo  INSTRUCCIONES:
 echo.
-echo  1. Abra el Explorador de Windows
-echo  2. Navegue a la carpeta donde estan los archivos:
-echo       - User_Download_*.csv  (Google Admin)
-echo       - CSV de inscritos
-echo       - VISTA DE CURRICULO.xlsx (si la tiene)
-echo  3. Haga clic en la barra de direccion (arriba)
-echo  4. Copie la ruta (Ctrl+C)
-echo  5. Vuelva aqui y pegue la ruta (clic derecho o Ctrl+V)
+echo  Ponga en UNA carpeta:
+echo     - User_Download_*.csv     (Google Admin — TODAS las cuentas)
+echo     - CSV de inscritos        (para el informe 2FA)
+echo     - VISTA DE CURRICULO.xlsx (si la tiene)
+echo.
+echo  Copie la ruta desde la barra del Explorador y peguela abajo.
 echo.
 echo ══════════════════════════════════════════════════════════════
 echo.
@@ -63,7 +62,6 @@ if not "%~1"=="" (
 if not exist "%CARPETA%" (
     echo.
     echo [ERROR] La carpeta no existe: %CARPETA%
-    echo Verifique la ruta y vuelva a intentar.
     pause
     exit /b 1
 )
@@ -71,55 +69,69 @@ if not exist "%CARPETA%" (
 echo.
 echo [OK] Carpeta de datos: %CARPETA%
 echo.
-echo Ejecutando cruce...
-echo ──────────────────────────────────────────────────────────────
+echo [1/3] Procesando Power BI (cuentas, dependencias, capacidad)...
 echo.
 
-%PY% cruzar.py --carpeta "%CARPETA%" --salida .\salida
-
+%PY% procesar_powerbi.py --carpeta "%CARPETA%" --salida .\salida
 if %ERRORLEVEL% neq 0 (
     echo.
-    echo ══════════════════════════════════════════════════════════════
-    echo [ERROR] El cruce fallo. Revise los mensajes de arriba.
-    echo ══════════════════════════════════════════════════════════════
+    echo [ERROR] Fallo el procesamiento Power BI.
     pause
     exit /b 1
 )
 
 echo.
+echo [2/3] Procesando cruce 2FA (HTML y CSV por facultad)...
+echo.
+
+%PY% cruzar.py --carpeta "%CARPETA%" --salida .\salida
+if %ERRORLEVEL% neq 0 (
+    echo.
+    echo [ERROR] Fallo el cruce 2FA.
+    pause
+    exit /b 1
+)
+
+echo.
+echo [3/3] Empaquetando entrega en el Escritorio...
+echo.
+
+%PY% empaquetar_entrega.py --origen .\salida > "%TEMP%\portal_entrega.txt"
+if %ERRORLEVEL% neq 0 (
+    echo.
+    echo [ERROR] No se pudo crear la carpeta del Escritorio.
+    type "%TEMP%\portal_entrega.txt"
+    pause
+    exit /b 1
+)
+type "%TEMP%\portal_entrega.txt"
+set /p DEST=<"%TEMP%\portal_entrega.txt"
+
+echo.
 echo ══════════════════════════════════════════════════════════════
 echo.
-echo  [LISTO] Informes generados en la carpeta "salida":
+echo  [LISTO]
 echo.
-echo    salida\resumen.html           — Informe para jefatura
-echo    salida\listado_sin_2fa.html   — Listado operativo
-echo    salida\02_estudiantes_sin_2fa.csv
-echo    salida\06_cobertura_2fa_facultad.csv
-echo    (y otros archivos de detalle)
+echo  En el ESCRITORIO hay una carpeta:
+echo     Archivos_SharePoint_AAAA-MM-DD
 echo.
-echo ══════════════════════════════════════════════════════════════
+echo  1. Abra esa carpeta
+echo  2. Seleccione TODOS los archivos (Ctrl+A)
+echo  3. Arrastrelos a SharePoint: Documentos ^> etl ^> output
+echo  4. Reemplazar si pregunta
 echo.
-echo  SIGUIENTE PASO:
+echo  Power BI se actualiza SOLO cada hora (programado).
+echo  Si necesita verlo YA: app.powerbi.com ^> Actualizar ahora.
 echo.
-echo    1. Abra SharePoint:
-echo       Documentos ^> etl ^> output
-echo.
-echo    2. Seleccione TODOS los archivos de la carpeta "salida"
-echo       y arrastrelos a SharePoint (reemplazar si pregunta)
-echo.
-echo    3. Verifique en el portal que los datos estan actualizados
+echo  Las LISTAS (MetaProyecto, Acciones) NO se cambian con este
+echo  script. Se editan en el portal SharePoint cuando cambie
+echo  la meta o registre una accion.
 echo.
 echo ══════════════════════════════════════════════════════════════
 echo.
 
-REM ── Abrir la carpeta de salida ──
-start "" "%~dp0salida"
-
-REM ── Abrir SharePoint ──
-echo Presione cualquier tecla para abrir SharePoint...
-pause >nul
+start "" "%DEST%"
 start "" "https://unabedu.sharepoint.com/sites/ProyectoDepuracinGmail/Documentos%%20compartidos/Forms/AllItems.aspx?id=%%2Fsites%%2FProyectoDepuracinGmail%%2FDocumentos%%20compartidos%%2Fetl%%2Foutput"
 
-echo.
 echo Cuando haya subido los archivos, puede cerrar esta ventana.
 pause
