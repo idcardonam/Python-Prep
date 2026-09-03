@@ -28,7 +28,14 @@ Nueva clase/consulta en el portal, equivalente en resultado, leyendo Banner (o u
 
 **Riesgo:** divergencia silenciosa con Reservitas; hay que sostener pruebas de equivalencia.
 
-## Recomendación provisional (para discutir, no para cerrar)
+## Recomendación ya cerrada de enfoque (Manuel + alcance)
+
+- **Producto:** solo consulta de aulas. Préstamos de implementos y Bienestar se documentan en el mapa y se dejan fuera.
+- **Reservitas:** no se migra de versión PHP. No se “limpia” el sancocho en el mismo código.
+- **UI:** de cero en MiPortalU (mockup), no el frontend legado.
+- **Datos de aulas:** sí comparar contra Reservitas **sin tocarlo**, para no inventar reglas.
+
+Sobre A vs. B (solo la query de aulas), validar con Carlos:
 
 Partir de **A si la vista cubre tipo + ubicación + ocupación en lectura**. Si Carlos confirma que la vista es la de reservas “pesada” y no filtra bien por franja, pasar a **B** usando las **mismas tablas fuente**, no un catálogo nuevo.
 

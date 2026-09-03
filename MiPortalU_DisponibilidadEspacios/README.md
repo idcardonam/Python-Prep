@@ -4,13 +4,15 @@
 **Responsable de exploración e implementación:** Iván Cardona  
 **Revisión de hallazgos:** lunes (próxima sesión con el equipo)
 
-Este paquete consolida la capacitación de MiPortalU (2 sep 2026), el correo de arranque, la guía de ingeniería y el mockup. El objetivo es que Iván llegue al lunes con el flujo claro, la alternativa técnica recomendada y el siguiente paso de construcción.
+Empieza por [docs/00-plan-ivan-paso-a-paso.md](docs/00-plan-ivan-paso-a-paso.md): qué hacer, qué enviar, qué pedirle a Carlos y a Manuel.
 
 ## Qué vamos a hacer
 
-Traer a **MiPortalU** la consulta de disponibilidad de aulas, salones y auditorios que hoy se abre en **Reservitas**. El estudiante consulta sin salir del portal. **Banner sigue siendo la fuente.** Las reservas **no** se crean ni se editan desde MiPortalU.
+Traer a **MiPortalU** la consulta **informativa** de aulas, salones y auditorios. Banner es la fuente (programación académica). Las reservas de aula **no** se hacen en Reservitas ni en el portal: se hacen en Banner.
 
-Hoy el portal solo redirige a Reservitas. El servidor de Reservitas está obsoleto, con problemas de seguridad y PHP antiguo; esta migración es la meta del año para esa consulta.
+Reservitas es un PHP viejo que mezcla **varias cosas** (aulas + préstamo de implementos + otros). No se actualiza Reservitas a PHP nuevo. No se copia el sancocho. Se hace mapa, se recorta solo aulas, y se construye de cero en el portal.
+
+Hoy MiPortalU solo redirige a Reservitas.
 
 ## Alcance de esta etapa (hasta el lunes)
 
@@ -46,6 +48,7 @@ La carpeta de desarrollo de Reservitas ya fue solicitada. Sin ella no se cierra 
 
 | Archivo | Para qué |
 | --- | --- |
+| [docs/00-plan-ivan-paso-a-paso.md](docs/00-plan-ivan-paso-a-paso.md) | Plan de Iván: pasos, envíos, Carlos y Manuel |
 | [docs/01-analisis-reunion.md](docs/01-analisis-reunion.md) | Qué se acordó en la capacitación y el correo |
 | [docs/02-flujo-actual-vs-esperado.md](docs/02-flujo-actual-vs-esperado.md) | Cómo funciona hoy vs. la experiencia objetivo |
 | [docs/03-estructura-miportalu.md](docs/03-estructura-miportalu.md) | Cómo trabajar en el portal (módulos, Git, PHP, BD) |

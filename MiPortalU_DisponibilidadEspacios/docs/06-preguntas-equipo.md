@@ -1,46 +1,49 @@
 # Preguntas para el equipo
 
-Llegar a cada micro sesión con el archivo ya abierto. Máximo ~30 minutos. No pedir un tour general.
+Llegar con el archivo abierto. 30 minutos. Sin tour general.
 
-## Carlos Duarte (consulta / lógica)
+## Carlos Duarte — 30 min (consulta de aulas en Banner)
 
-Antes: haber leído `disponibilidad.php` y, si ya llegó, el PHP de consulta de Reservitas.
+**Para qué:** ubicar la ocupación de **programación académica de aulas**. No préstamos de equipos.
 
-1. ¿Dónde está exactamente la consulta que trae espacios y ocupación? ¿Archivo, vista, procedimiento?
-2. ¿Reservitas consulta Banner directo u otro esquema/vista/procedimiento?
-3. ¿La vista que se usó en el proyecto reciente de reservas es la misma de disponibilidad de aulas?
-4. ¿Qué regla hace que un espacio nuevo parametrizado en Banner aparezca en la consulta?
-5. ¿Cómo se diferencian aulas de informática, salones y auditorios en datos (no en el HTML)?
-6. ¿Cómo se resuelven sede/campus, edificio/área, fecha y bloques de horario?
-7. ¿Qué parte podemos reutilizar sin traernos el frontend legado?
-8. ¿Hay dependencias de compatibilidad (`id_tipo`, nombres de sede, rangos horarios)?
-9. ¿La vista es pesada para un estudiante que consulta un campus y un día? ¿Hay índices o recorte posible?
-10. Decisión: **A reutilizar** o **B reconstruir capa en MiPortalU**, y por qué.
+**Frase de arranque:**
 
-## Manuel García (accesos TEST)
+> No voy a migrar Reservitas completo. Solo la consulta informativa de aulas hacia MiPortalU. Necesito el objeto de Banner y si la vista actual sirve sin copiar el PHP viejo.
 
-Solo permisos y conexión. No diseño funcional.
+1. ¿Qué objeto trae espacios + ocupación de aulas? `owner.objeto`
+2. ¿Es la misma vista pesada del proyecto de reservas, o es otra?
+3. ¿Reservitas pega a Banner directo o hay esquema intermedio?
+4. ¿`id_tipo` 1 / 2 / 3 cómo se traduce en Banner?
+5. Aula nueva en Banner: ¿qué debe tener para aparecer?
+6. ¿La consulta es solo lectura? ¿Hay insert/update de aula en Reservitas?
+7. ¿MiPortalU llama esa vista, o armo consulta nueva sobre las mismas tablas?
+8. ¿Tiempo en TEST de un día + un campus? ¿Se puede filtrar antes?
 
-1. Conexión SQL Developer al TEST que corresponde a esta consulta (host, puerto, servicio/SID, si se puede compartir por el canal interno).
-2. Usuario de **solo lectura** para revisar fuentes.
-3. Confirmación de esquemas/vistas/procedimientos que aparezcan en el código.
-4. Confirmación explícita: esta iniciativa **no requiere escrituras** en Banner.
-5. Si TEST y PPRD difieren para objetos de espacios/ocupación, cuál usar para la equivalencia con Reservitas.
+**Salida obligatoria (una frase):**  
+La fuente de aulas es ______ y en MiPortalU vamos a ______ (reutilizar vista / recortar consulta).
 
-## Julián Ojeda (estructura MiPortalU)
+## Manuel García — sesión 2 (datos, no enfoque)
 
-Solo si algo del portal no se entiende con el código.
+El enfoque ya lo dio: mapa, de cero, no actualizar PHP de Reservitas, aulas aparte de préstamos.
 
-1. ¿El módulo nuevo se queda en `modulos/disponibilidadAulas/` o se crea otro nombre (`disponibilidadEspacios`)?
-2. ¿La clase de consulta va en gestión de contenidos / clases con qué convención de nombre?
-3. ¿El menú “Disponibilidad de aulas” se reetiqueta o se crea ítem nuevo?
-4. ¿Hay un patrón de módulo reciente (consulta Oracle + jQuery) para copiar includes?
-5. ¿En local el módulo debe apuntar a Banner TEST o al esquema del portal?
-6. Recordatorio: avisar antes de cualquier push por el cifrado de PHP.
+Pídele ahora:
 
-## Jonathan Espinel (gestión, no técnica profunda)
+1. SQL Developer TEST, usuario **solo lectura** (no compartir claves por chat abierto).
+2. Separar objetos: “esto es aulas” vs “esto es préstamo de implementos”.
+3. Chat: aulas = programación Banner, **sin escritura**.
+4. Si una vista mezcla aulas + equipos: marcarla para **no usarla tal cual**.
+5. Dueño funcional: facultades (implementos) vs. Bienestar vs. Alexis — para no meterse.
 
-1. ¿Ya hay fecha de entrega de la carpeta de Reservitas?
-2. ¿Quién es el contacto dueño de ese servidor si el zip no llega antes del lunes?
-3. ¿El funcional que valida equivalencia es el mismo de reservas de espacios?
-4. Confirmar que reserva de equipos queda fuera (Percoa) y no se mezcla en el módulo.
+No pedir diseño de UI ni upgrade de Reservitas.
+
+## Julián Ojeda — solo si te trancas con el portal
+
+1. ¿El módulo se queda en `disponibilidadAulas` o se renombra?
+2. ¿Dónde va la clase PHP de la consulta?
+3. ¿Patrón de módulo reciente (Oracle + jQuery) para copiar includes?
+4. Local: ¿apunta a Banner TEST?
+5. Avisar antes de push (cifrado de PHP).
+
+## Jonathan Espinel — una pregunta
+
+Confirmar en una línea que el alcance de Iván es **solo consulta informativa de aulas** y que préstamos de implementos / Bienestar / Alexis **no** entran en este módulo.
