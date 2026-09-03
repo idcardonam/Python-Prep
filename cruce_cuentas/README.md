@@ -136,7 +136,7 @@ Detecta columnas en español o inglés. Si un nombre no pega, copia `config.exam
 
 - Trabaja en carpeta local, no en OneDrive público ni en este repo.  
 - No pegues CSV con cédulas en chats de IA.  
-- Entrega a jefes: hojas de cobertura + listados sin columnas de más.
+- Entrega al área: hojas de cobertura + listados sin columnas de más.
 
 ## Qué más se puede hacer con el mismo cruce
 

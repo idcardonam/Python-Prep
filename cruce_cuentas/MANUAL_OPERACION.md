@@ -1,144 +1,208 @@
-# Manual de Operación — Portal Gestión de Cuentas Gmail (UNAB TIC)
+# Manual de operación
+## Portal de gestión de cuentas Gmail institucionales
+### Dirección de TIC · Estadísticas TIC · UNAB
 
-## Para quién es este manual
-
-Para la persona que **una vez al mes** (o cuando haya un corte nuevo de Google Admin) actualiza el portal. **No necesita saber programar.**
-
----
-
-## Qué hay en el portal (3 piezas distintas)
-
-| Pieza | Qué muestra | Cómo se actualiza |
-|-------|-------------|-------------------|
-| **Power BI** (depuración Gmail) | Inventario, activas, suspendidas, a bloquear, avance | El `.bat` genera 3 CSV → usted los sube a `etl/output` → Power BI **se refresca cada hora** |
-| **Resumen 2FA** (HTML) | Cobertura por facultad, correos pendientes | El mismo `.bat` genera HTML y CSV → usted los sube a `etl/output` |
-| **Listas SharePoint** | Meta del proyecto, acciones, seguimiento | **No las toca el `.bat`.** Se editan a mano en el portal cuando cambie la meta o registre un trabajo |
+Documento de uso para el área. Versión 2026-09.
 
 ---
 
-## Cómo funcionan las LISTAS (esto es lo que suele confundir)
+## 1. Propósito
 
-Las listas **no son archivos**. Son tablas que viven en SharePoint (como un Excel en la nube). Power BI las lee **directo del sitio**, no de `etl/output`.
+Este portal reúne en **un solo enlace** el seguimiento de cuentas Gmail institucionales:
 
-| Lista | ¿La actualiza el `.bat`? | Qué hacer usted |
-|-------|--------------------------|-----------------|
-| **MetaProyecto** | **No** | Cuando cambie la meta (licencias a depurar, fecha de corte, % objetivo), **edite la lista** en el portal. En la siguiente hora Power BI lo refleja. |
-| **Acciones** | **No** | Cuando bloquee cuentas, envíe comunicados o cierre un lote, **agregue una fila** en Acciones. Es el diario de trabajo. |
-| **capacidad / Cuentas / Dependencias** (listas) | **No** | Si están vacías o casi vacías, está bien. Los números del tablero salen de los **CSV** (`capacidad_powerbi.csv`, `cuentas_powerbi.csv`, `dependencias_powerbi.csv`) que sí genera el `.bat`. No duplique datos a mano en esas listas. |
+- depuración de cuentas (inventario, bloqueos, inactividad);
+- campaña de autenticación en dos pasos (2FA) de estudiantes vigentes;
+- registro de meta del proyecto y de acciones realizadas.
 
-**Resumen:** el script actualiza **archivos** (CSV + HTML). Las listas son el **cuaderno de metas y acciones** que las personas escriben. Power BI une ambos: archivos (inventario) + lista MetaProyecto (proyección).
+No es necesario saber programar para consultar el portal ni para la actualización periódica de archivos.
+
+**Dirección del portal**  
+https://unabedu.sharepoint.com/sites/ProyectoDepuracinGmail/SitePages/CollabHome.aspx
+
+El sitio SharePoint se llama **Proyecto Depuración Gmail**. Es un grupo privado: solo entra quien tenga permiso explícito.
 
 ---
 
-## Actualización mensual (un solo doble clic)
+## 2. Qué hay en el portal (tres piezas)
 
-### Carpeta INICIAL (insumos) — NO son los 35 de salida
+| Pieza | Qué se ve | Cómo se mantiene |
+|-------|-----------|------------------|
+| **Tablero Power BI** | Totales, estados de cuenta, avance | Tres archivos CSV en `etl/output` + listas. Power BI se actualiza **cada hora**. |
+| **Resumen 2FA** | Cobertura por facultad y pendientes | Informe HTML y un CSV de pendientes en `etl/output`. |
+| **Listas** | Meta del proyecto y bitácora de acciones | Se editan **en el propio sitio**, a mano. |
 
-En **una sola carpeta** de su PC ponga solo lo que sale de los sistemas:
+Las listas **no son archivos**. No se «suben». Se abren en el menú izquierdo (MetaProyecto, Acciones) y se editan como una tabla.
 
-| Archivo | Obligatorio | Para qué |
-|---------|-------------|----------|
-| `User_Download_….csv` (Google Admin, todas las cuentas) | **Sí** | Power BI **y** 2FA |
-| CSV de inscritos / prematriculados (pueden ser varios) | **Sí** (solo 2FA) | Cruce por facultad |
+Los números del inventario **no** salen de las listas Cuentas / Dependencias / capacidad. Salen de los CSV `cuentas_powerbi.csv`, `dependencias_powerbi.csv` y `capacidad_powerbi.csv`.
+
+---
+
+## 3. Quién hace qué y cómo se da acceso
+
+Hay dos perfiles. Se asignan en SharePoint, no en Power BI por separado (si el informe está incrustado en el sitio).
+
+### 3.1 Consulta (revisar)
+
+Puede abrir el portal, ver el tablero, el Resumen 2FA y las listas. **No** reemplaza archivos en `etl/output`.
+
+**Cómo dar este acceso**
+
+1. Entre al sitio **Proyecto Depuración Gmail**.
+2. Arriba a la derecha: **engranaje** → **Permisos del sitio** (o **Información del sitio** → **Permisos**).
+3. **Compartir sitio** (o **Invitar a personas**).
+4. Escriba el correo institucional de la persona.
+5. Nivel: **Lectura** (o grupo **Visitantes**).
+6. Confirme. La persona recibe correo o verá el sitio en SharePoint.
+
+También puede usar **Compartir** en la página de inicio y elegir **Puede ver**.
+
+### 3.2 Operación (cargar archivos y editar listas)
+
+Puede subir los seis archivos a `etl/output`, editar MetaProyecto y Acciones, y usar el procedimiento `actualizar.bat` en el equipo del área.
+
+**Cómo dar este acceso**
+
+1. Mismos pasos 1 a 4 de arriba.
+2. Nivel: **Edición** (o grupo **Miembros**).
+3. Confirme.
+
+Quien opera **no** debe dejar `etl/input` abierto a todo el sitio: esa carpeta guarda CSV de origen. En la carpeta `input`: **…** → **Administrar acceso** → dejar solo al personal de operación.
+
+### 3.3 Power BI
+
+Si al abrir el tablero pide licencia o «no tiene permiso»:
+
+1. En [app.powerbi.com](https://app.powerbi.com) abra el área de trabajo del informe.
+2. **Acceso** (o Compartir informe).
+3. Agregue el mismo correo, rol **Visor** (consulta) o **Colaborador** (si debe refrescar el conjunto de datos).
+
+Quienes solo miran el portal suelen bastar con permiso de **lectura en SharePoint** más visor en el informe, si el informe está publicado en ese espacio.
+
+---
+
+## 4. Cómo consultar (uso diario)
+
+1. Abra el enlace del portal (sección 1). Inicie sesión con la cuenta UNAB.
+2. En la portada verá el **tablero de depuración**.
+3. **Resumen 2FA**: abre el informe de estudiantes vigentes sin 2FA. Use facultad y programa para acotar. **Descargar CSV pendientes** abre un Excel; filtre la columna **facultad**.
+4. **MetaProyecto**: consulte o ajuste la meta (solo con permiso de edición).
+5. **Acciones**: consulte o registre lo ejecutado (bloqueos, comunicados, cierres de lote).
+
+Si el tablero se ve desactualizado, espere el refresco horario o pida a quien opera **Actualizar ahora** en Power BI.
+
+---
+
+## 5. Actualización periódica de datos (quien opera)
+
+Frecuencia sugerida: **cada vez que haya un corte nuevo** de Google Admin (típicamente mensual).
+
+### 5.1 Qué reunir en UNA carpeta del PC (entrada)
+
+Solo insumos de sistemas. **No** mezcle aquí los HTML ni los CSV `*_powerbi`.
+
+| Archivo | Obligatorio | Origen |
+|---------|-------------|--------|
+| `User_Download_….csv` | Sí | Google Admin Console → informe de usuarios (todas las cuentas del dominio) |
+| CSV de inscritos o prematriculados (uno o varios) | Sí | Extracto académico del periodo |
 | `VISTA DE CURRICULO.xlsx` | No | Catálogo de planes |
 
-No mezcle ahí los archivos `*_powerbi.csv` ni el `resumen.html`. Eso es **salida**, no entrada.
+El **mismo** `User_Download` sirve para el tablero de depuración y para el cruce 2FA.
 
-### Paso 1 — Doble clic en `actualizar.bat`
+### 5.2 Ejecutar el actualizador
 
-Carpeta del proyecto:
+1. En el equipo del área abra:  
+   `Python-Prep\cruce_cuentas\actualizar.bat`  
+   (doble clic).
+2. Cuando pida la ruta: en el Explorador, abra la carpeta del punto 5.1, clic en la **barra de dirección**, copie (Ctrl+C) y pegue en la ventana azul. Enter.
+3. Espere 1 a 3 minutos. Debe aparecer **LISTO**.
+4. Se abre una carpeta en el escritorio:  
+   `Archivos_SharePoint_AAAA-MM-DD`  
+   (la fecha del día evita mezclar cortes).
 
-```
-...\Python-Prep\cruce_cuentas\actualizar.bat
-```
+### 5.3 Qué hay que cargar en SharePoint (solo seis archivos)
 
-1. Pegue la ruta de la carpeta del corte (barra del Explorador → Copiar).
-2. Espere (Power BI + cruce 2FA, 1–3 minutos).
-3. Se abre sola una carpeta en el **Escritorio**:
+| Archivo | Función |
+|---------|---------|
+| `cuentas_powerbi.csv` | Tablero: detalle de cuentas |
+| `dependencias_powerbi.csv` | Tablero: resumen por dependencia |
+| `capacidad_powerbi.csv` | Tablero: licencias e inventario |
+| `resumen.html` | Informe 2FA para consulta |
+| `listado_sin_2fa.html` | Listado 2FA de trabajo |
+| `02_estudiantes_sin_2fa.csv` | Descarga de pendientes |
 
-```
-Escritorio\Archivos_SharePoint_2026-09-03\
-```
+**No suba** el archivo LEAME, ni los `sin_2fa_….csv` por facultad, ni `00_universo.csv`. Esos quedan en el PC, en `cruce_cuentas\salida\`.
 
-Ahí van **6 archivos** (no 35). Cada día es una carpeta nueva para que no se mezclen cortes.
+### 5.4 Cómo cargar
 
-### Paso 2 — Subir a SharePoint
+1. En el sitio: **Documentos** → carpeta **etl** → **output**.
+2. Seleccione los **seis** archivos de la carpeta del escritorio.
+3. Arrástrelos a `output`.
+4. Si pregunta **¿Reemplazar?**, elija **Reemplazar**.
+5. Abra el portal y compruebe el Resumen 2FA (fecha del corte).
+6. Power BI: se verá el corte en la **próxima hora**, o **Actualizar ahora** en el conjunto de datos (app.powerbi.com).
 
-1. Abra `Documentos → etl → output`
-2. Suba **solo estos 6**:
-   - `cuentas_powerbi.csv`
-   - `dependencias_powerbi.csv`
-   - `capacidad_powerbi.csv`
-   - `resumen.html`
-   - `listado_sin_2fa.html`
-   - `02_estudiantes_sin_2fa.csv`
-3. **Reemplazar** si pregunta
+### 5.5 Power BI — programación cada hora (una sola vez)
 
-No suba los `sin_2fa_facultad.csv` ni el `LEAME`. Los CSV por facultad se generan en el PC por si TIC los necesita; el portal usa **un** CSV de pendientes y se filtra en Excel.
+1. Entre a https://app.powerbi.com con cuenta UNAB.
+2. Área de trabajo del proyecto → el **conjunto de datos** (no el informe).
+3. **…** → **Configuración** → **Actualización programada**.
+4. Activar. Frecuencia: **Cada hora**. Zona: **Bogotá**.
+5. Guardar.
 
-### Paso 3 — Power BI (horario)
-
-El dataset está conectado a `etl/output` y a las listas. Debe quedar con **actualización programada cada hora** en [app.powerbi.com](https://app.powerbi.com):
-
-1. Workspace del proyecto → el **conjunto de datos** (no el informe)
-2. **… → Configuración → Actualización programada**
-3. Activar → frecuencia **Cada hora** (zona horaria Bogotá)
-4. Guardar
-
-Si acaba de subir archivos y no quiere esperar la hora: **Actualizar ahora**.
-
-**No hace falta** Power BI Desktop ni republicar el `.pbix` si las fuentes ya apuntan a SharePoint.
+No es necesario volver a publicar el archivo `.pbix` si las fuentes ya apuntan a SharePoint.
 
 ---
 
-## Qué archivos genera el `.bat`
+## 6. Listas: MetaProyecto y Acciones
 
-**Los 6 que van a SharePoint** (`etl/output`):
+| Lista | Para qué | Quién la cambia |
+|-------|----------|-----------------|
+| **MetaProyecto** | Meta de depuración, fechas, proyección | Quien define la meta del periodo |
+| **Acciones** | Bitácora (qué se hizo, cuándo) | Quien ejecuta la operación |
 
-- `cuentas_powerbi.csv`, `dependencias_powerbi.csv`, `capacidad_powerbi.csv`
-- `resumen.html`, `listado_sin_2fa.html`, `02_estudiantes_sin_2fa.csv`
+**Para editar:** menú izquierdo → nombre de la lista → **Editar** o **+ Nuevo**. En minutos u hora, Power BI lo toma.
 
-**El resto queda en el PC** (`cruce_cuentas\salida\`): universo, CSV por facultad, etc. No los suba.
+Si cambia la meta y el tablero no se mueve, no regenere CSV: edite la lista y refresque Power BI.
 
 ---
 
-## Dibujo del flujo
+## 7. Flujo resumido
 
 ```
-User_Download + inscritos (una carpeta)
-        │
-        ▼
-  actualizar.bat  (doble clic)
-        │
-        ├─► procesar_powerbi.py  →  3 CSV del tablero
-        ├─► cruzar.py            →  HTML + CSV 2FA
-        └─► Escritorio\Archivos_SharePoint_AAAA-MM-DD
-                    │
-                    ▼  (usted arrastra)
-              SharePoint etl/output
-                    │
-                    ├─► Power BI  (refresh cada hora)
-                    └─► Botón Resumen 2FA
+Carpeta del corte (Google Admin + inscritos)
+        →  doble clic en actualizar.bat
+        →  Escritorio\Archivos_SharePoint_fecha  (6 archivos)
+        →  arrastrar a SharePoint  etl / output
+        →  tablero (cada hora)  y  botón Resumen 2FA
 
-Listas MetaProyecto / Acciones  ──edición en el portal──► Power BI (misma hora)
+Listas MetaProyecto / Acciones  →  se editan en el sitio  →  mismo refresco horario
 ```
 
 ---
 
-## Si algo sale mal
+## 8. Incidencias frecuentes
 
-| Problema | Qué hacer |
-|----------|-----------|
-| "No se encontró Python" | Instalar Python y marcar **Add Python to PATH** |
-| "No hallé export Google" | El CSV debe llamarse `User_Download…` o ser el export de Admin |
-| "No hallé CSV de inscritos" | Faltan los archivos de prematriculados/inscritos en esa carpeta |
-| Power BI no cambia | Confirme que reemplazó los 3 `*_powerbi.csv` en `etl/output`. Pulse **Actualizar ahora**. Espere hasta 1 hora si está programado. |
-| La meta del tablero no cambia | Edite la **lista MetaProyecto**, no un CSV. Luego refresh de Power BI. |
-| 404 al descargar pendientes | Suba también `02_estudiantes_sin_2fa.csv` junto al HTML |
-| No aparece la carpeta en Escritorio | Mire `Escritorio` o `Desktop`. El `.bat` abre la carpeta al terminar |
+| Qué ocurre | Qué hacer |
+|------------|-----------|
+| «No se encontró Python» | Instalar Python desde python.org y marcar **Add Python to PATH**. |
+| «No hallé export Google» | El archivo debe ser el de Admin (`User_Download…`) y estar en la carpeta que pegó. |
+| «No hallé CSV de inscritos» | Faltan los archivos académicos en esa misma carpeta. |
+| El tablero no cambia | Confirme que reemplazó los tres `*_powerbi.csv`. Pulse **Actualizar ahora**. |
+| La meta no cambia | Edite **MetaProyecto**, no un CSV. |
+| 404 al descargar pendientes | Falta `02_estudiantes_sin_2fa.csv` en `etl/output`, junto al HTML. |
+| No aparece la carpeta en el escritorio | Busque `Escritorio` o `Desktop`. El actualizador la abre al terminar. |
+| «No tiene acceso» al sitio | Pedir inclusión con **lectura** o **edición** (sección 3). |
+| El HTML 2FA se ve raro | Ábralo en **pestaña nueva**, no solo en la vista previa de SharePoint. |
 
 ---
 
-## Contacto
+## 9. Datos personales
 
-Estadísticas TIC — Dirección de TIC.
+Los CSV de origen y el universo de cuentas contienen información sensible. Trabaje en el equipo del área. No publique `etl/input` ni `00_universo.csv` en el portal de consulta. No envíe listados de correos por canales no institucionales.
+
+---
+
+## 10. Soporte
+
+Estadísticas TIC — Dirección de TIC  
+Universidad Autónoma de Bucaramanga
