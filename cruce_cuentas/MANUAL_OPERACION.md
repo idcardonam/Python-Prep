@@ -151,6 +151,30 @@ El **mismo** `User_Download` sirve para el tablero de depuración y para el cruc
 
 No es necesario volver a publicar el archivo `.pbix` si las fuentes ya apuntan a SharePoint.
 
+### 5.6 Error «Premium_ASWL_Error» / Workspace Identity (no refresca)
+
+El tablero **no falla por los CSV**. Falla porque el conjunto de datos está autenticado con **identidad del área de trabajo (Workspace Identity)** y esa identidad **no existe** o quien publica el modelo **no tiene permiso de Colaborador** (o superior) en el área de trabajo.
+
+**Camino rápido (recomendado para este portal):** usar cuenta organizacional, no identidad del área.
+
+1. Entre a https://app.powerbi.com
+2. Área de trabajo del informe → el **conjunto de datos** (modelo semántico) → **…** → **Configuración**
+3. Abra **Credenciales del origen de datos**
+4. En cada origen SharePoint (carpeta `etl/output` y listas): **Editar credenciales**
+5. Método de autenticación: **OAuth2** o **Cuenta organizacional** (no «Identidad del área de trabajo»)
+6. Inicie sesión con una cuenta institucional que **sí tenga acceso** al sitio Proyecto Depuración Gmail (edición o al menos lectura de `etl/output` y de las listas)
+7. Nivel de privacidad: **Organizacional**
+8. Guardar → **Actualizar ahora**
+
+**Camino alternativo:** crear la identidad del área de trabajo.
+
+1. Área de trabajo → **Configuración del área de trabajo** → **Identidad del área de trabajo** → **Crear**
+2. Dé a esa identidad acceso al sitio SharePoint (al menos lectura en `etl/output` y listas)
+3. Quien es **propietario del modelo** debe ser **Colaborador** o superior en el área de trabajo de Power BI
+4. **Actualizar ahora**
+
+Si el área de trabajo no es de capacidad Fabric/Premium, el primer camino (OAuth2) es el adecuado.
+
 ---
 
 ## 6. Listas: MetaProyecto y Acciones
@@ -188,6 +212,7 @@ Listas MetaProyecto / Acciones  →  se editan en el sitio  →  mismo refresco 
 | «No hallé export Google» | El archivo debe ser el de Admin (`User_Download…`) y estar en la carpeta que pegó. |
 | «No hallé CSV de inscritos» | Faltan los archivos académicos en esa misma carpeta. |
 | El tablero no cambia | Confirme que reemplazó los tres `*_powerbi.csv`. Pulse **Actualizar ahora**. |
+| Error Premium_ASWL / Workspace Identity | Apartado 5.6: cambiar credenciales a cuenta organizacional (OAuth2). |
 | La meta no cambia | Edite **MetaProyecto**, no un CSV. |
 | 404 al descargar pendientes | Falta `02_estudiantes_sin_2fa.csv` en `etl/output`, junto al HTML. |
 | No aparece la carpeta en el escritorio | Busque `Escritorio` o `Desktop`. El actualizador la abre al terminar. |
