@@ -1208,21 +1208,24 @@ function bajarCsv(rows, nombre){
     navigator.msSaveBlob(new Blob([csv], {type:'text/csv;charset=utf-8'}), nombre);
     return;
   }
-  var ok = false;
-  try {
-    var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
-    var burl = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = burl;
-    a.download = nombre;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(function(){ URL.revokeObjectURL(burl); }, 1500);
-    ok = true;
-  } catch(e) { ok = false; }
-  if (!ok) {
+  var sandboxed = false;
+  try { sandboxed = window.self !== window.top; } catch(e) { sandboxed = true; }
+  if (!sandboxed) {
+    try {
+      var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+      var burl = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = burl;
+      a.download = nombre;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(burl); }, 1500);
+      return;
+    } catch(e) { /* fall through to popup */ }
+  }
+  {
     var w = window.open('', '_blank');
     if (w) {
       w.document.open('text/html','replace');
