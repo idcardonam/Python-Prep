@@ -1,163 +1,132 @@
-# Manual de Operación — Portal Gestión de Cuentas Gmail · UNAB
+# Manual de Operación — Portal Gestión de Cuentas Gmail
 
-## Qué es este portal
+## Para quién es este manual
 
-Un solo sitio en SharePoint donde se consolidan:
+Para la persona encargada de actualizar mensualmente los informes de 2FA y depuración de cuentas Gmail en el portal SharePoint de TIC-UNAB.
 
-1. **Depuración de cuentas Gmail** — tablero Power BI con inventario, suspensiones, bloqueos y avance.
-2. **Campaña 2FA** — informe interactivo por facultad generado con `cruzar.py`.
-3. **Seguimiento** — listas MetaProyecto y Acciones incrustadas en la portada.
-
-URL del portal:
-```
-https://unabedu.sharepoint.com/sites/ProyectoDepuracinGmail/SitePages/CollabHome.aspx
-```
+**No necesita saber programar.** Solo seguir estos pasos una vez al mes.
 
 ---
 
-## Estructura de archivos en SharePoint
+## Qué hay en el portal
 
-```
-Documentos/
-└── etl/
-    ├── input/   ← CSV crudos (solo TIC, restringido)
-    │   ├── User_Download_DDMMAAAA.csv   (Google Admin)
-    │   ├── REPORTE_INSCRITOS 2026/      (extracto académico)
-    │   ├── personal.csv                 (nómina GH, opcional)
-    │   └── VISTA DE CURRICULO.xlsx      (catálogo, opcional)
-    │
-    └── output/  ← Informes para compartir (lectura para todos)
-        ├── resumen.html          ← Jefatura: cifras + ranking + correos
-        ├── listado_sin_2fa.html  ← Operativo: buscador de correos
-        ├── 02_estudiantes_sin_2fa.csv
-        ├── 06_cobertura_2fa_facultad.csv
-        └── (otros CSV de cobertura)
-```
+| Módulo | Qué muestra | Cómo se actualiza |
+|--------|------------|-------------------|
+| Panel depuración Gmail | Inventario, suspensiones, bloqueos (Power BI) | Se actualiza solo desde Power BI |
+| Resumen 2FA | Cobertura por facultad, ranking, correos pendientes | **Usted lo actualiza** con este manual |
+| Listas (MetaProyecto, Acciones) | Seguimiento del proyecto | Se editan directamente en SharePoint |
 
 ---
 
-## Cómo actualizar los datos (paso a paso)
+## Actualización mensual del Resumen 2FA
 
-### Frecuencia recomendada
-- **Mensual** o cuando haya un nuevo corte de inscritos/Admin Console.
+### Qué necesita antes de empezar
 
-### Paso 1 — Descargar los CSV frescos
+1. El archivo de **Google Admin Console** (CSV de usuarios)
+2. La carpeta de **inscritos** del periodo (CSV del sistema académico)
+3. (Opcional) VISTA DE CURRICULO.xlsx
 
-| Fuente | Qué descargar | Dónde guardarlo |
-|--------|--------------|-----------------|
-| Google Admin Console | Informe de usuarios → Exportar CSV | `entrada/google_admin.csv` (o `User_Download_…csv`) |
-| Banner / sistema académico | Extracto de inscritos vigentes (todos excepto graduados) | Carpeta `entrada/REPORTE_INSCRITOS 2026/` |
-| GH / Nómina (opcional) | CSV de personal: correo, tipo, área | `entrada/personal.csv` |
-| Banner (opcional) | VISTA DE CURRICULO.xlsx | Misma carpeta de inscritos |
+Ponga los tres en **una sola carpeta** en su PC. Ejemplo:
 
-### Paso 2 — Ejecutar el cruce en tu PC
-
-Abre terminal (CMD o PowerShell) en la carpeta `cruce_cuentas`:
-
-```powershell
-cd "D:\Users\N00033120\Documents\CURSOR UNAB\UNAB\Python-Prep\cruce_cuentas"
+```
+D:\Datos_Cruce_Septiembre\
+├── User_Download_01092026.csv     ← Google Admin
+├── PREMATRIC_FAC_INGENIERIA.csv   ← Inscritos
+├── PREMATRIC_FAC_SALUD.csv        ← Inscritos
+├── PREMATRIC_FAC_ECONOMIA.csv     ← Inscritos
+└── VISTA DE CURRICULO.xlsx        ← Opcional
 ```
 
-**Opción A — Carpeta con todos los archivos juntos:**
-```powershell
-py -3 cruzar.py --carpeta "D:\Users\...\REPORTE_INSCRITOS 2026" --salida .\salida
+### Paso 1 — Ejecutar el actualizador (doble clic)
+
+1. Abra el **Explorador de Windows**
+2. Navegue a la carpeta del proyecto:
+   ```
+   D:\Users\N00033120\Documents\CURSOR UNAB\UNAB\Python-Prep\cruce_cuentas
+   ```
+3. Haga **doble clic** en **`actualizar.bat`**
+4. Se abre una ventana azul que le pide la ruta de los datos
+5. Vaya a la carpeta donde tiene los CSV (paso anterior)
+6. Haga **clic en la barra de dirección** del Explorador (arriba, donde dice la ruta)
+7. **Copie** la ruta (Ctrl+C)
+8. **Vuelva** a la ventana azul y **pegue** (clic derecho → Pegar, o Ctrl+V)
+9. Presione **Enter**
+10. Espere a que termine (30 segundos aprox.)
+
+Si todo salió bien, verá:
+
+```
+[LISTO] Informes generados en la carpeta "salida"
 ```
 
-**Opción B — Archivos separados:**
-```powershell
-py -3 cruzar.py --google entrada\google_admin.csv --academico-dir "D:\Users\...\REPORTE_INSCRITOS 2026" --salida .\salida
-```
+Y se abrirá automáticamente la carpeta con los archivos generados.
 
-Espera a que termine. Verás:
-```
-✓ resumen.html generado
-✓ listado_sin_2fa.html generado
-✓ 12 archivos en salida/
-```
+### Paso 2 — Subir a SharePoint (arrastrar archivos)
 
-### Paso 3 — Subir a SharePoint
+1. Al presionar una tecla, se abre **SharePoint** en la carpeta `etl/output`
+2. **Seleccione todos los archivos** de la carpeta `salida` (Ctrl+A)
+3. **Arrástrelos** a la ventana de SharePoint
+4. Cuando pregunte "¿Reemplazar?": haga clic en **Reemplazar**
 
-1. Abre **Documentos → etl → output** en el navegador
-2. Selecciona los archivos de tu carpeta `salida/`:
-   - `resumen.html`
-   - `listado_sin_2fa.html`
-   - `02_estudiantes_sin_2fa.csv`
-   - (y los demás CSV que quieras)
-3. Arrastra al navegador o usa **Crear o cargar → Archivos**
-4. Cuando pregunte "¿Reemplazar?": **Sí, reemplazar**
+### Paso 3 — Verificar
 
-**El botón "Resumen 2FA" del portal sigue funcionando** porque apunta a la misma URL. Solo cambia el contenido del archivo.
+1. Abra el portal: [Gestión de Cuentas Gmail](https://unabedu.sharepoint.com/sites/ProyectoDepuracinGmail/SitePages/CollabHome.aspx)
+2. Haga clic en **Resumen 2FA**
+3. Verifique que la fecha del corte sea la actual
+4. Elija una facultad y confirme que se ven los correos
 
-### Paso 4 — Verificar
-
-1. Abre el portal
-2. Clic en **Resumen 2FA**
-3. Confirma que las cifras corresponden al corte nuevo
-4. Prueba el buscador y el botón "Descargar esta facultad"
+**Listo.** No hay más pasos.
 
 ---
 
-## Cómo abrir el HTML correctamente en SharePoint
-
-**Importante:** SharePoint por defecto abre los `.html` en modo "vista previa" (iframe), lo que puede bloquear algunas funciones (descarga de CSV, buscador).
-
-### Solución: abrir en pestaña nueva
-- Clic derecho en `resumen.html` → **Abrir en una pestaña nueva**
-- O desde el portal: configura el botón "Resumen 2FA" con la opción **"Abrir en una pestaña nueva"**
-
-### Alternativa: cambiar comportamiento de la biblioteca
-1. Ve a **Documentos → etl → output**
-2. **⚙️** → **Configuración de biblioteca** → **Configuración avanzada**
-3. "Abrir documentos en el explorador" → **Abrir en el cliente** o **Abrir en una pestaña nueva**
-
----
-
-## Listas de seguimiento
-
-| Lista | Para qué | Quién edita |
-|-------|----------|-------------|
-| **MetaProyecto** | Meta de cuentas, % avance, objetivo | TIC / Jefatura |
-| **Acciones** | Registro de acciones ejecutadas | TIC |
-| **Cuentas** | Detalle de cuentas específicas | TIC |
-| **Dependencias** | Dependencias con otras áreas | TIC |
-| **capacidad** | Capacidad operativa | TIC |
-
-Se editan directamente en SharePoint (clic en la lista → editar fila). No requieren script ni carga de archivos.
-
----
-
-## Permisos
-
-| Rol | Acceso |
-|-----|--------|
-| TIC (operador) | **Control total** — edita listas, sube CSV, corre el script |
-| Jefatura | **Lectura** — ve portal, Power BI, HTML, listas |
-| Compañeros | **Lectura** — lo que jefatura defina compartir |
-
-**ETL/input está restringido** — solo TIC. Los CSV crudos con datos personales no son visibles para jefatura.
-
----
-
-## Resumen rápido de actualización
+## Resumen visual
 
 ```
-1. Descarga CSV frescos (Google Admin + inscritos)
-2. Corre:  py -3 cruzar.py --carpeta "..." --salida .\salida
-3. Sube salida/ a SharePoint → etl/output (reemplazar)
-4. Verifica en el portal
+┌──────────────────────┐     ┌──────────────────────┐     ┌────────────────────┐
+│  1. DESCARGAR CSV    │     │  2. DOBLE CLIC en    │     │  3. ARRASTRAR a    │
+│                      │     │     actualizar.bat    │     │     SharePoint     │
+│  Google Admin +      │ ──► │                      │ ──► │                    │
+│  Inscritos del mes   │     │  Pegar ruta, Enter   │     │  etl/output        │
+│  (en una carpeta)    │     │  Esperar 30 seg      │     │  (reemplazar)      │
+└──────────────────────┘     └──────────────────────┘     └────────────────────┘
 ```
 
-Tiempo estimado: **10–15 minutos** por corte.
+Tiempo total: **5 minutos**.
 
 ---
 
-## Solución de problemas
+## Si algo sale mal
 
 | Problema | Solución |
 |----------|----------|
-| El botón "Descargar esta facultad" no funciona | Abrir el HTML en pestaña nueva (clic derecho → nueva pestaña), no en la vista previa de SharePoint |
-| El HTML se ve en blanco | SharePoint lo abrió en iframe. Abrir en pestaña nueva |
-| "No hay correos para descargar" | Primero elija una facultad en la lista desplegable |
-| El script falla al correr | Verifica que `py -3` funciona. Si no: `python3` o `python`. Instala dependencias: `py -3 -m pip install -r requirements.txt` |
-| Los CSV tienen caracteres raros | Abrir en Excel → Datos → Desde texto/CSV → Codificación UTF-8 |
-| Power BI no carga | Verificar que la cuenta tiene licencia Power BI y acceso al dataset |
+| "No se encontró Python" | Instale Python desde python.org. Marque **"Add Python to PATH"** |
+| "No hallé export Google" | Verifique que el archivo `User_Download_*.csv` esté en la carpeta |
+| "No hallé CSV de inscritos" | Verifique que hay al menos un CSV de inscritos en la carpeta |
+| "La carpeta no existe" | Copie la ruta correctamente desde la barra del Explorador |
+| El HTML no muestra datos nuevos | Limpie la caché del navegador (Ctrl+Shift+R) |
+| El botón "Descargar facultad" no funciona | Abra el HTML en pestaña nueva (clic derecho → Abrir en nueva pestaña) |
+
+---
+
+## Archivos del proyecto (no mover ni borrar)
+
+```
+cruce_cuentas/
+├── actualizar.bat        ← DOBLE CLIC AQUÍ para actualizar
+├── cruzar.py             ← Script (no tocar)
+├── config.example.yaml   ← Configuración (no tocar)
+├── requirements.txt      ← Dependencias (no tocar)
+├── MANUAL_OPERACION.md   ← Este manual
+├── entrada/
+│   └── _ejemplos/        ← Datos de prueba (no tocar)
+└── salida/               ← Aquí se generan los informes
+    ├── resumen.html
+    ├── listado_sin_2fa.html
+    └── (otros CSV)
+```
+
+---
+
+## Contacto
+
+Si tiene dudas o el script falla, contacte a **Estadísticas TIC**.
