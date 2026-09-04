@@ -64,6 +64,9 @@ La carpeta de desarrollo de Reservitas ya fue solicitada. Sin ella no se cierra 
 | [docs/13-configs-y-test-solo-lectura.md](docs/13-configs-y-test-solo-lectura.md) | Configs 1/2/3, alerta seguridad, TEST solo lectura |
 | [docs/14-arquitectura-4-capas-y-react.md](docs/14-arquitectura-4-capas-y-react.md) | De cero en portal: 4 capas vs React SPA |
 | [docs/15-veredicto-stack.md](docs/15-veredicto-stack.md) | Veredicto: PHP+clase+UI moderna; no React SPA |
+| [docs/16-buscar-conexion-banner-local.md](docs/16-buscar-conexion-banner-local.md) | Cómo buscar OCI/Banner en el clone local |
+| [docs/17-conexion-oracle-test.md](docs/17-conexion-oracle-test.md) | Patrón OCI8 a Banner TEST |
+| [docs/18-sandbox-miportalu-lab.md](docs/18-sandbox-miportalu-lab.md) | Repo lab aparte (sin tocar GitLab UNAB) |
 | [codigo/disponibilidad.php](codigo/disponibilidad.php) | Copia del PHP actual del portal |
 | [evidencia/](evidencia/) | Capturas Reservitas + menú MiPortalU |
 | [mockup/disponibilidad-espacios.html](mockup/disponibilidad-espacios.html) | Mockup interactivo de la experiencia |
